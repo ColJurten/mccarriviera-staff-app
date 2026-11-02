@@ -1,0 +1,287 @@
+{
+  "_comment": "Libellés et textes fixes du contrat, en français (ADR-0011). Mêmes clés que en.json. Les textes marqués L-02 attendent la relecture de l'avocat.",
+  "lang": "fr",
+  "doc_title": "Contrat / facture location",
+  "specimen": "Spécimen",
+  "logo_note": "logo à fournir",
+  "meta": {
+    "contract_no": "N° de contrat",
+    "revision": "Révision",
+    "issued": "Édité le",
+    "stage_departure": "PDF du départ",
+    "stage_final": "PDF final",
+    "stage_blank": "Modèle vierge"
+  },
+  "titles": {
+    "contract": "Contrat de location",
+    "financial": "Conditions financières",
+    "inspection": "État du véhicule",
+    "inspection_cont": "État du véhicule (suite)",
+    "terms": "Conditions générales de location",
+    "amendment": "Avenant n° {n}",
+    "photos": "Annexe photos"
+  },
+  "trip": {
+    "bar": "Départ et retour",
+    "pickup_place": "Lieu de départ",
+    "pickup_at": "Date & heure de départ",
+    "return_place": "Lieu de retour",
+    "planned_return": "Retour prévu",
+    "rental_days": "Nombre de jours",
+    "flight_train": "Vol / train",
+    "intermediary": "Intermédiaire",
+    "intermediary_phone": "Tél."
+  },
+  "renter": {
+    "bar": "Locataire / conducteur principal",
+    "name": "Locataire",
+    "civility": "Civilité",
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "birth_date": "Date de naissance",
+    "birth_place": "Lieu de naissance",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "street": "Adresse de facturation",
+    "postcode": "Code postal",
+    "city": "Ville",
+    "state": "État / région",
+    "country": "Pays",
+    "local_address": "Adresse locale",
+    "local_phone": "Tél. adresse locale",
+    "id_doc": "Pièce d'identité",
+    "id_country": "Pays",
+    "issue_expiry": "Délivrance / expiration",
+    "licence": "Permis de conduire n°",
+    "additional_info": "Informations complémentaires"
+  },
+  "civility": {
+    "m": "M.",
+    "mme": "Mme"
+  },
+  "id_types": {
+    "passport": "Passeport",
+    "id_card": "Carte d'identité"
+  },
+  "driver": {
+    "bar": "2e conducteur / conducteur additionnel",
+    "name": "Nom et prénom",
+    "birth_date": "Date de naissance",
+    "licence": "Permis de conduire n°"
+  },
+  "vehicle": {
+    "bar": "Véhicule",
+    "make_model": "Marque & modèle",
+    "plate": "Immatriculation",
+    "colour": "Couleur",
+    "fuel_type": "Carburant",
+    "km_out": "Kms départ",
+    "km_included": "Kms inclus"
+  },
+  "fuel_types": {
+    "unleaded_95": "Sans plomb 95",
+    "unleaded_98": "Sans plomb 98",
+    "diesel": "Gazole"
+  },
+  "rules": {
+    "bar": "Rappel des conditions générales",
+    "flag": "Extrait des conditions générales ; texte à valider (L-02).",
+    "items": [
+      "Carburant : le véhicule est remis avec le plein ; s'il n'est pas restitué avec le plein, le remplissage est facturé (art. 6).",
+      "Clés : en cas de perte, une somme forfaitaire de 350 € est facturée (art. 2).",
+      "Circulation : uniquement en France métropolitaine et à Monaco (art. 2).",
+      "Prolongation : à demander au moins 48 heures à l'avance (art. 8).",
+      "Restitution : véhicule, clés et documents au lieu et à la date convenus, pendant les heures d'ouverture (art. 9).",
+      "Amendes : à la charge du locataire et du conducteur agréé, plus 25 € de frais de dossier par intervention (art. 10)."
+    ]
+  },
+  "agent": {
+    "departure": "Agent au départ",
+    "return": "Agent au retour"
+  },
+  "rates": {
+    "bar": "Conditions & tarifs",
+    "rate_1_3": "Tarif / jour 1 à 3 j",
+    "rate_4_7": "4 à 7 j",
+    "extra_day": "Jours sup.",
+    "km_included": "Km inclus",
+    "package": "Forfait",
+    "package_for": "pour {days} jours",
+    "extra_km": "Km sup."
+  },
+  "deductible": {
+    "bar": "Franchise minimum",
+    "card_brand": "Carte",
+    "theft": "Vol",
+    "accident": "Accident responsable"
+  },
+  "card_brands": {
+    "visa": "VISA",
+    "amex": "AMEX",
+    "other": "AUTRE"
+  },
+  "services": {
+    "bar": "Services inclus",
+    "deposit": "Dépôt de garantie"
+  },
+  "payment": {
+    "bar": "Mode de paiement",
+    "cash": "ESP",
+    "card": "CC",
+    "imprint": "Empreinte carte de crédit, type de carte",
+    "expiry": "Date de validité",
+    "cvv": "CVV"
+  },
+  "pricing": {
+    "bar": "Tarification",
+    "at_departure": "Au départ",
+    "final": "Décompte final",
+    "rental": "Location",
+    "extra_days": "J / sup",
+    "extra_km": "Km sup",
+    "rental_total_ht": "Total H.T. location",
+    "under_25": "Assurance −25 ans",
+    "extra_driver": "Conducteur sup.",
+    "delivery": "Livraison",
+    "option_1": "Option I",
+    "option_2": "Option II",
+    "option_3": "Option III",
+    "fuel": "Carburant",
+    "misc": "Divers",
+    "total_ht": "Total H.T.",
+    "vat": "TVA {rate} %",
+    "total_ttc": "Total TTC",
+    "total_prepaid": "Total prépayé",
+    "balance": "Solde",
+    "typed": "Montants saisis par l'agence."
+  },
+  "acceptance": {
+    "title": "Acceptation",
+    "text": "J'ai lu et accepté les conditions stipulées ci-contre et au verso de ce contrat. Je suis seul responsable des infractions à la législation relative à la circulation routière ou stationnement et autres et j'autorise la société de location à recouvrir le montant de cette location, franchise, dégâts et contraventions au moyen de la carte de crédit désignée sur ce contrat y compris par v.a.d."
+  },
+  "inspection": {
+    "recap": "Rappel du contrat",
+    "departure": "Départ",
+    "return": "Retour",
+    "at": "Date & heure",
+    "agent": "Agent",
+    "km": "Kilométrage",
+    "km_out": "Kms départ",
+    "km_in": "Kms retour",
+    "km_driven": "Kms parcourus",
+    "km_included": "Kms inclus",
+    "km_billed": "Kms facturés",
+    "fuel": "Jauge essence",
+    "car_papers": "Papiers du véhicule",
+    "clean_inside": "Propreté intérieure",
+    "clean_outside": "Propreté extérieure",
+    "gps": "GPS / navigation",
+    "yes": "Oui",
+    "no": "Non",
+    "reference_set": "Photos de référence",
+    "reference_set_of": "jeu du {date}",
+    "dashboard": "Tableau de bord",
+    "extra_photos": "Photos supplémentaires",
+    "open_damage": "Dommages existants au départ",
+    "new_damage": "Nouveaux dommages",
+    "ras": "RAS — Rien à signaler",
+    "comment": "Commentaire",
+    "none": "Aucun",
+    "imported": "importée",
+    "pending_return": "À compléter au retour",
+    "more_photos": "Toutes les photos en taille réelle : annexe photos.",
+    "declaration_title": "Déclaration",
+    "declaration": "Je déclare avoir inspecté le véhicule au départ et/ou au retour et en accepter l'état."
+  },
+  "angles": {
+    "front": "Avant",
+    "front_left": "Avant gauche",
+    "left": "Côté gauche",
+    "rear_left": "Arrière gauche",
+    "rear": "Arrière",
+    "rear_right": "Arrière droit",
+    "right": "Côté droit",
+    "front_right": "Avant droit",
+    "interior": "Intérieur"
+  },
+  "photo_kinds": {
+    "reference": "Référence",
+    "damage": "Dommage",
+    "extra": "Photo supplémentaire",
+    "dashboard": "Tableau de bord"
+  },
+  "amendment": {
+    "intro": "Modification du contrat après la signature du départ. Les autres conditions restent inchangées.",
+    "date": "Date de l'avenant",
+    "revision": "Révision du contrat",
+    "agent": "Agent",
+    "reason": "Motif",
+    "field": "Élément modifié",
+    "before": "Avant",
+    "after": "Après",
+    "fields": {
+      "planned_return": "Retour prévu",
+      "return_place": "Lieu de retour",
+      "km_included": "Kms inclus",
+      "rental_days": "Nombre de jours",
+      "additional_driver": "Conducteur additionnel"
+    }
+  },
+  "terms": {
+    "version": "Conditions générales, version {v}",
+    "pending_title": "Conditions générales en anglais en attente",
+    "pending_text": "Pas de version anglaise approuvée des conditions générales (R-17)."
+  },
+  "annex": {
+    "stage_departure": "Départ",
+    "stage_return": "Retour",
+    "taken": "Prise le {date}",
+    "photo_n": "Photo {n} / {total}"
+  },
+  "sig": {
+    "departure": "Signature départ",
+    "return": "Signature retour",
+    "amendment": "Signature avenant n° {n}",
+    "no_client_signature": "Sans signature du client",
+    "signed_on": "Signé le {date}",
+    "pending": "En attente de signature"
+  },
+  "footer": {
+    "siret": "SIRET",
+    "ape": "APE",
+    "tel": "Tél.",
+    "web": "Web",
+    "page": "Page {n} / {total}",
+    "generated": "Édité le {date} · modèle {tpl} · CGV {terms}",
+    "terms_none": "en attente"
+  },
+  "fmt": {
+    "months": [
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre"
+    ],
+    "date": "{d} {month} {y}",
+    "datetime": "{date} · {time}",
+    "decimal": ",",
+    "thousands": " ",
+    "money": "{n} €",
+    "km": "{n} km",
+    "per_km": "{n} € / km",
+    "per_day": "{n} € / jour"
+  },
+  "contract_declaration": {
+    "title": "Déclaration",
+    "text": "Je déclare avoir lu et compris le présent contrat et accepter les conditions générales de location."
+  },
+  "signed_terms_note": "Conditions signées au départ (révision 1). Les modifications ultérieures figurent dans les avenants."
+}

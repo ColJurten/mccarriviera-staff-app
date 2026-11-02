@@ -18,11 +18,11 @@ Labels used inside the ADRs:
 | [ADR-0003](0003-ios-distribution-ad-hoc.md) | Distribute the app as an Ad Hoc build to registered iPhones, under the company's Apple account | Accepted | B-02, B-11 · F-02, F-03 (answered) · F-01 |
 | [ADR-0004](0004-backend-supabase.md) | Use Supabase in the EU as the backend, starting on the Free plan | Accepted | B-03, B-11 · F-02, F-07 (answered) · F-11 |
 | [ADR-0005](0005-online-only.md) | Online-only operation: no offline mode | Accepted | B-03 |
-| [ADR-0006](0006-contract-only-scope.md) | Contract-only scope: billing, payment and price calculation stay outside the app | Accepted | B-04, B-05, B-10 · F-06, F-09 (answered) · L-02, L-04, L-05 |
+| [ADR-0006](0006-contract-only-scope.md) | Contract-only scope: billing, payment and price calculation stay outside the app | Accepted | B-04, B-05, B-10 · F-06, F-09, R-02 (answered) · L-02, L-04, L-05 |
 | [ADR-0007](0007-contract-lifecycle-and-audit.md) | Contract and vehicle lifecycle: signed data is immutable, changes create revisions, everything is audited | Accepted | Brief · B-06, B-08 · F-04 (answered) · defaults for R-09, R-11, R-12, R-13 |
-| [ADR-0008](0008-vehicle-condition-model.md) | Vehicle condition: reference photos reused at Départ, damage records, reset only after repair | Accepted | B-09 · brief (Retour, maintenance) · F-10 (answered) · defaults for B-09 Q1, R-10, R-14 |
+| [ADR-0008](0008-vehicle-condition-model.md) | Vehicle condition: reference photos reused at Départ, damage records, reset only after repair | Accepted | B-09 · brief (Retour, maintenance) · F-10, R-02 (answered) · defaults for B-09 Q1, R-10, R-14 |
 | [ADR-0009](0009-signatures.md) | Signatures: one capture per handover, at the bottom right of every page, next to the values it covers | Accepted | B-06, B-07, B-08 · F-04 (answered) · F-08 (partly answered) · L-01 |
-| [ADR-0010](0010-contract-pdf-generation.md) | Generate the contract PDF on the phone from versioned HTML templates | Accepted | B-04, B-06, B-07 · F-08 (partly answered) · defaults for R-01, R-02, R-18, R-19, F-08 · R-17 |
+| [ADR-0010](0010-contract-pdf-generation.md) | Generate the contract PDF on the phone from versioned HTML templates | Accepted | B-04, B-06, B-07 · F-08 (partly answered) · R-01 Q2, R-02, R-19 Q1 (answered) · defaults for R-01, R-18, R-19, F-08 · R-17, L-02 |
 | [ADR-0011](0011-localisation.md) | Localisation: language-neutral data, FR/EN catalogues, versioned general terms | Accepted | Brief · B-07 · defaults for R-17, N-01 |
 | [ADR-0012](0012-authentication-and-authorisation.md) | Authentication and authorisation: personal accounts, invite-only, row-level security | Accepted | B-02 · defaults for T-03, R-16 · F-03 |
 | [ADR-0013](0013-personal-device-data-protection.md) | Protect client data on staff personal phones | Accepted | B-02, B-03 · default for T-05 · F-03 · L-03 |

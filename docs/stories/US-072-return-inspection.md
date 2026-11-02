@@ -20,4 +20,5 @@ As a staff member, I want to record any new damage with photos and a comment, or
 - [ ] New damages are saved as open damages on the vehicle, linked to this return. Damages that already existed are not duplicated.
 - [ ] Either RAS or at least one new damage is required to continue.
 - [ ] The app offers one dashboard photo showing km and fuel. It is optional (F-10).
+- [ ] The same checklist as at the Départ: car papers, clean inside, clean outside, GPS, each Oui / Non and optional (R-02).
 - [ ] A general return comment is optional.

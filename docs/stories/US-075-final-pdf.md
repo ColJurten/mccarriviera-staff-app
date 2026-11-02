@@ -16,7 +16,8 @@ As a staff member, I want the final contract with the departure and return infor
 
 - [ ] Staff choose French or English (brief, Retour step 6).
 - [ ] Page 1 shows the contract as signed at the Départ (default for F-08).
-- [ ] The Retour column shows: return date and time, km in, km driven, extra km, fuel in, new damage with thumbnails or « RAS », comments, and the « Décompte final ».
+- [ ] The Retour column shows: return date and time, agent, km in, km driven, km included, extra km, fuel in, the checklist, new damage with thumbnails or « RAS », the dashboard photo and comments. The « Décompte final » sits next to the charges at the Départ, on page 2.
+- [ ] The photo annex shows every photo of the Départ and the Retour at full size (R-01 Q2).
 - [ ] Every amendment is on its own page.
 - [ ] Both signatures sit in the signature block at the bottom right of every page (B-06, F-08). The departure signature is on every page except amendment pages. The return signature is on every page, since it is mandatory (F-04).
 - [ ] The PDF is archived and shared as in US-042, with stage `final`.

@@ -20,7 +20,7 @@ import tempfile
 HERE = pathlib.Path(__file__).resolve().parent
 SVG_DIR = HERE / "svg"
 OUT = HERE / "architecture.pdf"
-VERSION = "Version 1 · 9 October 2026"
+VERSION = "Version 1.1 · 2 November 2026"
 DOC = "MC Car Riviera staff app · planned architecture"
 
 # ---------------------------------------------------------------- page content
@@ -346,7 +346,7 @@ def cover_page(total):
     <h1 class="title">Planned architecture</h1>
     <p class="lead">UML diagrams of the iOS app, the back end and the database, and the hosting
     options you asked about (F-11). Drawn from the decisions (ADRs) and stories in <code>docs/</code>.</p>
-    <p class="meta">{esc(VERSION)} · first version of the diagrams · kept up to date by US-004, US-006, US-050 and US-070</p>
+    <p class="meta">{esc(VERSION)} · class diagrams updated for contract template v1 · kept up to date by US-004, US-006, US-050 and US-070</p>
   </div>
   <div class="cover-grid">
     <div>

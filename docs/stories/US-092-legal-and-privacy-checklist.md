@@ -17,7 +17,7 @@ As the company, I want the legal points checked before the app replaces paper, s
 - [ ] The questions go to the lawyer and the accountant in P0. Their answers can change ADR-0006, ADR-0009 and ADR-0010, and stories US-040, US-041 and US-054. Everything below must be closed before the pilot (US-091).
 - [ ] The lawyer's feedback is recorded on:
   - the signature level, including showing a signature only next to the values it covers (L-01, F-08);
-  - the updated French terms, an approved English version, and the card-charge wording, now that the card is designated by its brand and last four digits only (L-02, F-09);
+  - the updated French terms, an approved English version, and the card-charge wording, now that the card is designated by its brand and last four digits only (L-02, F-09); the acceptance text's « ci-contre et au verso », the terms' own references to the « recto » (Art. 1, Art. 7) and to the « carte verte » (Art. 5), and the new texts of template v1: the summary of the key terms and the two declarations (L-02);
   - the GDPR notice, copies of ID documents and retention (L-03);
   - the data needed for traffic fines (L-06);
   - retention periods (L-07).

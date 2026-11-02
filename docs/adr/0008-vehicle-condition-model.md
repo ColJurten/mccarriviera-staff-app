@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | B-09 · brief (Retour, maintenance) · F-10 (answered) · defaults for B-09 Q1, R-10, R-14 |
+| **Accepted** | 2026-10-07 (updated 2026-11-02) | Developer, with the client's answers | B-09 · brief (Retour, maintenance) · F-10, R-02 (answered) · defaults for B-09 Q1, R-10, R-14 |
 
 ## Context
 
@@ -21,6 +21,7 @@
   - There is no dashboard photo in the reference set: reused at every later Départ, it would show an old odometer reading.
   - Reference photos come from the in-app camera only (`RECOMMENDED`), so each set is consistent and dated.
 - **Dashboard photo at a handover** (km and fuel): optional at each Départ and Retour (F-10). The app offers it.
+- **Handover checklist** (from the model template, R-02): car papers on board, clean inside, clean outside and GPS, each yes or no, at the Départ and at the Retour. All four are optional.
 - **Damage records:** photos and a comment, a status (open or repaired), the Retour where the damage was found and the maintenance where it was repaired (default for R-10).
 - **Départ:**
   - The departure condition is the current reference set plus the damage open at that moment, stored by reference.
@@ -67,6 +68,7 @@ A damage dispute shows the reference photos are not enough evidence.
 ## Changes
 
 - 2026-10-09: F-10 answered: interior and dashboard photos are optional, and the reference set has 8 required exterior angles. `INTERPRETATION`: « the inside of the car » covers both the interior angle and the dashboard photo.
+- 2026-11-02: R-02 answered (all model-template fields kept): the car papers / clean inside / clean outside / GPS checklist is recorded at each handover.
 
 ## Implemented by
 

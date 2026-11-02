@@ -15,7 +15,7 @@ As the developer, I want to try the riskiest technical parts on a real iPhone be
 ## Acceptance criteria
 
 - [ ] Two signature pads are tried on an iPhone: react-native-signature-canvas and a Skia-based pad. One is chosen for smooth strokes, a clean PNG export at print resolution, and access to stroke points.
-- [ ] A test PDF is produced with expo-print, using explicit A4 page blocks. It has a contract page, a photo section that continues over several pages (30 thumbnails), terms over several pages, and 5 amendment blocks.
+- [ ] A test PDF is produced with expo-print, using explicit A4 page blocks. It has a contract page, a photo section that continues over several pages (30 thumbnails), full-size photo pages, terms over several pages, and 5 amendment blocks.
 - [ ] Every page, including continuation pages, repeats the header, the footer and the signature block at the bottom right, at the same position.
 - [ ] The same document in French and in English keeps the slots in the same position (B-07).
 - [ ] A typical contract (10 photos) is generated in under 5 seconds on the oldest staff phone. The 30-photo case is measured.

@@ -14,15 +14,16 @@ As a staff member, I want to create a client with the information the contract n
 
 ## Acceptance criteria
 
-- [ ] Fields from the current contract:
-  - full name;
-  - home/billing address: street, second line, postcode, city, country (the country is added, default for R-03);
+- [ ] Fields from the current contract and the model template (R-02):
+  - title (M. or Mme), first name and last name;
+  - e-mail;
+  - home/billing address: street, second line, postcode, city, state or region, country (the country is added, default for R-03);
   - phone;
   - local address and its phone;
-  - licence number;
+  - licence number, issue date and expiry date;
   - date of birth, and place or country of birth;
-  - ID document type (passport or ID card), number and country.
-- [ ] Only the full name is needed to save the record. Before a Départ can be signed, these are mandatory (default for R-03): full name, home address, licence number, date of birth, ID document number. These are the fields filled on the completed sample.
+  - ID document type (passport or ID card), number, country, issue date and expiry date.
+- [ ] Only the last name is needed to save the record. Before a Départ can be signed, these are mandatory (default for R-03): first and last name, home address, licence number, date of birth, ID document number. These are the fields filled on the completed sample. The fields that come from the model template are optional.
 - [ ] Field lengths follow the limits set in US-006.
 - [ ] The date of birth can't be in the future. The age is displayed, with no warning or blocking (default for R-04).
 - [ ] Possible duplicates are flagged before saving: the same name and date of birth, or the same licence or ID number.

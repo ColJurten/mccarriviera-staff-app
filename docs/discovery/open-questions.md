@@ -1,6 +1,6 @@
 # Open questions
 
-> **Status (2026-10-09, evening):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). Of the follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. F-11 (where the files live) was opened on 2026-10-09, and R-10 gained a fifth question the same evening, found while drawing the Retour. The R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
+> **Status (2026-11-02):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). Of the follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. F-11 (where the files live) was opened on 2026-10-09, and R-10 gained a fifth question the same evening, found while drawing the Retour. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
 > **How to answer:** write under each **Answer** line, or reply with the IDs (for example "B-03: b").
 > Some questions show a **Suggested default**. This is a recommendation, not an assumption, and it is used only if you confirm it.
 > **Owners:** **You** (developer) · **Client** (MC Car Riviera) · **Lawyer** · **Accountant** · **Bank/PSP**.
@@ -32,8 +32,8 @@
 | **F-09** | Card fields on the contract | Client (+ lawyer) | Answered: kept (last four digits and expiry only; CVV box empty) |
 | **F-10** | Interior and dashboard photos | Client | Answered: optional → [ADR-0008](../adr/0008-vehicle-condition-model.md) |
 | **F-11** | Where the files live: Supabase Storage or an S3-compatible bucket | You | Open, default applied (Supabase Storage) |
-| R-01 | Layout of the new contract | Client | Open, default applied |
-| R-02 | Fields only the model template has | Client | Open, default applied |
+| R-01 | Layout of the new contract | Client | Q2 answered: thumbnails plus a full-size photo annex → [template v1](../contract-template/README.md); the rest is a default |
+| **R-02** | Fields only the model template has | Client | Answered: all of them are kept → [template v1](../contract-template/field-map.md) |
 | R-03 | Client fields and additional drivers | Client | Open, default applied |
 | R-04 | Licence and age checks | Client | Open, default applied |
 | R-05 | Dates, times and places | Client | Open, default applied |
@@ -50,7 +50,7 @@
 | R-16 | Roles and permissions | Client | Open, default applied |
 | R-17 | Languages and the English general terms | Client (+ lawyer) | Open, default applied |
 | R-18 | Branding | Client | Open, default applied (placeholder theme) |
-| R-19 | Staff and company on the contract | Client | Open, default applied |
+| R-19 | Staff and company on the contract | Client | Q1 answered: the staff name is printed; Q2 open, default applied |
 | T-01 | Apple accounts | Client | Superseded by F-02 (Ad Hoc needs no Apple Business account) |
 | T-02 | Volumes and existing data | Client | Partly answered (2 staff); import is optional (US-090) |
 | T-03 | Staff sign-in | You + client | Open, default applied |
@@ -385,6 +385,8 @@ Ad Hoc distribution puts three requirements on each phone:
 > **Decision:** totals, costs and the number of rental days are typed by staff. The app calculates none of them. Km driven and extra km are still computed (default for R-06). → [ADR-0006](../adr/0006-contract-only-scope.md)
 >
 > `INTERPRETATION`: the number of days goes in the current form's fields (« Forfait … pour … jours » and « J / Sup »). No separate « Nombre de jours » line is added, unlike the model template's "No of Day(s)". Say if you want one.
+>
+> **Updated by R-02 (2026-11-02):** the model's « Nombre de jours » is now its own field, typed by staff.
 
 ### F-07 · Hosting budget after the free plan
 **Owner:** client · **Needed by:** before the pilot (US-091)
@@ -507,8 +509,7 @@ While the F, R, T, N and L questions are open, the ADRs and stories use these de
 | F-01 | Both staff phones are iPhones that can run the Expo SDK's minimum iOS version; checked when they are registered | ADR-0003, US-001 |
 | F-11 | The files stay in Supabase Storage, as decided in ADR-0004 and ADR-0014, until the developer chooses between the options in F-11 | ADR-0004, ADR-0014, US-006 |
 | F-08 | Signatures at the bottom right of every page (answered). Default part: page 1 shows the contract as signed at the Départ; amendment pages carry the amendment's own signature there; return values and final amounts are in the Retour section | ADR-0009, ADR-0010, US-040, US-064, US-073, US-075 |
-| R-01 | PDF pages: contract as signed at the Départ; Départ / Retour (condition, return values, « Décompte final »); general terms; amendments. Photos as thumbnails. Title as on the template | ADR-0010, US-040 |
-| R-02 | No model-only field added, apart from the contract number (the field set stays the current template's) | ADR-0010, US-040 |
+| R-01 | PDF pages as in template v1: contract as signed at the Départ; financial conditions with the « Décompte final »; vehicle condition (Départ / Retour); general terms; amendments; photo annex (Q2 answered). Drawings dropped. Title as on the template | ADR-0010, US-040 |
 | R-03 | Mandatory before signing: name, home address, licence number, date of birth, ID number (the fields filled on the completed sample). A country field is added to the address. One additional driver, stored as a client record, with name, date of birth and licence number mandatory | US-031, US-051 |
 | R-04 | The app records only: it shows the age, with no warning and no blocking | US-031, US-051 |
 | R-05 | Departure and return date and time default to "now" and can be edited. Planned return: date required, time optional. Return place: free text | US-052, US-070 |
@@ -525,7 +526,7 @@ While the F, R, T, N and L questions are open, the ADRs and stories use these de
 | R-16 | One staff role with full access. The developer does the admin tasks | ADR-0012 |
 | R-17 | English PDF blocked until an approved English text of the terms exists. A signed contract can be regenerated in the other language only if that language's terms existed at signature | ADR-0011, US-041, US-063 |
 | R-18 | Placeholder gold/black theme until the brand assets arrive | ADR-0010, US-003, US-040 |
-| R-19 | Staff name not printed (it isn't on the current template), but recorded in the audit trail | ADR-0010, US-040 |
+| R-19 | Q2: no company signature or stamp, as on both forms (Q1 answered: the staff name is printed) | ADR-0010, US-040 |
 | T-03 | Email and password. Face ID app lock when the app opens and after 5 minutes in the background. Password resets done by the developer | ADR-0012, US-010, US-011 |
 | T-04 | Private GitHub repository on the developer's account (F-02) | ADR-0016, US-002 |
 | T-05 | Every PDF archived in the cloud. PDFs cached on the phone are deleted after 7 days and at sign-out | ADR-0013, US-013 |
@@ -553,7 +554,11 @@ Confirm the following:
 2. How photos appear: thumbnails on the condition page plus a full-size photo annex, thumbnails only, or no photos in the PDF?
 3. The title: « Contrat de location » or « Contrat / Facture »? This depends on B-04.
 
-> **Answer:**
+> **Answer (2026-11-02), Q2:** thumbnails plus full-size photo pages.
+>
+> **Decision:** page 3 (« État du véhicule ») shows the photos as thumbnails, and a photo annex at the end shows every photo at full size, two per page. → [template v1](../contract-template/README.md), [ADR-0010](../adr/0010-contract-pdf-generation.md)
+>
+> The structure above became template v1, with the financial parts on their own page: contract, financial conditions, vehicle condition, general terms, one page per amendment, photo annex. Q1 follows the brief ("only photos"): the drawings are dropped. Q3: the title stays « CONTRAT / FACTURE LOCATION » (B-04).
 
 ### R-02 · Fields only the model template has
 Add any of these?
@@ -574,7 +579,19 @@ Add any of these?
 
 Fuel as a percentage is covered in R-06, and the contract number in R-09.
 
-> **Answer:**
+> **Answer (2026-11-02):** all of them: "take the model template and add the missing current template fields".
+>
+> **Decision:** the new contract keeps every field of the model template, plus every field of the current form. → [template v1](../contract-template/README.md), [field map](../contract-template/field-map.md), [ADR-0010](../adr/0010-contract-pdf-generation.md)
+>
+> - **Client:** title (M. / Mme) with separate first and last names, e-mail, state or region, ID document issue and expiry dates, licence issue and expiry dates.
+> - **Rental:** pick-up place, flight or train, number of days, services included, deposit, additional information.
+> - **Handover checklist** at the Départ and the Retour: car papers on board, clean inside, clean outside, GPS ([ADR-0008](../adr/0008-vehicle-condition-model.md)).
+> - **Staff name:** printed (R-19 Q1).
+> - Fuel stays in eighths, with the model's percentage printed next to it (R-06). The model's own texts (rules, liability and traffic-violation paragraphs, Swiss terms) are not copied; MC Car Riviera's own terms and texts take their place (L-02).
+>
+> **Consequences:** new columns in US-006, new fields in US-031, US-052, US-053 and US-072. They are all optional; the fields mandatory before signing stay as in R-03.
+>
+> **Two readings to confirm** (`INTERPRETATION`): « Informations complémentaires » is stored per rental, not per client, so it never goes stale; « Services inclus » is typed by staff for each contract.
 
 ### R-03 · Client fields and additional drivers
 On the current form, a renter has: full name, home/billing address (street, postcode, city), phone, local address + phone, licence number, date of birth, and an ID document (passport or ID card) with number and issuing country.
@@ -732,7 +749,11 @@ Are all staff equal, or is there a manager/admin role? Who can do each of the fo
 1. Should the PDF show the staff member who handled the Départ and the Retour, like the model's « Pick-up driver »?
 2. Does the company need to sign or stamp the contract? Neither form has a company signature today.
 
-> **Answer:**
+> **Answer (2026-11-02), Q1:** yes, through the answer to R-02 (all of the model's fields, including « Pick-up driver »).
+>
+> **Decision:** the PDF prints « Agent au départ » and « Agent au retour », the display name of the staff member who handled each handover, kept as it was at signature. → [ADR-0010](../adr/0010-contract-pdf-generation.md)
+>
+> **Q2 still open.** Default: no company signature or stamp, as on both forms.
 
 ---
 
@@ -750,7 +771,7 @@ Private distribution through Apple (a "custom app") needs two accounts. The clie
 ### T-02 · Volumes and existing data
 1. Fleet size, rentals per month, number of clients and number of staff?
 2. Is there an existing vehicle or client list (Excel, other software) to import?
-3. The sample contract is mostly typed, so it is filled on a computer before printing. Which tool is used (Word, a PDF form, other software)? Please share that source file. It has the exact labels, may contain the footnote texts for the signatures, and may hold existing client data.
+3. The sample contract is mostly typed, so it is filled on a computer before printing. Which tool is used (Word, a PDF form, other software)? Please share that source file. It has the exact labels, may contain the footnote texts for the signatures, and may hold existing client data. It would also fill the words cut off at the edges of the scanned general terms (typed as v1 on 2026-11-02, gaps marked […]).
 
 > **Answer:**
 
@@ -824,6 +845,9 @@ Update the terms before they are digitised and translated:
 - Art. 1: outdated Civil Code reference.
 - Art. 12: jurisdiction clause towards consumers.
 - The card-charge authorisation in the acceptance text. It refers to « la carte de crédit désignée sur ce contrat », but the app no longer records a card (F-09).
+- Art. 5-1-1: « selon la carte verte remise ». France abolished the green card on 1 April 2024; insurers now issue a « Mémo Véhicule Assuré », and checks use the file of insured vehicles (FVA).
+- References to the paper form's sides: « au recto » in Art. 1 and Art. 7, « ci-contre et au verso » in the acceptance text. The PDF has numbered pages instead.
+- Spelling mistakes and an exclusion printed twice in Art. 5-2, kept as printed in the typed v1 and listed in its notes ([`cgv-fr-v1.md`](../contract-template/terms/cgv-fr-v1.md)).
 - Approval of the English version.
 
 ### L-03 · GDPR (lawyer or DPO)

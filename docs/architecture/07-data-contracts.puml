@@ -9,18 +9,24 @@ skinparam ranksep 36
 
 class Client <<table: clients>> {
   id : uuid
-  full_name : text
-  street, line2, postcode, city, country : text [0..1]
+  title : m | mme [0..1]
+  first_name : text [0..1]
+  last_name : text
+  email : text [0..1]
   phone : text [0..1]
+  street, line2, postcode, city : text [0..1]
+  state_region, country : text [0..1]
   local_address, local_phone : text [0..1]
-  licence_number : text [0..1]
   birth_date : date [0..1]
   birth_place_or_country : text [0..1]
   id_doc_type : passport | id_card [0..1]
   id_doc_number, id_doc_country : text [0..1]
+  id_doc_issued_on, id_doc_expires_on : date [0..1]
+  licence_number : text [0..1]
+  licence_issued_on, licence_expires_on : date [0..1]
   --
-  {only the name is needed to save;
-  the rest is checked before a Départ is signed}
+  {only the last name is needed to save; the
+  R-03 list is checked before a Départ is signed}
 }
 
 class ClientDocument <<table: client_documents>> {
@@ -66,15 +72,21 @@ class ContractRevision <<table: contract_revisions>> {
 
 class ContractTerms <<datatype>> {
   renter, additional driver, vehicle : as printed
+  pickup_place, return_place : text [0..1]
   departure_at : timestamptz
   planned_return : date + time [0..1]
-  return_place, intermediary, intermediary_phone : text [0..1]
-  rates : 1–3 days, 4–7 days, extra day, package, km included, extra km
+  rental_days : integer [0..1]
+  flight_train, additional_info : text [0..1]
+  intermediary, intermediary_phone : text [0..1]
+  rates : 1–3 days, 4–7 days, extra day ×2, package, km included, extra km
   {field} deductible_theft, deductible_accident : numeric(10,2) [0..1]
   card_brand : visa | amex | other [0..1]
   payment_method : cash | card [0..1]
   card_last4 : exactly 4 digits [0..1]
   card_expiry : MM/YY [0..1]
+  {field} deposit : numeric(10,2) [0..1]
+  services_included : text [0..1]
+  departure_agent : staff display name
   pricing : PricingLines
   --
   {no full card number, no CVV (F-09)}
@@ -86,7 +98,6 @@ class PricingLines <<datatype>> {
   {field} option_1, option_2, option_3, fuel, misc : numeric(10,2) [0..1]
   {field} total_ht, vat_20, total_ttc, total_prepaid : numeric(10,2) [0..1]
   {field} balance : numeric(10,2) [0..1] {may be negative}
-  rental_days : integer [0..1]
   --
   {all typed by staff, nothing calculated (F-06)}
 }

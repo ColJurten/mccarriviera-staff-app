@@ -15,7 +15,7 @@ As the company, I want the general terms stored as versioned texts in French and
 ## Acceptance criteria
 
 - [ ] The `terms_versions` table holds the language, a version label, the effective date, and the HTML body split into pages with explicit page breaks, so pagination is predictable. The active version for each language is the latest effective one.
-- [ ] The French text of the current contract is loaded as FR v1, typed from the scan and proof-read against it.
+- [ ] The French text of the current contract is loaded as FR v1: [`contract-template/terms/cgv-fr-v1.md`](../contract-template/terms/cgv-fr-v1.md), typed from the scan on 2026-11-02 and split into pages. Words cut off by the scan are marked […]; the client's source file fills them before go-live (T-02).
 - [ ] EN v1 is loaded once the client provides an approved translation (R-17). Until then, an English PDF can't be generated, and the app says why (default for R-17).
 - [ ] Each contract revision stores the IDs of the terms versions in force at signature, per language. There is no English ID if no approved text existed then.
 - [ ] The developer updates the terms through a migration or seed script. There is no in-app editor in the MVP.

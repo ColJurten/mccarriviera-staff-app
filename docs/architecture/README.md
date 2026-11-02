@@ -1,6 +1,6 @@
 # Architecture diagrams
 
-UML diagrams of the planned iOS app, back end and database, drawn from the [decisions](../adr/README.md) and [stories](../stories/README.md). First version: 2026-10-09.
+UML diagrams of the planned iOS app, back end and database, drawn from the [decisions](../adr/README.md) and [stories](../stories/README.md). First version: 2026-10-09. The class diagrams 07 and 08 were updated on 2026-11-02 with the fields of [contract template v1](../contract-template/field-map.md).
 
 - **To read them:** [`architecture.pdf`](architecture.pdf), 15 A4 pages. Each diagram comes with a few key points and the ADRs and stories it is based on. The last two pages compare the hosting options of [F-11](../discovery/open-questions.md) (Supabase, or plain Postgres and S3).
 - **To change them:** edit the PlantUML sources (`NN-*.puml`) and regenerate. The SVG files in [`svg/`](svg/) and the PDF are generated; never edit them by hand.

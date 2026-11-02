@@ -29,7 +29,7 @@ running on their personal phones. It replaces the paper « Contrat / Facture loc
 | Contracts and vehicles | Signed data never changes. Amendments are revisions. State changes only through server functions. Full audit trail | [0007](adr/0007-contract-lifecycle-and-audit.md) |
 | Vehicle condition | Reference photos reused at Départ. Damage records. New reference set after a repair | [0008](adr/0008-vehicle-condition-model.md) |
 | Signatures | One signature per handover, at the bottom right of every page, in the same place in French and English (F-08). Departure and return signatures are both mandatory (F-04). Never next to values it doesn't cover: an amendment page carries its own signature (default for F-08) | [0009](adr/0009-signatures.md) |
-| PDF | Rendered on the phone from versioned HTML templates: model layout, current fields, explicit A4 pages | [0010](adr/0010-contract-pdf-generation.md) |
+| PDF | Rendered on the phone from versioned HTML templates: model layout, every field of both forms (R-02), explicit A4 pages, full-size photo annex. Template v1 in [`contract-template/`](contract-template/README.md) | [0010](adr/0010-contract-pdf-generation.md) |
 | Languages | Language-neutral data, FR/EN catalogues, versioned general terms | [0011](adr/0011-localisation.md) |
 | Access and phones | Personal accounts, Face ID lock, row-level security, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
 | Files | Private buckets; evidence can be uploaded and read but never overwritten or deleted; signed URLs valid for 5 minutes at most. In Supabase Storage until F-11 is decided | [0014](adr/0014-file-storage.md) |
@@ -42,9 +42,10 @@ running on their personal phones. It replaces the paper « Contrat / Facture loc
 
 1. [`glossary.md`](glossary.md): the French/English rental vocabulary used everywhere.
 2. [`adr/README.md`](adr/README.md): the decisions, and why they were taken. The UML diagrams are in [`architecture/`](architecture/README.md), also as one PDF: [`architecture/architecture.pdf`](architecture/architecture.pdf).
-3. [`stories/README.md`](stories/README.md): the backlog, with phases, Definition of Ready and Done, every story, and the post-MVP list.
-4. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-11, and the defaults in use.
-5. [`discovery/source-analysis.md`](discovery/source-analysis.md): what the reference documents contain (field inventory, signature zones, general-terms rules).
+3. [`contract-template/README.md`](contract-template/README.md): the new contract PDF (template v1), its field map and specimen PDFs.
+4. [`stories/README.md`](stories/README.md): the backlog, with phases, Definition of Ready and Done, every story, and the post-MVP list.
+5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-11, and the defaults in use.
+6. [`discovery/source-analysis.md`](discovery/source-analysis.md): what the reference documents contain (field inventory, signature zones, general-terms rules).
 
 ## Folder layout
 
@@ -54,6 +55,7 @@ docs/
 ├── glossary.md             FR/EN rental vocabulary
 ├── adr/                    architecture decision records, one per file, plus an index
 ├── architecture/           UML diagrams (PlantUML sources) and the architecture PDF
+├── contract-template/      the contract PDF template v1: field map, HTML/CSS, FR/EN labels, terms, specimens
 ├── stories/                user stories, one per file, plus the backlog index
 └── discovery/
     ├── source-analysis.md  analysis of the reference documents
@@ -115,7 +117,7 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 | 11 Domain model · 14 Contract lifecycle | [ADR-0007](adr/0007-contract-lifecycle-and-audit.md) (contract and vehicle state diagrams), [ADR-0008](adr/0008-vehicle-condition-model.md) | — |
 | 12 Database schema | Table list in US-006; class diagrams in [`architecture/`](architecture/README.md) | Kept in step with the migrations in US-006 |
 | 13 File storage | [ADR-0014](adr/0014-file-storage.md) | — |
-| 15 PDF · 16 Signatures · 17 FR/EN | [ADR-0010](adr/0010-contract-pdf-generation.md), [ADR-0009](adr/0009-signatures.md), [ADR-0011](adr/0011-localisation.md) | — |
+| 15 PDF · 16 Signatures · 17 FR/EN | [ADR-0010](adr/0010-contract-pdf-generation.md), [ADR-0009](adr/0009-signatures.md), [ADR-0011](adr/0011-localisation.md); template v1 and its field map in [`contract-template/`](contract-template/README.md) | Ported to the app by US-040 |
 | 18 iOS architecture · 19 Backend · 24 API boundaries | [ADR-0002](adr/0002-mobile-stack-expo.md), [ADR-0004](adr/0004-backend-supabase.md); deployment, component and sequence diagrams in [`architecture/`](architecture/README.md) | Kept up to date with US-004 |
 | 20 Auth · 21 Security and privacy | [ADR-0012](adr/0012-authentication-and-authorisation.md) to [ADR-0015](adr/0015-backups.md), [ADR-0017](adr/0017-crash-reporting.md) | — |
 | 22 Distribution · 23 Offline | [ADR-0003](adr/0003-ios-distribution-ad-hoc.md), [ADR-0005](adr/0005-online-only.md) | — |

@@ -41,6 +41,7 @@ labels below.
 | 2ème conducteur · Conducteur sup(plémentaire) | Additional driver | Also a pricing line (« Conducteur sup ») |
 | Intermédiaire | Intermediary | Printed on the form. Exact meaning is open (R-08) |
 | Loueur · Société de location | Lessor · Rental company | MC Car Riviera |
+| Agent au départ · Agent au retour | Pick-up agent · Drop-off agent | The staff member who handled the handover, printed on the contract (R-19); the model template's "Pick-up driver" |
 
 ## Client data
 
@@ -51,6 +52,8 @@ labels below.
 | Permis de conduire | Driving licence |
 | Carte d'identité · Passeport | ID card · Passport |
 | Date de naissance | Date of birth |
+| Civilité (M. · Mme) | Title (Mr · Ms) |
+| Délivrance · Expiration | Issue · Expiry (of an ID document or a licence) |
 
 ## Vehicle, mileage and fuel
 
@@ -65,6 +68,8 @@ labels below.
 | Jauge essence | Fuel gauge | Eighths from E to F on the current form |
 | Sans plomb 95 | Unleaded 95 | Fuel type |
 | Carburant | Fuel | Also the refuelling charge line |
+| Papiers du véhicule | Car papers | Vehicle documents on board, checked at each handover (R-02) |
+| Propreté intérieure · extérieure | Clean inside · outside | Checked at each handover (R-02) |
 
 ## Pricing and payment
 
@@ -83,7 +88,9 @@ labels below.
 | Total prépayé | Prepaid total | Printed sub-label says "Total deposit". Meaning is open (R-07) |
 | Solde | Balance due | |
 | Franchise (vol · accident responsable) | Deductible / excess (theft · at-fault accident) | Renter's maximum liability (CGV Art. 5-4) |
-| Dépôt de garantie | Security deposit | CGV Art. 7 |
+| Dépôt de garantie | Security deposit | CGV Art. 7. Printed on page 1 of the new contract (R-02); taken outside the app |
+| Services inclus | Services included | Free text on the new contract, for example the insurance cover (R-02) |
+| Décompte final | Final statement | The pricing lines as completed at the Retour, next to the amounts typed at the Départ |
 | Loyer provisionnel | Provisional rent | CGV Art. 6: paid up front, adjusted at the end |
 | Mode de paiement: ESP · CC | Payment method: cash · card | |
 | Empreinte carte de crédit | Card imprint | Imprint area on the current form. In the app it shows the card brand and the last four digits only (F-09) |
@@ -97,3 +104,5 @@ labels below.
 | Contrat de location | Rental agreement / contract |
 | CGV, Conditions générales de location | General terms and conditions of rental |
 | Recto · Verso | Front · Back (of the paper contract) |
+| Annexe photos | Photo annex | The last pages of the contract PDF: every photo at full size (R-01 Q2) |
+| Spécimen | Specimen | A sample PDF filled with invented data, never a real contract |

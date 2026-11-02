@@ -1,0 +1,196 @@
+/* MC Car Riviera rental contract — template v1 (reference design for US-040).
+   Every page is an explicit A4 block (ADR-0010). The signature block sits at the bottom right
+   of every page, in the same place in French and English (ADR-0009, F-08).
+   Palette: gold on black (R-18, placeholder until the brand assets arrive). */
+
+@page { size: A4 portrait; margin: 0; }
+
+:root {
+  --ink: #141414;
+  --text: #22201C;
+  --muted: #5E584E;
+  --faint: #8C8579;
+  --line: #C4BCAB;
+  --line-strong: #8E8676;
+  --label-bg: #F4F0E6;
+  --panel-bg: #FAF8F3;
+  --bar: #141414;
+  --gold: #C29B45;
+  --gold-deep: #9C7A2E;
+  --gold-soft: #EFE5CC;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #FFFFFF; }
+body {
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  font-size: 8pt;
+  line-height: 1.32;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ------------------------------------------------------------------ page frame */
+.page {
+  width: 210mm; height: 297mm;
+  padding: 9mm 11mm 7mm;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  break-after: page; page-break-after: always;
+}
+.page:last-child { break-after: auto; page-break-after: auto; }
+
+.specimen {
+  position: absolute; left: 0; right: 0; top: 42%;
+  text-align: center; transform: rotate(-28deg);
+  font: 600 46pt "Lora", Georgia, serif; letter-spacing: 0.18em;
+  color: rgba(194, 155, 69, 0.13); pointer-events: none; z-index: 0;
+}
+.page > *:not(.specimen) { position: relative; z-index: 1; }
+
+.ph { flex: none; display: grid; grid-template-columns: 1fr auto; gap: 6mm; align-items: end;
+      padding-bottom: 2.4mm; border-bottom: 0.6mm solid var(--ink); }
+.ph .kicker { font-size: 6.6pt; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
+.ph h1 { font: 600 15.5pt/1.1 "Lora", Georgia, serif; margin: 0.8mm 0 0.9mm; color: var(--ink); letter-spacing: -0.005em; }
+.ph .meta { font-size: 7.4pt; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 4.5mm; }
+.ph .meta b { color: var(--ink); font-weight: 600; }
+.logo { width: 40mm; height: 15mm; background: var(--bar); color: var(--gold);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0.6mm; }
+.logo .mono { font: 600 12pt/1 "Lora", Georgia, serif; letter-spacing: 0.06em; }
+.logo .word { font: 600 6.6pt/1.2 "Lora", Georgia, serif; letter-spacing: 0.32em; margin-top: 0.6mm; padding-left: 0.32em; }
+.logo .ph-note { font: 400 4.6pt/1 "Inter", sans-serif; letter-spacing: 0.05em; color: rgba(194,155,69,0.75); margin-top: 0.7mm; }
+.ph-sub { flex: none; height: 1.2mm; border-bottom: 0.25mm solid var(--gold); margin-bottom: 2.6mm; }
+
+.pb { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2.6mm; overflow: hidden; }
+
+/* ------------------------------------------------------------------ tables */
+.bar { background: var(--bar); color: var(--gold); font-size: 7pt; font-weight: 700;
+       letter-spacing: 0.14em; text-transform: uppercase; padding: 0.9mm 1.8mm; }
+.bar small { color: rgba(239, 229, 204, 0.8); font-weight: 500; letter-spacing: 0.04em; text-transform: none; margin-left: 2mm; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.kv td, .kv th { border: 0.2mm solid var(--line); padding: 1.15mm 1.8mm; vertical-align: top; text-align: left; height: 6.3mm; }
+.kv th { background: var(--label-bg); color: #3B3731; font-weight: 600; font-size: 7.4pt; }
+.kv td { color: var(--ink); font-size: 8.7pt; }
+.kv td.tall { height: 11mm; }
+.kv td.num, .kv th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.kv .sub { display: block; color: var(--faint); font-size: 6.4pt; font-weight: 500; }
+.kv td.empty { color: var(--faint); }
+.section { display: flex; flex-direction: column; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.two-even { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+
+.sl { color: var(--faint); font-size: 6.2pt; font-weight: 600; margin-right: 0.9mm; }
+.sv { margin-right: 3.2mm; color: var(--ink); }
+.pair { white-space: nowrap; display: inline-block; }
+.nw { white-space: nowrap; }
+.cb { display: inline-block; width: 2.5mm; height: 2.5mm; border: 0.25mm solid var(--ink);
+      vertical-align: -0.35mm; margin-right: 0.9mm; position: relative; background: #fff; }
+.cb.on::after { content: ""; position: absolute; left: 0.4mm; top: 0.4mm; right: 0.4mm; bottom: 0.4mm; background: var(--ink); }
+.choice { white-space: nowrap; margin-right: 3mm; }
+
+.box { border: 0.2mm solid var(--line); padding: 1.6mm 2mm; background: var(--panel-bg); }
+.box h3 { margin: 0 0 1mm; font-size: 7.2pt; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); }
+.box p { margin: 0; }
+.rules { margin: 0; padding-left: 3.4mm; font-size: 7.6pt; }
+.rules li { margin-bottom: 0.7mm; }
+.rules .ref { color: var(--faint); white-space: nowrap; }
+.flag { color: var(--faint); font-size: 6.3pt; margin-top: 1mm; }
+
+/* fuel gauge in eighths, with the percentage the model template uses */
+.gauge { display: inline-flex; flex-direction: column; vertical-align: middle; margin-right: 2mm; }
+.gauge .cells { display: grid; grid-template-columns: repeat(8, 3.1mm); border: 0.25mm solid var(--ink); }
+.gauge .cells i { height: 2.6mm; border-left: 0.2mm solid var(--line-strong); }
+.gauge .cells i:first-child { border-left: 0; }
+.gauge .cells i.on { background: var(--ink); }
+.gauge .ticks { display: flex; justify-content: space-between; font-size: 5.4pt; color: var(--muted); margin-top: 0.3mm; }
+.fuel-text { font-variant-numeric: tabular-nums; }
+
+/* pricing block: as typed at the Départ, and the final statement at the Retour */
+.pricing td, .pricing th { border: 0.2mm solid var(--line); padding: 1mm 1.8mm; height: 5.9mm; font-size: 8.4pt; }
+.pricing thead th { background: var(--bar); color: var(--gold); font-size: 6.6pt; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; }
+.pricing tbody th { background: var(--label-bg); font-weight: 600; font-size: 7.6pt; color: #3B3731; text-align: left; }
+.pricing tbody th .sub { color: var(--faint); font-weight: 500; font-size: 6.2pt; margin-left: 1.2mm; }
+.pricing td { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.pricing tr.total th, .pricing tr.total td { background: #E9E3D3; font-weight: 700; }
+.pricing tr.grand th, .pricing tr.grand td { background: var(--bar); color: var(--gold-soft); font-weight: 700; }
+.pricing tr.grand th { color: var(--gold); }
+
+/* the financial page has room: taller rows, easier to read */
+.fin .kv td, .fin .kv th { height: 7.4mm; padding-top: 1.6mm; }
+.fin .kv td { font-size: 9pt; }
+.fin .pricing td, .fin .pricing th { height: 7.1mm; font-size: 8.9pt; }
+.fin .pricing tbody th { font-size: 8pt; }
+.fin > div { gap: 3.2mm !important; }
+
+/* inspection */
+.insp th.col { background: var(--bar); color: var(--gold); font-size: 6.8pt; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; }
+.insp .yn { white-space: nowrap; }
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; flex: 1; min-height: 0; }
+.panel.strip { flex: none; }
+.thumbs.nine { grid-template-columns: repeat(9, 1fr); gap: 1mm; }
+.ph-empty { width: 100%; aspect-ratio: 4 / 3; border: 0.2mm dashed var(--line-strong); background: #fff; }
+.panel { border: 0.2mm solid var(--line); background: var(--panel-bg); padding: 1.6mm 1.8mm; display: flex; flex-direction: column; gap: 1.5mm; min-height: 0; overflow: hidden; }
+.panel h4 { margin: 0; font-size: 6.8pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-deep); }
+.panel h4 small { color: var(--faint); font-weight: 500; letter-spacing: 0; text-transform: none; margin-left: 1mm; }
+.thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2mm; }
+.thumbs.four { grid-template-columns: repeat(4, 1fr); }
+.thumbs figure { margin: 0; }
+.thumbs img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 0.15mm solid var(--line-strong); background: #DDD; }
+.thumbs figcaption { font-size: 5.6pt; color: var(--muted); margin-top: 0.3mm; line-height: 1.15; }
+.dmg { display: grid; grid-template-columns: 22mm 1fr; gap: 1.6mm; align-items: start; }
+.dmg img { width: 22mm; aspect-ratio: 4 / 3; object-fit: cover; border: 0.15mm solid var(--line-strong); }
+.dmg .txt { font-size: 7pt; }
+.dmg .txt .when { display: block; color: var(--faint); font-size: 6.2pt; }
+.ras { font: 600 9pt "Lora", Georgia, serif; color: var(--ink); padding: 2mm 0; }
+.note { font-size: 7pt; color: var(--text); }
+.muted { color: var(--faint); }
+.tag { display: inline-block; border: 0.2mm solid var(--line-strong); border-radius: 0.6mm; padding: 0 0.8mm; font-size: 5.6pt; color: var(--muted); margin-left: 0.8mm; vertical-align: 0.2mm; }
+
+/* amendments */
+.amend td, .amend th { border: 0.2mm solid var(--line); padding: 1.1mm 1.8mm; font-size: 8pt; text-align: left; vertical-align: top; }
+.amend thead th { background: var(--bar); color: var(--gold); font-size: 6.6pt; letter-spacing: 0.12em; text-transform: uppercase; }
+.amend tbody th { background: var(--label-bg); font-weight: 600; font-size: 7.3pt; }
+.amend .old { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.35); }
+
+/* general terms, stored already split into pages (US-041) */
+.terms { column-count: 2; column-gap: 6mm; column-fill: auto; height: 100%; font-size: 7.5pt; line-height: 1.32; text-align: justify; hyphens: auto; }
+.terms h2 { font-size: 7.8pt; font-weight: 700; margin: 1.6mm 0 0.5mm; break-after: avoid; text-align: left; color: var(--ink); }
+.terms h2:first-child { margin-top: 0; }
+.terms h3 { font-size: 7.5pt; font-weight: 700; margin: 1mm 0 0.3mm; break-after: avoid; }
+.terms p { margin: 0 0 1mm; }
+.terms ul { margin: 0 0 0.9mm; padding-left: 3mm; }
+.terms li { margin: 0 0 0.3mm; }
+.terms em { font-style: italic; }
+.terms .gap { color: var(--gold-deep); }
+.pending { margin: auto 0; border: 0.3mm dashed var(--line-strong); padding: 8mm; text-align: center; color: var(--muted); font-size: 9pt; }
+.pending b { display: block; font: 600 12pt "Lora", Georgia, serif; color: var(--ink); margin-bottom: 2mm; }
+
+/* photo annex: two photos per page */
+.annex { display: grid; grid-template-rows: 1fr 1fr; gap: 4mm; height: 100%; }
+.annex figure { margin: 0; display: flex; flex-direction: column; min-height: 0; border: 0.2mm solid var(--line); padding: 2mm; background: var(--panel-bg); }
+.annex .img { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; background: #EDEAE3; }
+.annex img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.annex figcaption { flex: none; margin-top: 1.6mm; display: flex; justify-content: space-between; gap: 4mm; font-size: 7.2pt; }
+.annex figcaption b { color: var(--ink); }
+.annex figcaption .right { color: var(--muted); text-align: right; white-space: nowrap; }
+
+/* ------------------------------------------------------------------ signature row (every page) */
+.sigrow { flex: none; display: grid; grid-template-columns: 1fr 92mm; gap: 4mm; margin-top: 2.4mm; height: 33mm; align-items: end; }
+.sigtext { align-self: stretch; font-size: 6.9pt; line-height: 1.32; color: var(--text); display: flex; flex-direction: column; justify-content: flex-end; }
+.sigtext .acc { border-left: 0.6mm solid var(--gold); padding-left: 2mm; }
+.sigtext .acc b { display: block; font-size: 6.6pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-bottom: 0.6mm; }
+.sigblock { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; height: 33mm; }
+.sigbox { border: 0.35mm solid var(--ink); display: flex; flex-direction: column; background: #fff; }
+.sigbox .lbl { flex: none; background: var(--bar); color: var(--gold); font-size: 6.2pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.7mm 1.4mm; }
+.sigbox .img { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 1mm; }
+.sigbox .img img { max-width: 100%; max-height: 100%; }
+.sigbox .none { font-size: 6.6pt; font-style: italic; color: var(--muted); text-align: center; padding: 0 2mm; }
+.sigbox .when { flex: none; border-top: 0.2mm solid var(--line); font-size: 5.9pt; color: var(--muted); padding: 0.5mm 1.4mm; min-height: 3.6mm; }
+
+/* ------------------------------------------------------------------ footer (every page) */
+.pf { flex: none; margin-top: 2.2mm; padding-top: 1.6mm; border-top: 0.2mm solid var(--line);
+      display: grid; grid-template-columns: 1.15fr 1fr 1.25fr; gap: 4mm; font-size: 6.2pt; color: var(--muted); line-height: 1.35; }
+.pf b { color: var(--ink); font-weight: 600; }
+.pf .pg { text-align: right; }
+.pf .pg b { font-size: 7pt; }

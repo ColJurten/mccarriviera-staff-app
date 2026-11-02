@@ -1,0 +1,13 @@
+{
+  "_comment": "Company identity printed on every page (ADR-0010). Copied from the header of the current paper contract; the client confirms each value before go-live. The e-mail address is unknown. The logo is a placeholder until the brand assets arrive (R-18).",
+  "_status": "to confirm by the client",
+  "name": "MC CAR RIVIERA",
+  "address_line": "8 boulevard de la Pinède",
+  "postcode_city": "06160 Juan-les-Pins",
+  "siret": "822 317 111 00018",
+  "ape": "4511Z",
+  "phones": ["+33 (0)4 93 33 97 80", "+33 (0)6 42 10 34 62"],
+  "web": "mccarriviera.com",
+  "email": null,
+  "vat_rate": 20
+}

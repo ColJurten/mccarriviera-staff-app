@@ -1,0 +1,264 @@
+{#- MC Car Riviera rental contract, template v1 (reference design for US-040).
+    Layout from the model template, fields from both templates (field-map.md).
+    Values arrive pre-formatted for the chosen language (build.py); labels come from i18n/<lang>.json.
+    An empty value renders as an empty cell: blank fields are expected (meeting notes, « champ vide »). -#}
+<!doctype html>
+<html lang="{{ t.lang }}">
+<head>
+<meta charset="utf-8">
+<title>{{ t.doc_title }} {{ doc.number }}</title>
+<style>{{ css | safe }}</style>
+</head>
+<body>
+
+{%- macro sigbox(s) -%}
+<div class="sigbox">
+  <div class="lbl">{{ s.label }}</div>
+  <div class="img">{% if s.image %}<img src="{{ s.image }}" alt="">{% elif s.text %}<div class="none">{{ s.text }}</div>{% endif %}</div>
+  <div class="when">{{ s.when }}</div>
+</div>
+{%- endmacro -%}
+
+{%- macro sub(label, value) -%}<span class="pair"><span class="sl">{{ label }}</span><span class="sv">{{ value }}</span></span>{%- endmacro -%}
+
+{%- macro cb(on, label) -%}<span class="choice"><span class="cb{{ ' on' if on }}"></span>{{ label }}</span>{%- endmacro -%}
+
+{%- macro yesno(value) -%}<span class="yn">{{ cb(value == true, t.inspection.yes) }}{{ cb(value == false, t.inspection.no) }}</span>{%- endmacro -%}
+
+{%- macro gauge(level) -%}
+<span class="gauge"><span class="cells">{% for i in range(8) %}<i class="{{ 'on' if level is not none and i < level }}"></i>{% endfor %}</span><span class="ticks"><span>E</span><span>¼</span><span>½</span><span>¾</span><span>F</span></span></span>
+{%- endmacro -%}
+
+{%- macro thumb(ph) -%}
+<figure><img src="{{ ph.thumb }}" alt=""><figcaption>{{ ph.caption }}{% if ph.imported %}<span class="tag">{{ t.inspection.imported }}</span>{% endif %}</figcaption></figure>
+{%- endmacro -%}
+
+{%- macro damage(d) -%}
+<div class="dmg">{% if d.thumb %}<img src="{{ d.thumb }}" alt="">{% else %}<span></span>{% endif %}<div class="txt">{{ d.comment }}{% if d.extra_photos %} <span class="tag">+{{ d.extra_photos }}</span>{% endif %}<span class="when">{{ d.when }}</span></div></div>
+{%- endmacro -%}
+
+{% for p in pages %}
+<section class="page">
+  {% if doc.specimen %}<div class="specimen">{{ t.specimen | upper }}</div>{% endif %}
+  <header class="ph">
+    <div>
+      <div class="kicker">{{ t.doc_title }}</div>
+      <h1>{{ p.title }}</h1>
+      <div class="meta">
+        <span>{{ t.meta.contract_no }} <b>{{ doc.number }}</b></span>
+        {% if doc.revision %}<span>{{ t.meta.revision }} <b>{{ doc.revision }}</b></span>{% endif %}
+        <span>{{ doc.stage_label }}</span>
+      </div>
+    </div>
+    <div class="logo"><div class="mono">MC</div><div class="word">CAR RIVIERA</div><div class="ph-note">{{ t.logo_note }}</div></div>
+  </header>
+  <div class="ph-sub"></div>
+
+  <main class="pb">
+  {%- if p.kind == 'contract' %}
+    <div class="section">
+      <div class="bar">{{ t.trip.bar }}</div>
+      <table class="kv">
+        <colgroup><col style="width:35mm"><col><col style="width:35mm"><col style="width:42mm"></colgroup>
+        <tr><th>{{ t.trip.pickup_place }}</th><td>{{ v.pickup_place }}</td><th>{{ t.trip.pickup_at }}</th><td>{{ v.pickup_at }}</td></tr>
+        <tr><th>{{ t.trip.return_place }}</th><td>{{ v.return_place }}</td><th>{{ t.trip.planned_return }}</th><td>{{ v.planned_return }}</td></tr>
+        <tr><th>{{ t.trip.rental_days }}</th><td>{{ v.rental_days }}</td><th>{{ t.trip.flight_train }}</th><td>{{ v.flight_train }}</td></tr>
+        <tr><th>{{ t.trip.intermediary }}</th><td>{{ v.intermediary }}</td><th>{{ t.trip.intermediary_phone }}</th><td>{{ v.intermediary_phone }}</td></tr>
+      </table>
+    </div>
+    {% if v.signed_terms_note %}<div class="note muted">{{ v.signed_terms_note }}</div>{% endif %}
+
+    <div class="section">
+      <div class="bar">{{ t.renter.bar }}</div>
+      <table class="kv">
+        <colgroup><col style="width:35mm"><col><col style="width:30mm"><col style="width:51mm"></colgroup>
+        <tr><th>{{ t.renter.name }}</th><td>{{ sub(t.renter.civility, v.civility) }}{{ sub(t.renter.first_name, v.first_name) }}{{ sub(t.renter.last_name, v.last_name) }}</td>
+            <th>{{ t.renter.birth_date }}</th><td>{{ v.birth_date }}</td></tr>
+        <tr><th>{{ t.renter.email }}</th><td>{{ v.email }}</td><th>{{ t.renter.birth_place }}</th><td>{{ v.birth_place }}</td></tr>
+        <tr><th>{{ t.renter.street }}</th><td>{{ v.street }}</td><th>{{ t.renter.phone }}</th><td>{{ v.phone }}</td></tr>
+        <tr><th>{{ t.renter.city }}</th><td>{{ v.city }}</td><th>{{ t.renter.postcode }}</th><td>{{ v.postcode }}</td></tr>
+        <tr><th>{{ t.renter.country }}</th><td>{{ v.country }}</td><th>{{ t.renter.state }}</th><td>{{ v.state }}</td></tr>
+        <tr><th>{{ t.renter.local_address }}</th><td>{{ v.local_address }}</td><th>{{ t.renter.local_phone }}</th><td>{{ v.local_phone }}</td></tr>
+        <tr><th>{{ t.renter.id_doc }}</th>
+            <td>{{ cb(v.id_doc_type == 'passport', t.id_types.passport) }}{{ cb(v.id_doc_type == 'id_card', t.id_types.id_card) }}{{ sub('N°', v.id_doc_number) }}{{ sub(t.renter.id_country, v.id_doc_country) }}</td>
+            <th>{{ t.renter.issue_expiry }}</th><td>{{ v.id_doc_dates }}</td></tr>
+        <tr><th>{{ t.renter.licence }}</th><td>{{ v.licence_number }}</td><th>{{ t.renter.issue_expiry }}</th><td>{{ v.licence_dates }}</td></tr>
+        <tr><th>{{ t.renter.additional_info }}</th><td colspan="3">{{ v.additional_info }}</td></tr>
+      </table>
+    </div>
+
+    <div class="two">
+      <div class="section">
+        <div class="bar">{{ t.driver.bar }}</div>
+        <table class="kv">
+          <colgroup><col style="width:35mm"><col></colgroup>
+          <tr><th>{{ t.driver.name }}</th><td>{{ v.driver_name }}</td></tr>
+          <tr><th>{{ t.driver.birth_date }}</th><td>{{ v.driver_birth_date }}</td></tr>
+          <tr><th>{{ t.driver.licence }}</th><td>{{ v.driver_licence }}</td></tr>
+        </table>
+      </div>
+      <div class="section">
+        <div class="bar">{{ t.services.bar }}</div>
+        <table class="kv">
+          <colgroup><col style="width:35mm"><col></colgroup>
+          <tr><td colspan="2" class="tall">{{ v.services_included }}</td></tr>
+          <tr><th>{{ t.services.deposit }}</th><td class="num">{{ v.deposit }}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="two-even">
+      <div class="section">
+        <div class="bar">{{ t.vehicle.bar }}</div>
+        <table class="kv">
+          <colgroup><col style="width:35mm"><col></colgroup>
+          <tr><th>{{ t.vehicle.make_model }}</th><td>{{ v.make_model }}</td></tr>
+          <tr><th>{{ t.vehicle.plate }}</th><td>{{ v.plate }}</td></tr>
+          <tr><th>{{ t.vehicle.colour }}</th><td>{{ v.colour }}</td></tr>
+          <tr><th>{{ t.vehicle.fuel_type }}</th><td>{{ v.fuel_type }}</td></tr>
+          <tr><th>{{ t.agent.departure }}</th><td>{{ v.agent_departure }}</td></tr>
+        </table>
+      </div>
+      <div class="box">
+        <h3>{{ t.rules.bar }}</h3>
+        <ul class="rules">{% for r in t.rules['items'] %}<li>{{ r }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+
+  {%- elif p.kind == 'financial' %}
+    <div class="two fin">
+      <div style="display:flex;flex-direction:column;gap:2.3mm">
+        <div class="section">
+          <div class="bar">{{ t.rates.bar }}</div>
+          <table class="kv">
+            <colgroup><col style="width:27mm"><col><col style="width:17mm"><col style="width:23mm"></colgroup>
+            <tr><th>{{ t.rates.rate_1_3 }}</th><td class="num">{{ v.rate_1_3 }}</td><th>{{ t.rates.rate_4_7 }}</th><td class="num">{{ v.rate_4_7 }}</td></tr>
+            <tr><th>{{ t.rates.extra_day }}</th><td class="num">{{ v.extra_day_1 }}</td><th>{{ t.rates.km_included }}</th><td class="num">{{ v.km_included }}</td></tr>
+            <tr><th>{{ t.rates.package }}</th><td colspan="3">{{ v.package }}</td></tr>
+            <tr><th>{{ t.rates.extra_day }}</th><td class="num">{{ v.extra_day_2 }}</td><th>{{ t.rates.extra_km }}</th><td class="num">{{ v.extra_km }}</td></tr>
+          </table>
+        </div>
+        <div class="section">
+          <div class="bar">{{ t.deductible.bar }}</div>
+          <table class="kv">
+            <colgroup><col style="width:27mm"><col><col style="width:22mm"><col style="width:22mm"></colgroup>
+            <tr><th>{{ t.deductible.card_brand }}</th><td colspan="3">{% for k in ['visa', 'amex', 'other'] %}{{ cb(v.deductible_card == k, t.card_brands[k]) }}{% endfor %}</td></tr>
+            <tr><th>{{ t.deductible.theft }}</th><td class="num">{{ v.deductible_theft }}</td><th>{{ t.deductible.accident }}</th><td class="num">{{ v.deductible_accident }}</td></tr>
+          </table>
+        </div>
+        <div class="section">
+          <div class="bar">{{ t.payment.bar }}</div>
+          <table class="kv">
+            <colgroup><col style="width:27mm"><col><col style="width:12mm"><col style="width:16mm"></colgroup>
+            <tr><td colspan="4">{{ cb(v.payment_method == 'cash', t.payment.cash) }}{{ cb(v.payment_method == 'card', t.payment.card) }}</td></tr>
+            <tr><th>{{ t.payment.imprint }}</th><td colspan="3">{{ v.card }}</td></tr>
+            <tr><th>{{ t.payment.expiry }}</th><td>{{ v.card_expiry }}</td><th>{{ t.payment.cvv }}</th><td></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="section">
+        <table class="pricing">
+          <colgroup><col><col style="width:25mm"><col style="width:25mm"></colgroup>
+          <thead><tr><th style="text-align:left">{{ t.pricing.bar }}</th><th>{{ t.pricing.at_departure }}</th><th>{{ t.pricing.final }}</th></tr></thead>
+          <tbody>
+          {% for line in v.pricing_lines %}<tr class="{{ line.cls }}"><th>{{ line.label }}</th><td>{{ line.dep }}</td><td>{{ line.fin }}</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {%- elif p.kind == 'inspection' %}
+    <div class="section">
+      <div class="bar">{{ t.inspection.recap }}</div>
+      <table class="kv">
+        <colgroup><col style="width:35mm"><col><col style="width:31mm"><col style="width:44mm"></colgroup>
+        <tr><th>{{ t.meta.contract_no }}</th><td>{{ doc.number }}</td><th>{{ t.renter.name }}</th><td>{{ v.renter_name }}</td></tr>
+        <tr><th>{{ t.renter.licence }}</th><td>{{ v.licence_number }}</td><th>{{ t.renter.birth_date }}</th><td>{{ v.birth_date }}</td></tr>
+        <tr><th>{{ t.renter.issue_expiry }}</th><td>{{ v.licence_dates }}</td><th>{{ t.vehicle.make_model }}</th><td>{{ v.make_model }}{% if v.plate %} · <span class="nw">{{ v.plate }}</span>{% endif %}</td></tr>
+      </table>
+    </div>
+    <table class="kv insp">
+      <colgroup><col style="width:35mm"><col><col></colgroup>
+      <tr><th style="background:#fff;border-top-color:#fff;border-left-color:#fff"></th><th class="col">{{ t.inspection.departure }}</th><th class="col">{{ t.inspection.return }}</th></tr>
+      <tr><th>{{ t.inspection.at }}</th><td>{{ v.dep_at }}</td><td>{{ v.ret_at }}</td></tr>
+      <tr><th>{{ t.inspection.agent }}</th><td>{{ v.agent_departure }}</td><td>{{ v.agent_return }}</td></tr>
+      <tr><th>{{ t.inspection.km }}</th>
+          <td>{{ sub(t.inspection.km_out, v.km_out) }}</td>
+          <td>{{ sub(t.inspection.km_in, v.km_in) }}{{ sub(t.inspection.km_driven, v.km_driven) }}<br>{{ sub(t.inspection.km_included, v.km_included_eff) }}{{ sub(t.inspection.km_billed, v.km_billed) }}</td></tr>
+      <tr><th>{{ t.inspection.fuel }}</th><td>{{ gauge(v.fuel_out) }}<span class="fuel-text">{{ v.fuel_out_text }}</span></td><td>{{ gauge(v.fuel_in) }}<span class="fuel-text">{{ v.fuel_in_text }}</span></td></tr>
+      <tr><th>{{ t.inspection.car_papers }}</th><td>{{ yesno(v.dep_check.car_papers) }}</td><td>{{ yesno(v.ret_check.car_papers) }}</td></tr>
+      <tr><th>{{ t.inspection.clean_inside }}</th><td>{{ yesno(v.dep_check.clean_inside) }}</td><td>{{ yesno(v.ret_check.clean_inside) }}</td></tr>
+      <tr><th>{{ t.inspection.clean_outside }}</th><td>{{ yesno(v.dep_check.clean_outside) }}</td><td>{{ yesno(v.ret_check.clean_outside) }}</td></tr>
+      <tr><th>{{ t.inspection.gps }}</th><td>{{ yesno(v.dep_check.gps) }}</td><td>{{ yesno(v.ret_check.gps) }}</td></tr>
+    </table>
+    <div class="panel strip">
+      <h4>{{ t.inspection.reference_set }}{% if v.ref_set_date %}<small>{{ v.ref_set_date }}</small>{% endif %}</h4>
+      <div class="thumbs nine">{% for ph in v.ref_photos %}{{ thumb(ph) }}{% else %}{% for i in range(9) %}<figure><div class="ph-empty"></div></figure>{% endfor %}{% endfor %}</div>
+    </div>
+    <div class="panels">
+      <div class="panel">
+        <h4>{{ t.inspection.departure }} · {{ t.inspection.dashboard }} · {{ t.inspection.extra_photos }}</h4>
+        <div class="thumbs four">{% for ph in v.dep_more_photos %}{{ thumb(ph) }}{% endfor %}</div>
+        <h4>{{ t.inspection.open_damage }}</h4>
+        {% for d in v.open_damages %}{{ damage(d) }}{% else %}<div class="note muted">{{ v.none_text }}</div>{% endfor %}
+        {% if v.dep_comment %}<h4>{{ t.inspection.comment }}</h4><div class="note">{{ v.dep_comment }}</div>{% endif %}
+      </div>
+      <div class="panel">
+        {% if v.has_return %}
+          <h4>{{ t.inspection.return }} · {{ t.inspection.new_damage }}</h4>
+          {% if v.ras %}<div class="ras">{{ t.inspection.ras }}</div>{% else %}{% for d in v.new_damages %}{{ damage(d) }}{% endfor %}{% endif %}
+          <h4>{{ t.inspection.dashboard }}</h4>
+          <div class="thumbs four">{% for ph in v.ret_more_photos %}{{ thumb(ph) }}{% endfor %}</div>
+          <h4>{{ t.inspection.comment }}</h4>
+          <div class="note">{{ v.ret_comment }}</div>
+        {% else %}
+          <h4>{{ t.inspection.return }} · {{ t.inspection.new_damage }}</h4>
+          <div class="note muted">{{ v.pending_return_text }}</div>
+        {% endif %}
+        {% if v.has_photos %}<div class="note muted" style="margin-top:auto">{{ t.inspection.more_photos }}</div>{% endif %}
+      </div>
+    </div>
+
+  {%- elif p.kind == 'terms' %}
+    {% if p.html %}<div class="terms">{{ p.html | safe }}</div>
+    {% else %}<div class="pending"><b>{{ t.terms.pending_title }}</b>{{ t.terms.pending_text }}</div>{% endif %}
+
+  {%- elif p.kind == 'amendment' %}
+    <div class="note">{{ t.amendment.intro }}</div>
+    <table class="kv">
+      <colgroup><col style="width:33mm"><col><col style="width:33mm"><col style="width:40mm"></colgroup>
+      <tr><th>{{ t.amendment.date }}</th><td>{{ p.a.at }}</td><th>{{ t.amendment.revision }}</th><td>{{ p.a.revision }}</td></tr>
+      <tr><th>{{ t.amendment.agent }}</th><td>{{ p.a.agent }}</td><th>{{ t.meta.contract_no }}</th><td>{{ doc.number }}</td></tr>
+      <tr><th>{{ t.amendment.reason }}</th><td colspan="3">{{ p.a.reason }}</td></tr>
+    </table>
+    <table class="amend">
+      <colgroup><col style="width:45mm"><col><col></colgroup>
+      <thead><tr><th>{{ t.amendment.field }}</th><th>{{ t.amendment.before }}</th><th>{{ t.amendment.after }}</th></tr></thead>
+      <tbody>{% for ch in p.a.changes %}<tr><th>{{ ch.label }}</th><td class="old">{{ ch.before }}</td><td>{{ ch.after }}</td></tr>{% endfor %}</tbody>
+    </table>
+
+  {%- elif p.kind == 'photos' %}
+    <div class="annex">
+      {% for f in p.figures %}
+      <figure><div class="img"><img src="{{ f.src }}" alt=""></div>
+        <figcaption><span><b>{{ f.title }}</b>{% if f.comment %} — {{ f.comment }}{% endif %}{% if f.imported %}<span class="tag">{{ t.inspection.imported }}</span>{% endif %}</span><span class="right">{{ f.meta }}</span></figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+  {%- endif %}
+  </main>
+
+  <div class="sigrow">
+    <div class="sigtext">{% if p.sigtext %}<div class="acc"><b>{{ p.sigtext_title }}</b>{{ p.sigtext }}</div>{% endif %}</div>
+    <div class="sigblock">{{ sigbox(p.sig_left) }}{{ sigbox(p.sig_right) }}</div>
+  </div>
+
+  <footer class="pf">
+    <div><b>{{ co.name }}</b><br>{{ co.address_line }}, {{ co.postcode_city }}<br>{{ t.footer.siret }} {{ co.siret }} · {{ t.footer.ape }} {{ co.ape }}</div>
+    <div>{{ t.footer.tel }} {{ co.phones | join(' · ') }}<br>{{ t.footer.web }} {{ co.web }}{% if co.email %} · {{ co.email }}{% endif %}</div>
+    <div class="pg"><b>{{ p.page_label }}</b><br>{{ doc.generated }}</div>
+  </footer>
+</section>
+{% endfor %}
+</body>
+</html>

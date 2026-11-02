@@ -15,7 +15,7 @@ As the developer, I want the tables, constraints, access rules and storage bucke
 ## Acceptance criteria
 
 - [ ] Migrations create the tables listed in the notes. Every table has UUID primary keys, `created_at`/`created_by` and English snake_case names.
-- [ ] The fields cover every field of the current contract (see `discovery/source-analysis.md` §2.2). For the card, only the last four digits (exactly 4 digits, checked by the database) and the expiry date (MM/YY) are stored. There is no column for a full card number or a CVV (F-09, [ADR-0006](../adr/0006-contract-only-scope.md)).
+- [ ] The fields cover every field of the current contract and of the model template (R-02, answered 2026-11-02), as listed in [`contract-template/field-map.md`](../contract-template/field-map.md). For the card, only the last four digits (exactly 4 digits, checked by the database) and the expiry date (MM/YY) are stored. There is no column for a full card number or a CVV (F-09, [ADR-0006](../adr/0006-contract-only-scope.md)).
 - [ ] Storage is language-neutral: enumerations as codes, fuel as an integer from 0 to 8 (eighths), amounts as `numeric(10,2)`, times as `timestamptz` ([ADR-0011](../adr/0011-localisation.md)).
 - [ ] Free-text fields have maximum lengths, so the contract pages never overflow ([ADR-0010](../adr/0010-contract-pdf-generation.md)). For example, 80 characters for names and address lines, and 500 for comments.
 - [ ] A partial unique index allows at most one `active` contract per vehicle. Check constraints keep km ≥ 0 and fuel between 0 and 8.
@@ -39,4 +39,5 @@ As the developer, I want the tables, constraints, access rules and storage bucke
 - Vehicle statuses: `available`, `rented`, `maintenance`, `archived` (default for R-13). Contract statuses: `draft`, `active`, `closed`, `void` ([ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)).
 - Contract numbers: `MCR-YYYY-NNNN` (default for R-09).
 - Client fields are listed in US-031 (default for R-03). Maintenance fields are in US-080 (default for R-14).
+- Columns added for the model template's fields (R-02): in `clients`, `title`, `first_name` and `last_name` (instead of `full_name`), `email`, `state_region`, and the issue and expiry dates of the ID document and the licence; in the contract terms, the pick-up place, flight or train, number of days, deposit, services included, additional information and a second « Jours sup » rate; in `inspections`, car papers, clean inside, clean outside and GPS (yes/no); in `staff_profiles`, `display_name`, printed on the contract (R-19).
 - This can be delivered as two pull requests: tables and RLS first, then storage.

@@ -243,39 +243,43 @@ Every page has the logo at the top right and the company addresses and contacts 
 ### 3.4 Current vs model: field comparison
 
 The user's instruction is `CONFIRMED`: keep the model's presentation **with every field of the current form**.
-This table shows the overlap and what remains open.
+On 2026-11-02 the model's own fields were kept too (R-02). The result is template v1, in
+[`../contract-template/`](../contract-template/README.md). This table shows the overlap and how each item was handled.
 
 | Information | current_template | model_template | Handling |
 |---|---|---|---|
-| Renter name | one line | title / first / last | Keep. Structure open (R-02) |
-| Home address | street, postcode, city | street, ZIP, city, state, country | Keep. Add a country? (R-03) |
+| Renter name | one line | title / first / last | Title, first and last name (R-02) |
+| Home address | street, postcode, city | street, ZIP, city, state, country | Keep, with a country (R-03 default) and a state or region (R-02) |
 | Local / contact address + phone | yes | – | Keep |
-| Email | – | yes | `OPEN` (R-02) |
+| Email | – | yes | Kept (R-02) |
 | Phone | « Tél. » lines | Mobile no. | Keep |
 | Date of birth | yes (+ a country) | yes | Keep |
-| ID document | passport or ID card + country | Passport/ID no. + issue/expiry | Keep. Expiry `OPEN` (R-02) |
-| Licence | number | number + issue/expiry | Keep. Dates `OPEN` (R-02, R-04) |
+| ID document | passport or ID card + country | Passport/ID no. + issue/expiry | Keep, with issue and expiry dates (R-02) |
+| Licence | number | number + issue/expiry | Keep, with issue and expiry dates (R-02). Checks `OPEN` (R-04) |
 | Additional driver | name, DOB, licence | name | Keep the current fields |
-| Departure / return place | « Lieu de retour » only | pick-up and drop-off locations | `OPEN` (R-05) |
+| Departure / return place | « Lieu de retour » only | pick-up and drop-off locations | Pick-up place added (R-02). Format `OPEN` (R-05) |
 | Dates | départ, retour, planned retour | pick-up and drop-off date-time | Keep. Times `OPEN` (R-05) |
 | Contract / reservation number | none (invoice ref. handwritten) | Reservation no. | Needed (R-09) |
-| Flight / train | – | yes | `OPEN` (R-02) |
+| Flight / train | – | yes | Kept (R-02) |
 | Vehicle: plate, model, colour, fuel type | yes | make, plate, fuel type | Keep the current fields |
 | Km out / in / driven / allowed / billed | yes | one km reading | Keep the current fields |
-| Fuel | eighths, départ + retour | % (pick-up) | `OPEN` (R-06) |
-| Car papers on board | no field, but CGV Art. 9 requires the documents back at return | yes/no | `OPEN` (R-02) |
-| Cleanliness, GPS | – | yes/no | `OPEN` (R-02) |
+| Fuel | eighths, départ + retour | % (pick-up) | Eighths, with the percentage printed next to them (R-06 default, R-02) |
+| Car papers on board | no field, but CGV Art. 9 requires the documents back at return | yes/no | Kept, at the Départ and the Retour (R-02) |
+| Cleanliness, GPS | – | yes/no | Kept, at the Départ and the Retour (R-02) |
+| Number of days | in « Forfait … pour … jours » | No of Day(s) | Kept as its own field, typed (R-02, F-06) |
+| Additional information | – | yes | Kept, per rental (R-02, `INTERPRETATION`) |
+| Services included | – | insurance and liability per damage | Kept as free text (R-02) |
 | Rates (daily tiers, package, extra day/km) | yes | – | Keep |
 | Deductible (theft, accident) | yes | liability per damage | Keep the current fields |
-| Deposit | CGV Art. 7 / « Total prépayé »? | Deposit | `OPEN` (R-07) |
+| Deposit | CGV Art. 7 / « Total prépayé »? | Deposit | « Dépôt de garantie » added (R-02). Link with « Total prépayé » `OPEN` (R-07) |
 | Pricing lines, HT / TVA / TTC, prepaid, balance | yes | – | Keep. Invoice status `OPEN` (B-04) |
 | Payment method | ESP / CC | – | Keep |
 | Card imprint, expiry, CVV | yes | – | Kept: brand and last four digits, expiry date; CVV box always empty (F-09) |
 | Intermediary + phone | yes | – | Keep. Meaning `OPEN` (R-08) |
-| Staff / pick-up driver | – | yes | `OPEN` (R-19) |
+| Staff / pick-up driver | – | yes | Printed as « Agent au départ » and « Agent au retour » (R-19 Q1) |
 | Damage recording | outline + legend + 2 lines, plus the model-drawings page | generic outline | Photos only (`CONFIRMED`, brief). Comments `OPEN` (R-10) |
-| Signatures | 4 zones on page 1 | 1 per page | `OPEN` (B-06) |
-| Terms | French, on the back | English, page 3 | Contract language chosen per contract (`CONFIRMED`). English text `OPEN` (R-17) |
+| Signatures | 4 zones on page 1 | 1 per page | One signature per handover on every page, bottom right (B-06, F-08) |
+| Terms | French, on the back | English, page 3 | Contract language chosen per contract (`CONFIRMED`). French v1 typed from the scan (2026-11-02). English text `OPEN` (R-17) |
 
 ## 4. `meeting_client.pdf`: notes and wireframe
 

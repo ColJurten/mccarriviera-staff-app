@@ -15,6 +15,7 @@ As a staff member, I want to choose French or English and get the signed contrac
 ## Acceptance criteria
 
 - [ ] After signing, staff choose « Français » or « English » (brief, step 5). The default is the language shown on the recap screen.
-- [ ] The PDF shows the departure signature in the « Signature départ » box at the bottom right of every page. The « Signature retour » boxes and the Retour column are empty.
+- [ ] The PDF shows the departure signature in the « Signature départ » box at the bottom right of every page. The « Signature retour » boxes, the Retour column and the « Décompte final » column are empty.
+- [ ] The photo annex shows the departure photos at full size (R-01 Q2).
 - [ ] The PDF is archived and the share sheet opens ([US-042](US-042-archive-and-share-pdfs.md)).
 - [ ] The same contract can be generated again later in the other language ([US-063](US-063-reopen-or-regenerate-a-pdf.md)).

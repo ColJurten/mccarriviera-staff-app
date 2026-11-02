@@ -1,0 +1,287 @@
+{
+  "_comment": "Contract labels and fixed texts in English (ADR-0011). Same keys as fr.json. The fixed legal sentences (acceptance, declaration, terms summary) are draft translations awaiting approval (R-17, L-02).",
+  "lang": "en",
+  "doc_title": "Rental contract / invoice",
+  "specimen": "Specimen",
+  "logo_note": "logo to be supplied",
+  "meta": {
+    "contract_no": "Contract no.",
+    "revision": "Revision",
+    "issued": "Issued on",
+    "stage_departure": "Pick-up PDF",
+    "stage_final": "Final PDF",
+    "stage_blank": "Blank template"
+  },
+  "titles": {
+    "contract": "Rental agreement",
+    "financial": "Rates and payment",
+    "inspection": "Vehicle inspection",
+    "inspection_cont": "Vehicle inspection (continued)",
+    "terms": "General terms and conditions",
+    "amendment": "Amendment no. {n}",
+    "photos": "Photo annex"
+  },
+  "trip": {
+    "bar": "Pick-up and drop-off",
+    "pickup_place": "Pick-up location",
+    "pickup_at": "Pick-up date & time",
+    "return_place": "Drop-off location",
+    "planned_return": "Planned return",
+    "rental_days": "Number of days",
+    "flight_train": "Flight / train",
+    "intermediary": "Intermediary",
+    "intermediary_phone": "Phone"
+  },
+  "renter": {
+    "bar": "Renter / main driver",
+    "name": "Renter",
+    "civility": "Title",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "birth_date": "Date of birth",
+    "birth_place": "Place of birth",
+    "email": "Email",
+    "phone": "Phone",
+    "street": "Billing address",
+    "postcode": "Postcode",
+    "city": "City",
+    "state": "State / region",
+    "country": "Country",
+    "local_address": "Local address",
+    "local_phone": "Local phone",
+    "id_doc": "ID document",
+    "id_country": "Country",
+    "issue_expiry": "Issued / expires",
+    "licence": "Driving licence no.",
+    "additional_info": "Additional information"
+  },
+  "civility": {
+    "m": "Mr",
+    "mme": "Ms"
+  },
+  "id_types": {
+    "passport": "Passport",
+    "id_card": "ID card"
+  },
+  "driver": {
+    "bar": "Second driver / additional driver",
+    "name": "Full name",
+    "birth_date": "Date of birth",
+    "licence": "Driving licence no."
+  },
+  "vehicle": {
+    "bar": "Vehicle",
+    "make_model": "Make & model",
+    "plate": "Licence plate",
+    "colour": "Colour",
+    "fuel_type": "Fuel type",
+    "km_out": "Kms out",
+    "km_included": "Kms allowed"
+  },
+  "fuel_types": {
+    "unleaded_95": "Unleaded 95",
+    "unleaded_98": "Unleaded 98",
+    "diesel": "Diesel"
+  },
+  "rules": {
+    "bar": "Key points of the general terms",
+    "flag": "Summary of the general terms; draft wording to be approved (L-02, R-17).",
+    "items": [
+      "Fuel: the vehicle is supplied with a full tank; if it is not returned full, refuelling is invoiced (art. 6).",
+      "Keys: if they are lost, a flat fee of €350 is charged (art. 2).",
+      "Driving area: mainland France and Monaco only (art. 2).",
+      "Extension: to be requested at least 48 hours in advance (art. 8).",
+      "Return: vehicle, keys and documents at the agreed place and date, during opening hours (art. 9).",
+      "Fines: payable by the renter and the approved driver, plus a €25 administrative fee per fine (art. 10)."
+    ]
+  },
+  "agent": {
+    "departure": "Pick-up agent",
+    "return": "Drop-off agent"
+  },
+  "rates": {
+    "bar": "Rates",
+    "rate_1_3": "Daily rate 1–3 days",
+    "rate_4_7": "4–7 days",
+    "extra_day": "Extra day",
+    "km_included": "Km included",
+    "package": "Package",
+    "package_for": "for {days} days",
+    "extra_km": "Extra km"
+  },
+  "deductible": {
+    "bar": "Minimum deductible",
+    "card_brand": "Card",
+    "theft": "Excess theft",
+    "accident": "Excess at-fault accident"
+  },
+  "card_brands": {
+    "visa": "VISA",
+    "amex": "AMEX",
+    "other": "OTHER"
+  },
+  "services": {
+    "bar": "Services included",
+    "deposit": "Security deposit"
+  },
+  "payment": {
+    "bar": "Payment method",
+    "cash": "Cash",
+    "card": "Card",
+    "imprint": "Credit card imprint, card type",
+    "expiry": "Expiry date",
+    "cvv": "CVV"
+  },
+  "pricing": {
+    "bar": "Charges",
+    "at_departure": "At pick-up",
+    "final": "Final statement",
+    "rental": "Rental",
+    "extra_days": "Extra days",
+    "extra_km": "Extra km",
+    "rental_total_ht": "Rental excl. VAT",
+    "under_25": "Under-25 insurance",
+    "extra_driver": "Additional driver",
+    "delivery": "Delivery",
+    "option_1": "Option I",
+    "option_2": "Option II",
+    "option_3": "Option III",
+    "fuel": "Fuel",
+    "misc": "Miscellaneous",
+    "total_ht": "Total excl. VAT",
+    "vat": "VAT {rate}%",
+    "total_ttc": "Total incl. VAT",
+    "total_prepaid": "Total prepaid",
+    "balance": "Balance",
+    "typed": "Amounts entered by the agency."
+  },
+  "acceptance": {
+    "title": "Acceptance",
+    "text": "I have read and accepted the conditions set out opposite and overleaf in this contract. I am solely responsible for any offence against road traffic, parking or other regulations, and I authorise the rental company to collect the amount of this rental, the deductible, damage and fines using the credit card designated in this contract, including by remote payment."
+  },
+  "inspection": {
+    "recap": "Contract summary",
+    "departure": "Pick-up",
+    "return": "Drop-off",
+    "at": "Date & time",
+    "agent": "Agent",
+    "km": "Mileage",
+    "km_out": "Kms out",
+    "km_in": "Kms in",
+    "km_driven": "Kms driven",
+    "km_included": "Kms allowed",
+    "km_billed": "Extra kms",
+    "fuel": "Fuel gauge",
+    "car_papers": "Car papers",
+    "clean_inside": "Clean inside",
+    "clean_outside": "Clean outside",
+    "gps": "GPS / navigation",
+    "yes": "Yes",
+    "no": "No",
+    "reference_set": "Reference photos",
+    "reference_set_of": "set of {date}",
+    "dashboard": "Dashboard",
+    "extra_photos": "Extra photos",
+    "open_damage": "Damage already present at pick-up",
+    "new_damage": "New damage",
+    "ras": "Nothing to report",
+    "comment": "Comment",
+    "none": "None",
+    "imported": "imported",
+    "pending_return": "Completed at drop-off",
+    "more_photos": "All photos at full size: photo annex.",
+    "declaration_title": "Declaration",
+    "declaration": "I declare that I have inspected the vehicle at pick-up and/or drop-off and accept its condition."
+  },
+  "angles": {
+    "front": "Front",
+    "front_left": "Front left",
+    "left": "Left side",
+    "rear_left": "Rear left",
+    "rear": "Rear",
+    "rear_right": "Rear right",
+    "right": "Right side",
+    "front_right": "Front right",
+    "interior": "Interior"
+  },
+  "photo_kinds": {
+    "reference": "Reference",
+    "damage": "Damage",
+    "extra": "Extra photo",
+    "dashboard": "Dashboard"
+  },
+  "amendment": {
+    "intro": "Change to the contract after the pick-up signature. All other conditions are unchanged.",
+    "date": "Date of the amendment",
+    "revision": "Contract revision",
+    "agent": "Agent",
+    "reason": "Reason",
+    "field": "Changed item",
+    "before": "Before",
+    "after": "After",
+    "fields": {
+      "planned_return": "Planned return",
+      "return_place": "Drop-off location",
+      "km_included": "Kms allowed",
+      "rental_days": "Number of days",
+      "additional_driver": "Additional driver"
+    }
+  },
+  "terms": {
+    "version": "General terms, version {v}",
+    "pending_title": "English general terms pending",
+    "pending_text": "There is no approved English version of the general terms yet (R-17). Until there is, the app refuses to generate English PDFs; this specimen shows the layout only."
+  },
+  "annex": {
+    "stage_departure": "Pick-up",
+    "stage_return": "Drop-off",
+    "taken": "Taken on {date}",
+    "photo_n": "Photo {n} of {total}"
+  },
+  "sig": {
+    "departure": "Pick-up signature",
+    "return": "Drop-off signature",
+    "amendment": "Amendment no. {n} signature",
+    "no_client_signature": "Without the client's signature",
+    "signed_on": "Signed on {date}",
+    "pending": "Awaiting signature"
+  },
+  "footer": {
+    "siret": "SIRET",
+    "ape": "APE",
+    "tel": "Tel.",
+    "web": "Web",
+    "page": "Page {n} of {total}",
+    "generated": "Issued on {date} · template {tpl} · terms {terms}",
+    "terms_none": "pending"
+  },
+  "fmt": {
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "date": "{d} {month} {y}",
+    "datetime": "{date} · {time}",
+    "decimal": ".",
+    "thousands": ",",
+    "money": "€{n}",
+    "km": "{n} km",
+    "per_km": "€{n} / km",
+    "per_day": "€{n} / day"
+  },
+  "contract_declaration": {
+    "title": "Declaration",
+    "text": "I declare that I have read and understood this contract and that I accept the general terms and conditions."
+  },
+  "signed_terms_note": "Conditions as signed at pick-up (revision 1). Later changes are in the amendments."
+}

@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | B-04, B-05, B-10 · F-06, F-09 (answered) · L-02, L-04, L-05 |
+| **Accepted** | 2026-10-07 (updated 2026-11-02) | Developer, with the client's answers | B-04, B-05, B-10 · F-06, F-09, R-02 (answered) · L-02, L-04, L-05 |
 
 ## Context
 
@@ -22,7 +22,8 @@
   - the « Conditions & tarifs » box;
   - the deductible block, with the card brand (VISA / AMEX / AUTRE) as a simple choice;
   - the payment method (ESP / CC) as a simple choice;
-  - the whole pricing block, from « Location » to « Solde ».
+  - the whole pricing block, from « Location » to « Solde »;
+  - since R-02 (2026-11-02), the model template's fields too, among them the security deposit amount and the services included. They are typed and printed only: the deposit itself is taken outside the app (B-10).
 - **Amounts:**
   - Staff type every price line (B-05).
   - Totals (Total HT, TVA, Total TTC, Total prépayé, Solde), costs and the number of rental days are typed by hand too. The app calculates none of them (F-06, answered 2026-10-09).
@@ -67,6 +68,7 @@ The company wants the app to calculate prices, totals or invoices.
 
 - 2026-10-09: F-06 answered: totals, costs and the number of rental days are typed by staff.
 - 2026-10-09 (later): F-09 answered: the card fields stay, limited to the last four digits and the expiry date, with an empty CVV box (they were removed by default).
+- 2026-11-02: R-02 answered: the model template's deposit and services-included fields are added, as typed values only.
 
 ## Implemented by
 
