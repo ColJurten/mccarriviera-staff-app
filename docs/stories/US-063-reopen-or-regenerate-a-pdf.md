@@ -5,8 +5,8 @@
 | E6 · Active rentals | Should | P4 | S | To do |
 
 - **Depends on:** [US-042](US-042-archive-and-share-pdfs.md) · [US-055](US-055-departure-pdf.md)
-- **Decisions:** [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0011](../adr/0011-localisation.md)
-- **Open points:** R-17 (see [open questions](../discovery/open-questions.md))
+- **Decisions:** [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0011](../adr/0011-localisation.md) · [ADR-0020](../adr/0020-signatures-with-documenso.md)
+- **Open points:** R-17, L-01 (see [open questions](../discovery/open-questions.md))
 
 ## Story
 
@@ -17,4 +17,4 @@ As a staff member, I want to send a contract again, or in the other language, so
 - [ ] A contract screen lists its archived PDFs (stage, language, date). Any of them can be opened and shared.
 - [ ] « Générer en English / Français » renders the same revision in the other language. It uses the same template version and the terms version of that language in force at signature (default for R-17).
 - [ ] If no terms version existed in that language at signature, the regeneration is refused with an explanation.
-- [ ] The new file has the same content but its own bytes and hash. It is archived as a new document, and the original stays the reference.
+- [ ] The copy isn't signed by the client. It carries the signature images and a line « Copie du … — original signé : … », with the original's file name and the start of its SHA-256. It is archived as a new document, and the sealed original stays the reference (`RECOMMENDED`, [ADR-0010](../adr/0010-contract-pdf-generation.md); L-01).

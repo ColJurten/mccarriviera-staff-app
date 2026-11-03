@@ -14,8 +14,8 @@ As the company, I want to cut access from a lost phone or a departing employee w
 
 ## Acceptance criteria
 
-- [ ] A runbook procedure and a script, run by the developer, set the staff profile to inactive, sign out all of that user's sessions, and can ban the account.
-- [ ] After revocation, every request from that phone is refused immediately (RLS). The app shows « Compte désactivé » and deletes its cached files.
+- [ ] A runbook procedure and a script, run by the developer, set the staff profile to inactive and revoke all of that user's sessions (better-auth).
+- [ ] After revocation, every request from that phone is refused immediately, since the API checks the session and the profile on every request. The app shows « Compte désactivé » and deletes its cached files.
 - [ ] The developer can re-enable the account, or create a new one for a new phone.
 - [ ] The revocation is recorded in the audit trail.
 - [ ] The staff device-use rule (L-03) tells staff to report a lost phone immediately.

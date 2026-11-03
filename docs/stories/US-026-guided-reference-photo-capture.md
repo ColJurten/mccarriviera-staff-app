@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | E2 · Home and vehicles | Must | P1 | M | To do |
 
-- **Depends on:** [US-005](US-005-eas-builds-and-internal-distribution.md) · [US-006](US-006-core-database-schema-and-rls.md)
+- **Depends on:** [US-005](US-005-eas-builds-and-internal-distribution.md) · [US-006](US-006-core-database-schema-and-storage.md)
 - **Decisions:** [ADR-0008](../adr/0008-vehicle-condition-model.md) · [ADR-0013](../adr/0013-personal-device-data-protection.md) · [ADR-0014](../adr/0014-file-storage.md) · [ADR-0005](../adr/0005-online-only.md)
 - **Open points:** B-09 Q1 (see [open questions](../discovery/open-questions.md))
 

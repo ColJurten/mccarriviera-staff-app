@@ -106,3 +106,15 @@ labels below.
 | Recto · Verso | Front · Back (of the paper contract) |
 | Annexe photos | Photo annex | The last pages of the contract PDF: every photo at full size (R-01 Q2) |
 | Spécimen | Specimen | A sample PDF filled with invented data, never a real contract |
+
+## Technical terms
+
+| Term | Meaning in this project |
+|---|---|
+| API (server) | The developer's own back end, in TypeScript with Fastify: logins, permission checks, file links, PDF rendering and the link to Documenso ([ADR-0019](adr/0019-backend-own-api-postgres-s3.md)) |
+| Documenso | The open-source signing application, hosted next to the API. The client signs in it, on the staff phone ([ADR-0020](adr/0020-signatures-with-documenso.md)) |
+| Envelope | Documenso's word for a document sent for signature, with its signers and signature fields |
+| Sealed PDF · Cachet PAdES | The signed PDF that Documenso returns, with a digital seal over the whole file: any later change is detectable. Sealed with the company's certificate |
+| Self-signed certificate | The company's own sealing certificate, not issued by a recognised authority: the seal is intact, but Adobe Reader shows the company's identity as unverified (F-17, L-01) |
+| Presigned link | A temporary link (5 minutes at most) to one private file, issued by the API after its checks ([ADR-0014](adr/0014-file-storage.md)) |
+| Staging | The test environment, on the developer's homelab, with invented data only (F-14) |

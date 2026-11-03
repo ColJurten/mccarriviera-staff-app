@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | E2 · Home and vehicles | Must | P1 | M | To do |
 
-- **Depends on:** [US-010](US-010-sign-in-and-sign-out.md) · [US-006](US-006-core-database-schema-and-rls.md)
+- **Depends on:** [US-010](US-010-sign-in-and-sign-out.md) · [US-006](US-006-core-database-schema-and-storage.md)
 - **Decisions:** [ADR-0005](../adr/0005-online-only.md)
 - **Open points:** N-03 (see [open questions](../discovery/open-questions.md))
 

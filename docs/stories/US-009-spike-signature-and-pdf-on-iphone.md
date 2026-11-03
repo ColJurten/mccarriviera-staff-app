@@ -1,28 +1,33 @@
-# US-009 · Spike: prove signature capture and PDF generation on a real iPhone
+# US-009 · Spike: prove Documenso signing and server-rendered PDFs on a real iPhone
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
-| E0 · Foundations | Must | P0 | S | To do |
+| E0 · Foundations | Must | P0 | M | To do |
 
 - **Depends on:** [US-005](US-005-eas-builds-and-internal-distribution.md)
-- **Decisions:** [ADR-0009](../adr/0009-signatures.md) · [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0002](../adr/0002-mobile-stack-expo.md) · [ADR-0018](../adr/0018-development-and-test-devices.md)
-- **Open points:** — (see [open questions](../discovery/open-questions.md))
+- **Decisions:** [ADR-0020](../adr/0020-signatures-with-documenso.md) · [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0002](../adr/0002-mobile-stack-expo.md) · [ADR-0018](../adr/0018-development-and-test-devices.md)
+- **Open points:** F-16, L-01 (see [open questions](../discovery/open-questions.md))
 
 ## Story
 
-As the developer, I want to try the riskiest technical parts on a real iPhone before building features, so that the signature and PDF choices are proven early.
+As the developer, I want to try the riskiest technical parts on a real iPhone before building features, so that the signing and PDF choices are proven early.
 
 ## Acceptance criteria
 
-- [ ] Two signature pads are tried on an iPhone: react-native-signature-canvas and a Skia-based pad. One is chosen for smooth strokes, a clean PNG export at print resolution, and access to stroke points.
-- [ ] A test PDF is produced with expo-print, using explicit A4 page blocks. It has a contract page, a photo section that continues over several pages (30 thumbnails), full-size photo pages, terms over several pages, and 5 amendment blocks.
-- [ ] Every page, including continuation pages, repeats the header, the footer and the signature block at the bottom right, at the same position.
-- [ ] The same document in French and in English keeps the slots in the same position (B-07).
-- [ ] A typical contract (10 photos) is generated in under 5 seconds on the oldest staff phone. The 30-photo case is measured.
-- [ ] The PDF opens correctly in Files, Mail and WhatsApp.
-- [ ] PDF rendering is judged on the iPhone only: the Android emulator renders PDFs differently ([ADR-0018](../adr/0018-development-and-test-devices.md)).
-- [ ] Findings and the chosen library are recorded. If the approach has to change, a new ADR supersedes ADR-0010.
+- [ ] A throwaway Documenso (pinned version, Community Edition) runs on the homelab VM, with a self-signed .p12 certificate and public sign-up disabled.
+- [ ] A test PDF is rendered with Chromium (Playwright) from the template v1 prototype, with synthetic data: a contract page, 30 photo thumbnails continuing over several pages, full-size photo pages, terms over several pages and 5 amendment pages. Every page repeats the header, the footer and the signature box at the same position, in French and in English (B-07).
+- [ ] The PDF is sent to Documenso through its API (v2), with a signature field in the « Signature départ » box of every page, and its signing page opens in a react-native-webview on the test iPhone.
+- [ ] **One drawing fills every signature field** (F-17). If Documenso asks for a tap on each field, this is measured, and the options are taken to the client before US-044.
+- [ ] Documenso's e-mails to the signer can be switched off for the document, and the signer can be a placeholder address on a subdomain with no mail server (F-16). How is recorded.
+- [ ] The webhook `DOCUMENT_COMPLETED` reaches a test endpoint and is checked with its secret. The sealed PDF downloads, and opens in Files, Mail and WhatsApp. Adobe Reader shows the seal (signer identity unverified, with a self-signed certificate) and detects a modified copy.
+- [ ] The image of the client's signature can be read back, through Documenso's API or its database, for the final PDF (F-17).
+- [ ] Replacing a waiting envelope works (deleting it and creating a new one), for the language switch in the preview.
+- [ ] The web view keeps no cookies, cache or local storage once closed.
+- [ ] Timings are recorded: rendering a 10-photo contract on the server, creating the envelope, and opening the signing page on the phone over mobile data. The 30-photo case is measured.
+- [ ] Whether Documenso's embedding script or its plain signing page works better in the web view is recorded.
+- [ ] Findings are recorded. If something doesn't work, ADR-0020 is changed before any feature builds on it. DocuSeal is the fallback to try.
 
 ## Notes
 
 - This is throwaway code. Only what is learned is kept.
+- It doesn't wait for US-004: the throwaway Documenso and a small test endpoint run on the homelab.

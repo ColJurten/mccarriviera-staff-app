@@ -1,7 +1,7 @@
 # User stories: MVP backlog
 
-57 stories (49 Must, 6 Should, 2 Could), written from the brief, the
-reference documents and the answers of 2026-10-07 and 2026-10-09, and revised after an independent review. Each story links the decisions
+59 stories (51 Must, 6 Should, 2 Could), written from the brief, the
+reference documents and the answers of 2026-10-07, 2026-10-09, 2026-11-02 and 2026-11-03, and revised after an independent review. Each story links the decisions
 ([`../adr/`](../adr/README.md)) and the open points ([`../discovery/open-questions.md`](../discovery/open-questions.md)) it
 depends on.
 
@@ -16,7 +16,7 @@ depends on.
 - **Priority:** **Must** = needed for the MVP; **Should** = MVP if time allows; **Could** = only if needed.
 - **Status:** To do · In progress · Blocked · Done. Update the status line in the story file.
 - **Size:** S ≈ up to 1 day, M ≈ 2–3 days, L ≈ 4–5 days, for one developer. These are rough guides for ordering, not commitments.
-  - Must stories add up to roughly 95 developer-days (103 for everything).
+  - Must stories add up to roughly 107 developer-days (115 for everything).
   - Add time for learning React Native and iOS, and for waiting on Apple, the client and the lawyer.
 
 ## Definition of Ready
@@ -33,8 +33,8 @@ depends on.
 
 - Every acceptance criterion is met.
 - Stories with a user-facing part are demonstrated on a real iPhone with a staging build.
-- Typecheck, lint, unit tests, HTML snapshot tests and database tests pass in CI.
-- Any new table has RLS policies, and any state change goes through a server function. No bucket is public, and no service-role or S3 key is in the app.
+- Typecheck, lint, unit tests, API tests, contract PDF tests and database tests pass in CI.
+- Every new API route requires an active staff session, and any state change goes through a SQL function in one transaction. No bucket is public, and no database credential or storage key is in the app.
 - No real personal data appears in code, fixtures, seeds, screenshots, logs or crash reports.
 - Any new UI text is in the French catalogue; any new contract text is in both catalogues.
 - Every new write path is covered by the audit trail.
@@ -52,12 +52,13 @@ flowchart LR
 - [US-001](US-001-apple-developer-account-and-devices.md) Open the Apple developer account and register the iPhones (Must, S)
 - [US-002](US-002-repository-and-agent-guidance.md) Set up the repository, checks and agent guidance (Must, S)
 - [US-003](US-003-expo-app-skeleton.md) Create the Expo app skeleton (Must, M)
-- [US-004](US-004-supabase-environments.md) Create the Supabase environments (Must, S)
+- [US-004](US-004-api-server-and-environments.md) Create the API server and its environments: local, homelab staging, Scaleway production (Must, L)
 - [US-005](US-005-eas-builds-and-internal-distribution.md) Set up EAS builds, internal distribution and over-the-air updates (Must, M)
-- [US-006](US-006-core-database-schema-and-rls.md) Create the core database schema, access rules and storage (Must, L)
+- [US-006](US-006-core-database-schema-and-storage.md) Create the core database schema, access rules and storage (Must, L)
 - [US-007](US-007-audit-trail-and-immutability.md) Record an audit trail and protect signed data (Must, M)
-- [US-009](US-009-spike-signature-and-pdf-on-iphone.md) Spike: prove signature capture and PDF generation on a real iPhone (Must, S)
+- [US-009](US-009-spike-signature-and-pdf-on-iphone.md) Spike: prove Documenso signing and server-rendered PDFs on a real iPhone (Must, M)
 - [US-014](US-014-crash-reporting.md) Report crashes without personal data (Should, S)
+- [US-043](US-043-deploy-documenso.md) Deploy Documenso and connect it to the API (Must, M)
 - [US-092](US-092-legal-and-privacy-checklist.md) Send the legal and privacy questions, and close them before go-live (Must, S)
 
 ### P1 · Access, vehicles and clients
@@ -83,6 +84,7 @@ flowchart LR
 - [US-040](US-040-contract-pdf-template.md) Contract PDF template in French and English, with the signature block at the bottom right (Must, L)
 - [US-041](US-041-general-terms-per-language.md) Manage the general terms (CGV) per language (Must, S)
 - [US-042](US-042-archive-and-share-pdfs.md) Archive, download and share contract PDFs (Must, M)
+- [US-044](US-044-sign-in-documenso-from-the-app.md) Preview a contract PDF and have it signed in Documenso from the app (Must, L)
 
 ### P3 · Départ
 
@@ -91,9 +93,9 @@ flowchart LR
 - [US-052](US-052-fill-in-rental-details.md) Fill in the rental details (Must, M)
 - [US-053](US-053-confirm-departure-condition.md) Confirm the departure condition (Must, M)
 - [US-054](US-054-client-signs-the-depart.md) Client signs the Départ (Must, M)
-- [US-055](US-055-departure-pdf.md) Generate the departure PDF in French or English (Must, M)
+- [US-055](US-055-departure-pdf.md) Preview and deliver the departure PDF in French or English (Must, M)
 - [US-056](US-056-resume-or-discard-a-draft.md) Resume or discard a draft Départ (Should, S)
-- [US-057](US-057-sign-departure-server-function.md) Server function: sign a Départ (Must, M)
+- [US-057](US-057-sign-departure-server-function.md) API: sign a Départ in one database transaction (Must, M)
 
 ### P4 · Active rentals and Retour
 
@@ -132,12 +134,12 @@ flowchart LR
 | [US-001](US-001-apple-developer-account-and-devices.md) | Open the Apple developer account and register the iPhones | E0 | Must | P0 | S | — | To do |
 | [US-002](US-002-repository-and-agent-guidance.md) | Set up the repository, checks and agent guidance | E0 | Must | P0 | S | — | To do |
 | [US-003](US-003-expo-app-skeleton.md) | Create the Expo app skeleton | E0 | Must | P0 | M | US-002 | To do |
-| [US-004](US-004-supabase-environments.md) | Create the Supabase environments | E0 | Must | P0 | S | US-002 | To do |
+| [US-004](US-004-api-server-and-environments.md) | Create the API server and its environments: local, homelab staging, Scaleway production | E0 | Must | P0 | L | US-002 | To do |
 | [US-005](US-005-eas-builds-and-internal-distribution.md) | Set up EAS builds, internal distribution and over-the-air updates | E0 | Must | P0 | M | US-001, US-003 | To do |
-| [US-006](US-006-core-database-schema-and-rls.md) | Create the core database schema, access rules and storage | E0 | Must | P0 | L | US-004 | To do |
+| [US-006](US-006-core-database-schema-and-storage.md) | Create the core database schema, access rules and storage | E0 | Must | P0 | L | US-004 | To do |
 | [US-007](US-007-audit-trail-and-immutability.md) | Record an audit trail and protect signed data | E0 | Must | P0 | M | US-006 | To do |
-| [US-008](US-008-nightly-encrypted-backups.md) | Run nightly encrypted backups and test a restore | E0 | Must | P6 | M | US-006 | To do |
-| [US-009](US-009-spike-signature-and-pdf-on-iphone.md) | Spike: prove signature capture and PDF generation on a real iPhone | E0 | Must | P0 | S | US-005 | To do |
+| [US-008](US-008-nightly-encrypted-backups.md) | Run nightly encrypted backups and test a restore | E0 | Must | P6 | M | US-006, US-043 | To do |
+| [US-009](US-009-spike-signature-and-pdf-on-iphone.md) | Spike: prove Documenso signing and server-rendered PDFs on a real iPhone | E0 | Must | P0 | M | US-005 | To do |
 | [US-010](US-010-sign-in-and-sign-out.md) | Sign in and sign out | E1 | Must | P1 | M | US-004, US-005, US-006 | To do |
 | [US-011](US-011-app-lock-with-face-id.md) | Lock the app with Face ID | E1 | Must | P1 | S | US-010 | To do |
 | [US-012](US-012-revoke-a-staff-members-access.md) | Revoke a staff member's access (lost phone or departure) | E1 | Must | P1 | S | US-010 | To do |
@@ -155,17 +157,19 @@ flowchart LR
 | [US-032](US-032-edit-a-client.md) | Edit a client | E3 | Must | P1 | S | US-031 | To do |
 | [US-033](US-033-client-documents.md) | Attach and view client documents | E3 | Must | P1 | M | US-031 | To do |
 | [US-034](US-034-client-rental-history.md) | Client rental history | E3 | Should | P4 | S | US-031, US-055 | To do |
-| [US-040](US-040-contract-pdf-template.md) | Contract PDF template in French and English, with the signature block at the bottom right | E4 | Must | P2 | L | US-009, US-041 | To do |
+| [US-040](US-040-contract-pdf-template.md) | Contract PDF template in French and English, with the signature block at the bottom right | E4 | Must | P2 | L | US-009, US-041, US-004 | To do |
 | [US-041](US-041-general-terms-per-language.md) | Manage the general terms (CGV) per language | E4 | Must | P2 | S | US-006 | To do |
 | [US-042](US-042-archive-and-share-pdfs.md) | Archive, download and share contract PDFs | E4 | Must | P2 | M | US-040, US-006 | To do |
+| [US-043](US-043-deploy-documenso.md) | Deploy Documenso and connect it to the API | E4 | Must | P0 | M | US-004, US-009 | To do |
+| [US-044](US-044-sign-in-documenso-from-the-app.md) | Preview a contract PDF and have it signed in Documenso from the app | E4 | Must | P2 | L | US-043, US-040, US-042, US-009 | To do |
 | [US-050](US-050-start-a-depart.md) | Start a Départ by choosing an available vehicle | E5 | Must | P3 | M | US-020, US-022, US-006 | To do |
 | [US-051](US-051-choose-renter-and-additional-driver.md) | Choose the renter and the additional driver | E5 | Must | P3 | M | US-050, US-030, US-031 | To do |
 | [US-052](US-052-fill-in-rental-details.md) | Fill in the rental details | E5 | Must | P3 | M | US-050 | To do |
 | [US-053](US-053-confirm-departure-condition.md) | Confirm the departure condition | E5 | Must | P3 | M | US-050, US-026 | To do |
-| [US-054](US-054-client-signs-the-depart.md) | Client signs the Départ | E5 | Must | P3 | M | US-051, US-052, US-053, US-057, US-009 | To do |
-| [US-055](US-055-departure-pdf.md) | Generate the departure PDF in French or English | E5 | Must | P3 | M | US-054, US-040, US-042 | To do |
+| [US-054](US-054-client-signs-the-depart.md) | Client signs the Départ | E5 | Must | P3 | M | US-051, US-052, US-053, US-057, US-044 | To do |
+| [US-055](US-055-departure-pdf.md) | Preview and deliver the departure PDF in French or English | E5 | Must | P3 | M | US-044, US-040, US-042 | To do |
 | [US-056](US-056-resume-or-discard-a-draft.md) | Resume or discard a draft Départ | E5 | Should | P3 | S | US-050 | To do |
-| [US-057](US-057-sign-departure-server-function.md) | Server function: sign a Départ | E5 | Must | P3 | M | US-007, US-041 | To do |
+| [US-057](US-057-sign-departure-server-function.md) | API: sign a Départ in one database transaction | E5 | Must | P3 | M | US-007, US-041 | To do |
 | [US-060](US-060-active-rentals.md) | See active rentals and expected returns | E6 | Must | P4 | S | US-054 | To do |
 | [US-061](US-061-extend-or-amend-a-rental.md) | Extend a rental or amend allowed fields | E6 | Must | P4 | M | US-060, US-007 | To do |
 | [US-062](US-062-void-a-contract.md) | Void a signed contract | E6 | Could | P4 | S | US-054 | To do |
@@ -175,8 +179,8 @@ flowchart LR
 | [US-071](US-071-return-km-and-fuel.md) | Record the return km and fuel | E7 | Must | P4 | S | US-070 | To do |
 | [US-072](US-072-return-inspection.md) | Inspect the vehicle: new damage or RAS | E7 | Must | P4 | M | US-070, US-026 | To do |
 | [US-073](US-073-return-pricing-lines.md) | Complete the pricing lines at the Retour | E7 | Must | P4 | S | US-070 | To do |
-| [US-074](US-074-client-signs-the-retour.md) | Client signs the Retour and the rental is closed | E7 | Must | P4 | M | US-071, US-072, US-073, US-007, US-009 | To do |
-| [US-075](US-075-final-pdf.md) | Generate the final PDF in French or English | E7 | Must | P4 | S | US-074, US-064, US-040, US-042 | To do |
+| [US-074](US-074-client-signs-the-retour.md) | Client signs the Retour and the rental is closed | E7 | Must | P4 | M | US-071, US-072, US-073, US-007, US-044 | To do |
+| [US-075](US-075-final-pdf.md) | Generate the final PDF in French or English | E7 | Must | P4 | S | US-044, US-064, US-040, US-042 | To do |
 | [US-080](US-080-put-a-vehicle-into-maintenance.md) | Put a vehicle into maintenance | E8 | Must | P5 | S | US-023, US-074 | To do |
 | [US-081](US-081-finish-routine-maintenance.md) | Finish a routine maintenance | E8 | Must | P5 | S | US-080 | To do |
 | [US-082](US-082-finish-a-damage-repair.md) | Finish a damage repair and refresh the reference photos | E8 | Must | P5 | M | US-080, US-026, US-072 | To do |

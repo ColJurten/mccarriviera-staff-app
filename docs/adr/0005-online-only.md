@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 | Developer, with the client's answers | B-03 |
+| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | B-03 |
 
 ## Context
 
@@ -16,10 +16,10 @@
   - These actions need a connection: starting, signing and closing a Départ or a Retour, amendments, and status changes. The database enforces the rules ([ADR-0007](0007-contract-lifecycle-and-audit.md)).
   - Without a connection, the app shows a banner and disables the actions that change data.
 - **Uploads:**
-  - During a handover, uploads (photos, signature, PDF) retry automatically while the app is open.
-  - The signature is uploaded **before** the signing function runs, so a contract is never marked signed without its signature.
+  - During a handover, photo uploads retry automatically while the app is open.
+  - Signing happens on Documenso's page, which needs the connection too. A contract is marked signed only once the sealed PDF is stored ([ADR-0020](0020-signatures-with-documenso.md)).
   - Photos wait in the app's temporary folder until they are uploaded. If the app is closed before that, the step isn't complete and the photos have to be retaken. Leftover files are deleted at the next launch ([ADR-0013](0013-personal-device-data-protection.md)).
-- **PDFs:** if a PDF upload fails, the PDF can be regenerated with the same content from the stored data ([ADR-0010](0010-contract-pdf-generation.md)). The contract shows « PDF non archivé » until the upload succeeds.
+- **PDFs:** rendered and archived by the API ([ADR-0010](0010-contract-pdf-generation.md)). If the phone loses the connection while downloading one for sharing, it downloads it again.
 - **No local data:** there is no local database and no persisted cache of business data. TanStack Query keeps data in memory only.
 
 ## Consequences
@@ -44,11 +44,16 @@
 
 Handovers regularly fail for lack of signal.
 
+## Changes
+
+- 2026-11-03: signing (Documenso, ADR-0020) and PDF rendering (API, ADR-0010) happen on the server, so the phone no longer uploads a signature image or a PDF.
+
 ## Implemented by
 
 - [US-020](../stories/US-020-home-screen.md): Home screen: Départ, Retour and the fleet
 - [US-026](../stories/US-026-guided-reference-photo-capture.md): Guided reference photo capture
 - [US-042](../stories/US-042-archive-and-share-pdfs.md): Archive, download and share contract PDFs
+- [US-044](../stories/US-044-sign-in-documenso-from-the-app.md): Preview a contract PDF and have it signed in Documenso from the app
 - [US-050](../stories/US-050-start-a-depart.md): Start a Départ by choosing an available vehicle
 - [US-052](../stories/US-052-fill-in-rental-details.md): Fill in the rental details
 - [US-054](../stories/US-054-client-signs-the-depart.md): Client signs the Départ

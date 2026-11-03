@@ -1,6 +1,6 @@
 # Open questions
 
-> **Status (2026-11-02):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). Of the follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. F-11 (where the files live) was opened on 2026-10-09, and R-10 gained a fifth question the same evening, found while drawing the Retour. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
+> **Status (2026-11-03):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). On 2026-11-03, F-11 was answered (option C: your own API, your own Postgres, files in S3), and you chose Documenso for signatures. That opened F-12 to F-18, all answered the same day except the defaults of F-14 (domain names), F-15 (e-mail provider) and F-18 (contract number): see [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) and [ADR-0020](../adr/0020-signatures-with-documenso.md). Of the earlier follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
 > **How to answer:** write under each **Answer** line, or reply with the IDs (for example "B-03: b").
 > Some questions show a **Suggested default**. This is a recommendation, not an assumption, and it is used only if you confirm it.
 > **Owners:** **You** (developer) · **Client** (MC Car Riviera) · **Lawyer** · **Accountant** · **Bank/PSP**.
@@ -15,23 +15,30 @@
 | **B-03** | Connectivity and offline behaviour | Client | Answered → [ADR-0005](../adr/0005-online-only.md) |
 | **B-04** | Contract only, or contract + invoice | Client + accountant | Answered → [ADR-0006](../adr/0006-contract-only-scope.md) |
 | **B-05** | How prices are filled in | Client | Answered → [ADR-0006](../adr/0006-contract-only-scope.md); totals answered in F-06 |
-| **B-06** | Which signatures, and where they appear | Client (+ lawyer) | Answered → [ADR-0009](../adr/0009-signatures.md); position answered in F-08 |
-| **B-07** | Signing order: preview before signature | You + client | Answered → [ADR-0009](../adr/0009-signatures.md) |
-| **B-08** | Return without the client present | Client | Answered → [ADR-0009](../adr/0009-signatures.md); return signature made mandatory by F-04 |
+| **B-06** | Which signatures, and where they appear | Client (+ lawyer) | Answered → [ADR-0020](../adr/0020-signatures-with-documenso.md) (was ADR-0009); position answered in F-08 |
+| **B-07** | Signing order: preview before signature | You + client | Answered; order changed by F-17: language chosen in the preview, then signature → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
+| **B-08** | Return without the client present | Client | Answered → [ADR-0020](../adr/0020-signatures-with-documenso.md); return signature made mandatory by F-04 |
 | **B-09** | Photos at departure | Client | Answered → [ADR-0008](../adr/0008-vehicle-condition-model.md); F-10 answered |
 | **B-10** | Payment-card data and the deposit | Client | Answered → [ADR-0006](../adr/0006-contract-only-scope.md); reading to confirm in F-09 |
-| **B-11** | Ownership, hosting, budget, maintenance | You + client | Answered → [ADR-0003](../adr/0003-ios-distribution-ad-hoc.md), [ADR-0004](../adr/0004-backend-supabase.md), [ADR-0015](../adr/0015-backups.md); follow-ups F-02, F-07 |
+| **B-11** | Ownership, hosting, budget, maintenance | You + client | Answered → [ADR-0003](../adr/0003-ios-distribution-ad-hoc.md), [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) (was ADR-0004), [ADR-0015](../adr/0015-backups.md); follow-ups F-02, F-07, F-11 |
 | **F-01** | Staff phones: models and iOS versions | Client | Unknown; checked at registration (US-001), default applied |
-| **F-02** | Who holds the accounts (Apple, Expo, GitHub, Supabase, backups, Sentry) | You + client | Answered: Apple → the company; the others → the developer |
+| **F-02** | Who holds the accounts (Apple, Expo, GitHub, hosting, backups, Sentry) | You + client | Answered: Apple → the company; the others → the developer |
 | **F-03** | Requirements on personal phones: Developer Mode, passcode, yearly reinstall | Client (staff) | Answered: likely yes; confirmed at registration |
-| **F-04** | Return signature | Client | Answered: mandatory → [ADR-0009](../adr/0009-signatures.md) |
+| **F-04** | Return signature | Client | Answered: mandatory → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
 | **F-05** | A test iPhone for the developer | You | Answered: the partner's iPhone → [ADR-0018](../adr/0018-development-and-test-devices.md) |
 | **F-06** | Totals, costs and number of days | Client | Answered: typed by staff → [ADR-0006](../adr/0006-contract-only-scope.md) |
 | **F-07** | Hosting budget after the free plan | Client | Answered: covered by the developer's maintenance fee |
 | **F-08** | Where the signatures go | Client (+ lawyer) | Partly answered: bottom right of every page; amendment pages still a default |
 | **F-09** | Card fields on the contract | Client (+ lawyer) | Answered: kept (last four digits and expiry only; CVV box empty) |
 | **F-10** | Interior and dashboard photos | Client | Answered: optional → [ADR-0008](../adr/0008-vehicle-condition-model.md) |
-| **F-11** | Where the files live: Supabase Storage or an S3-compatible bucket | You | Open, default applied (Supabase Storage) |
+| **F-11** | Where the files live: Supabase Storage or an S3-compatible bucket | You | Answered: option C, your own API and Postgres, files in S3 → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) |
+| **F-12** | API technology | You | Answered: TypeScript, Node.js, Fastify → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) |
+| **F-13** | Where the contract PDF is rendered | You | Answered: on the API server → [ADR-0010](../adr/0010-contract-pdf-generation.md) |
+| **F-14** | Hosting provider and staging | You | Answered: Scaleway, Paris; staging on your homelab. Default applied for the domain names |
+| **F-15** | E-mail provider (Documenso needs one) | You | Open, default applied (Scaleway Transactional Email) |
+| **F-16** | Client e-mail for Documenso | You + client | Answered: optional, placeholder address when missing → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
+| **F-17** | How signing works with Documenso | You + client | Answered: one signature for every page, language chosen in the preview, departure image repeated, self-signed certificate → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
+| **F-18** | Contract number on the PDF the client signs | Client (+ accountant) | Open, default applied (number reserved when the PDF to sign is created) |
 | R-01 | Layout of the new contract | Client | Q2 answered: thumbnails plus a full-size photo annex → [template v1](../contract-template/README.md); the rest is a default |
 | **R-02** | Fields only the model template has | Client | Answered: all of them are kept → [template v1](../contract-template/field-map.md) |
 | R-03 | Client fields and additional drivers | Client | Open, default applied |
@@ -204,6 +211,8 @@ In the brief, the client signs (step 4) before the contract language is chosen (
 > **Decision:** the answer is about **where** the signature sits: the slots are at the same place in both languages. It doesn't ask to change **when** the client signs, so the brief's order is kept: sign first, then choose the language. One signature works for either PDF. → [ADR-0009](../adr/0009-signatures.md)
 >
 > `RECOMMENDED` mitigation: before signing, a recap screen shows the key terms and lets the client read the general terms in French or English (US-054).
+>
+> **Changed by F-17 (2026-11-03):** with Documenso, the client signs one PDF in one language, so the order is now: recap → PDF preview, where the language is chosen and can still be switched → signature. → [ADR-0020](../adr/0020-signatures-with-documenso.md)
 
 ### B-08 · Return without the client present
 **Owner:** client · **Changes:** Retour flow, contract statuses, evidence recorded.
@@ -276,6 +285,8 @@ The form has a card-imprint area, the expiry date and the CVV, and the client au
 > - The developer maintains the app, with a runbook (US-093) and crash reporting ([ADR-0017](../adr/0017-crash-reporting.md)).
 >
 > **Follow-ups:** F-02 (who holds the accounts), F-07 (budget once the free plan's storage is full).
+>
+> **Changed by F-11 (2026-11-03):** Supabase is replaced by your own API, a managed Postgres and S3 storage at Scaleway → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md).
 
 ---
 
@@ -341,6 +352,8 @@ Still open:
 > - Client personal data is hosted in your accounts, so you act as the company's **data processor**. A written data processing agreement between MC Car Riviera and you is needed, listing your sub-processors (L-03, US-092).
 > - The runbook gets a **handover procedure**: how the Supabase project, the repository, the Expo project and the backup keys pass to the company or a new provider if the collaboration ends (US-093).
 > - The company keeps a sealed copy of the backup keys (ADR-0015).
+>
+> **Updated by F-11 and F-14 (2026-11-03):** Supabase is replaced by your Scaleway account (server, database, files, e-mail). The handover procedure covers it, and the Documenso signing certificate.
 
 ### F-03 · Requirements on the staff's personal phones
 **Owner:** client (both staff) · **Needed by:** US-001
@@ -408,13 +421,15 @@ Which does the client prefer? A rough number of rentals per month would also sho
 > **Answer (2026-10-09, later):** "this will be part of my 'maintenance' fee so I will be the one handling this"
 >
 > **Decision:** the hosting costs are covered by your maintenance fee, and you decide when and how to scale the storage. Whether the files should move to cheaper S3-compatible storage is F-11. → [ADR-0004](../adr/0004-backend-supabase.md)
+>
+> **Updated by F-11 (2026-11-03):** the hosting is now about €25–30 a month at Scaleway, still covered by your maintenance fee → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md).
 
 ### F-08 · Where the signatures go
 **Owner:** client (+ lawyer, L-01) · **Needed by:** US-040, US-064, US-073, US-075
 
 > **Answer (2026-10-09):** "always bottom right of the paperwork"
 >
-> **Decision:** a signature block sits at the bottom right of every page, in the same place in French and English. It holds the departure and the return signatures. → [ADR-0009](../adr/0009-signatures.md), [ADR-0010](../adr/0010-contract-pdf-generation.md)
+> **Decision:** a signature block sits at the bottom right of every page, in the same place in French and English. It holds the departure and the return signatures. → [ADR-0020](../adr/0020-signatures-with-documenso.md), [ADR-0010](../adr/0010-contract-pdf-generation.md)
 >
 > **Still a default:**
 >
@@ -491,6 +506,92 @@ The same comparison, with a sketch of each option, is on the last two pages of [
 
 **Default:** until you choose, the files stay in Supabase Storage (option A), as decided in ADR-0004 and ADR-0014.
 
+> **Answer (2026-11-03):** "For the Backend and storage we will go with our own developed API server (technology TBD) we will also use our own postgres DB thus concluding the hosting option F-11 with the C choice and the files live in the s3"
+>
+> **Decision:** option C. Your own API server, a managed Postgres and S3 storage, all at Scaleway in Paris (F-14). Supabase is dropped: [ADR-0004](../adr/0004-backend-supabase.md) is superseded by [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md). The API now does what Supabase did: logins, permission checks, and temporary links to the files ([ADR-0012](../adr/0012-authentication-and-authorisation.md), [ADR-0014](../adr/0014-file-storage.md)).
+>
+> **What it costs:** the weeks of extra work listed in option C, and about €25–30 a month instead of €0 to start. The server must have at least 4 GB of RAM, because Documenso runs on it too (F-17).
+
+---
+
+## Follow-ups from the 2026-11-03 answers
+
+On 2026-11-03 you also chose **Documenso**, self-hosted, for the digital signatures: "I believe we will use the documenso technology that also will have to be hosted so the app can call that for digital signatures". These follow-ups come from the two choices. The answers were given the same day, through multiple-choice questions.
+
+### F-12 · API technology
+**Owner:** you · **Needed by:** US-004
+
+Which language and framework for the API: TypeScript (Node.js, Fastify), Go, or Python (FastAPI)?
+
+> **Answer (2026-11-03):** TypeScript, Node.js and Fastify.
+>
+> **Decision:** one language from the app to the API. Zod schemas shared by both, Kysely for typed SQL, dbmate for migrations, better-auth for logins (`RECOMMENDED` choices around the answer). → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)
+
+### F-13 · Where the contract PDF is rendered
+**Owner:** you · **Needed by:** US-009, US-040
+
+Documenso needs the PDF on the server, and the final PDF embeds every photo at full size. Render it on the API server, or on the phone as planned (expo-print)?
+
+> **Answer (2026-11-03):** on the API server.
+>
+> **Decision:** headless Chromium (Playwright) in the API's container, the same engine as template v1's prototype. → [ADR-0010](../adr/0010-contract-pdf-generation.md)
+
+### F-14 · Hosting provider and staging
+**Owner:** you · **Needed by:** US-004
+
+1. Which EU provider for the server, the database, the buckets and the e-mail?
+2. Where does staging run?
+3. Under which names are the API and the signing pages reached?
+
+> **Answer (2026-11-03):** 1. Scaleway, Paris. 2. "the staging env will run on my homelab proxmox dedicated VM".
+>
+> **Decision:** production at Scaleway (managed Postgres, one instance with at least 4 GB of RAM, Object Storage). Staging on a dedicated VM on your homelab, with synthetic data only, its own Postgres (same major version as production), its own Documenso and its own buckets. → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md), [ADR-0016](../adr/0016-repository-environments-ci.md)
+>
+> **Q3 still open.** Default: `api.<company domain>` and `sign.<company domain>` (and `-staging` variants), with DNS records added by the company. Which domain, and who can add the records?
+
+### F-15 · E-mail provider
+**Owner:** you · **Needed by:** US-004, US-043
+
+Documenso doesn't start signing without an SMTP server, even with its e-mails to clients switched off. Which provider?
+
+**Default:** Scaleway Transactional Email, sending from the company's domain (SPF and DKIM records added by the company), in your account. The app itself still sends no e-mail in the MVP.
+
+> **Answer:**
+
+### F-16 · The client's e-mail and Documenso
+**Owner:** you + client · **Needed by:** US-031, US-044
+
+Documenso needs an e-mail address for each signer, but the client's e-mail is optional (only the last name is required to save a client). What happens when there is none?
+
+> **Answer (2026-11-03):** it stays optional; a placeholder address is used.
+>
+> **Decision:** the client's e-mail when known; otherwise a placeholder made from the contract number, on a subdomain with no mail server. Documenso's e-mails to signers are switched off; staff share the PDF from the app, as before. That Documenso accepts this is checked in the spike US-009. → [ADR-0020](../adr/0020-signatures-with-documenso.md)
+
+### F-17 · How signing works with Documenso
+**Owner:** you + client · **Needed by:** US-009, US-044
+
+1. With Documenso the client signs one PDF in one language, while the brief's order was "sign first, then choose the language". How should the Départ work?
+2. Each signing produces its own sealed PDF. What do the « Signature départ » boxes of the final PDF show?
+3. Which certificate seals the PDFs?
+
+> **Answer (2026-11-03):**
+> 1. "The client is only prompted one signature, it applies to all pages at once, and the language is selected in the 'depart' PDF preview window; it can also be edited while the contract is pending for signature."
+> 2. Copy the image of the departure signature.
+> 3. A self-signed certificate to start.
+>
+> **Decision:** → [ADR-0020](../adr/0020-signatures-with-documenso.md)
+> - The client draws once, and the drawing fills the signature box of every page. Proven in the spike US-009 first; if Documenso can't do it without a tap per page, the fallback is agreed with the client.
+> - The language is chosen in the preview, and can be switched until the client signs (B-07's order changes).
+> - The final PDF shows the departure signature as an image, read back from Documenso. The sealed departure PDF remains the proof of that signature; the lawyer reviews this (L-01).
+> - The PDFs are sealed with a self-signed company certificate. Adobe Reader shows the seal as intact, but the company's identity as unverified. A trusted certificate or a qualified seal can follow (L-01).
+
+### F-18 · The contract number on the PDF the client signs
+**Owner:** client (+ accountant) · **Needed by:** US-057
+
+The number `MCR-YYYY-NNNN` was assigned at signature (default for R-09). With Documenso, the PDF the client signs is sealed and can't change afterwards, so it must already carry its number. A Départ abandoned after the preview would then leave a gap in the numbering. Is a gap acceptable? This matters if the contract number also serves as the invoice number (R-09 Q4, L-04), since invoice numbers must follow each other without gaps.
+
+**Default:** the number is reserved when the PDF to sign is created; a language switch keeps it; an abandoned Départ leaves a gap, logged with its reason.
+
 > **Answer:**
 
 ---
@@ -507,8 +608,10 @@ While the F, R, T, N and L questions are open, the ADRs and stories use these de
 |---|---|---|
 | B-09 Q1 | Reference set of 8 exterior photos from the in-app camera: front, front-left, left, rear-left, rear, rear-right, right, front-right. Interior photos optional (F-10) | ADR-0008, US-026 |
 | F-01 | Both staff phones are iPhones that can run the Expo SDK's minimum iOS version; checked when they are registered | ADR-0003, US-001 |
-| F-11 | The files stay in Supabase Storage, as decided in ADR-0004 and ADR-0014, until the developer chooses between the options in F-11 | ADR-0004, ADR-0014, US-006 |
-| F-08 | Signatures at the bottom right of every page (answered). Default part: page 1 shows the contract as signed at the Départ; amendment pages carry the amendment's own signature there; return values and final amounts are in the Retour section | ADR-0009, ADR-0010, US-040, US-064, US-073, US-075 |
+| F-14 Q3 | The API and the signing pages at `api.<company domain>` and `sign.<company domain>` (and `-staging` variants); the company adds the DNS records | ADR-0019, ADR-0016, US-004 |
+| F-15 | Scaleway Transactional Email, from the company's domain, in the developer's account | ADR-0019, US-004, US-043 |
+| F-18 | The contract number is reserved when the PDF to sign is created. A language switch keeps it; an abandoned Départ leaves a logged gap | US-057 |
+| F-08 | Signatures at the bottom right of every page (answered). Default part: page 1 shows the contract as signed at the Départ; amendment pages carry the amendment's own signature there; return values and final amounts are in the Retour section | ADR-0020, ADR-0010, US-040, US-064, US-073, US-075 |
 | R-01 | PDF pages as in template v1: contract as signed at the Départ; financial conditions with the « Décompte final »; vehicle condition (Départ / Retour); general terms; amendments; photo annex (Q2 answered). Drawings dropped. Title as on the template | ADR-0010, US-040 |
 | R-03 | Mandatory before signing: name, home address, licence number, date of birth, ID number (the fields filled on the completed sample). A country field is added to the address. One additional driver, stored as a client record, with name, date of birth and licence number mandatory | US-031, US-051 |
 | R-04 | The app records only: it shows the age, with no warning and no blocking | US-031, US-051 |
@@ -516,9 +619,9 @@ While the F, R, T, N and L questions are open, the ADRs and stories use these de
 | R-06 | Fuel in eighths. No electric-car support. No fuel charge calculated. One km allowance per contract. Km driven and extra km computed by the app | ADR-0006, US-053, US-071 |
 | R-07 | Fields kept as printed; « Total prépayé » is typed like any other amount. Empty deductible amounts trigger a warning | US-052 |
 | R-08 | Intermediary is free text, defaulting to « MC CAR RIVIERA », with an optional phone | US-052 |
-| R-09 | Contract number `MCR-YYYY-NNNN`, assigned at signature from a yearly counter. Gaps allowed | ADR-0007, US-006, US-057 |
+| R-09 | Contract number `MCR-YYYY-NNNN` from a yearly counter, reserved when the PDF to sign is created (F-18). Gaps allowed | ADR-0007, US-006, US-057 |
 | R-10 | A damage entry is at least one photo plus a comment. « RAS » is one tap. No damage costs | ADR-0008, US-072 |
-| R-11 | Amendable fields as listed in US-061. A reason is required. The client's signature is optional. The 48-hour rule is recorded, not enforced | ADR-0007, ADR-0009, US-061 |
+| R-11 | Amendable fields as listed in US-061. A reason is required. The client's signature is optional. The 48-hour rule is recorded, not enforced | ADR-0007, ADR-0020, US-061 |
 | R-12 | Drafts can be discarded. A signed contract can be voided with a reason before its Retour. No vehicle swap: close the contract and open a new one | ADR-0007, US-056, US-062 |
 | R-13 | Statuses: available, rented, maintenance, archived. No future bookings | ADR-0007, US-006, US-025 |
 | R-14 | Maintenance kinds: routine, damage repair, other. Partial repairs allowed. Odometer optional. No costs | ADR-0008, US-006, US-080, US-082 |
@@ -827,7 +930,9 @@ Which device models and iOS versions do staff use? Supporting only recent iOS ve
 ### L-01 · Electronic signature (lawyer)
 Is a signature drawn on the staff device, with an audit trail (who, when, which document version, which device), sufficient for these contracts? In EU eIDAS terms, that is a *simple* electronic signature. Or is an *advanced* or *qualified* signature through a trust service provider, or a company certificate seal on the PDF, required?
 
-The brief asked for three things to be kept apart (detailed in [ADR-0009](../adr/0009-signatures.md)):
+Since 2026-11-03, the client signs in a self-hosted Documenso ([ADR-0020](../adr/0020-signatures-with-documenso.md)): a drawn signature on every page, an audit trail (times, IP address and browser of the signing device, document hashes) appended to the PDF, and a PAdES seal over the whole file with the company's self-signed certificate.
+
+The brief asked for three things to be kept apart (detailed in [ADR-0020](../adr/0020-signatures-with-documenso.md)):
 
 1. **Signature image on several pages.** A drawn signature stamped onto pages is only a picture. On its own, it doesn't tie the client to the document's content.
 2. **Digitally signed PDF (PAdES).** The file is cryptographically locked, so any later change is detectable, and the certificate holder is identified. Here the holder would be the company, unless a trust provider issues a certificate to the client.
@@ -837,6 +942,8 @@ Also ask:
 
 - Is it acceptable to show the departure signature on every page except amendment pages, with later values printed in their own signed sections (F-08)?
 - Is an amendment or a return without the client's signature acceptable (R-11, F-04)?
+- Is it acceptable to repeat the image of the departure signature in the final PDF and in later copies, while the sealed departure PDF remains the proof (F-17)?
+- Is a self-signed company certificate enough for the seal, or is a certificate from a recognised authority, or a qualified electronic seal, expected (F-17)? A qualified seal through a remote signing service would need Documenso's paid Enterprise edition.
 
 ### L-02 · General terms (lawyer)
 Update the terms before they are digitised and translated:
@@ -856,7 +963,7 @@ Update the terms before they are digitised and translated:
 - Whether keeping copies of ID cards and licences is necessary and proportionate.
 - Retention periods for contracts, document copies, signatures and photos.
 - Erasure requests versus the obligation to keep contracts: which wins, and when (applied by US-094).
-- A data processing agreement between MC Car Riviera (controller) and the developer (processor), since client data is hosted in his accounts (F-02). His sub-processors: Supabase, the backup storage provider, Expo, Sentry, and the file storage provider if F-11 changes it.
+- A data processing agreement between MC Car Riviera (controller) and the developer (processor), since client data is hosted in his accounts (F-02). His sub-processors: Scaleway (server, database, files, e-mail), the backup storage provider, Expo and Sentry. Documenso is self-hosted, so it adds no processor; its database and files are part of the hosted data. The homelab staging holds synthetic data only.
 - The record of processing activities.
 - Staff using their personal phones (B-02): a short written rule for client data on those phones. It should cover what may be shared and where, deleting PDFs, and reporting a lost phone.
 

@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | E0 · Foundations | Must | P0 | M | To do |
 
-- **Depends on:** [US-006](US-006-core-database-schema-and-rls.md)
+- **Depends on:** [US-006](US-006-core-database-schema-and-storage.md)
 - **Decisions:** [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0012](../adr/0012-authentication-and-authorisation.md)
 - **Open points:** L-03 (see [open questions](../discovery/open-questions.md))
 
@@ -14,8 +14,8 @@ As the company, I want every change to business data recorded with who and when,
 
 ## Acceptance criteria
 
-- [ ] Triggers on business tables add a row to `audit_events` with the server time, the actor (`auth.uid()`), the action, the table, the row ID, and the values before and after (JSON).
-- [ ] The tables protected in US-006 reject UPDATE and DELETE from the app, and status columns change only through server functions. Tests prove it.
+- [ ] Triggers on business tables add a row to `audit_events` with the server time, the actor (the staff user, set by the API for each transaction), the action, the table, the row ID, and the values before and after (JSON).
+- [ ] The tables protected in US-006 reject UPDATE and DELETE from the app, and status columns change only through SQL functions. Tests prove it.
 - [ ] Audit rows hold references to files, never the files themselves.
 - [ ] The runbook has SQL snippets to see the audit trail of a contract, a vehicle or a client.
 - [ ] All audit and signature timestamps come from the server, not from the phone's clock.

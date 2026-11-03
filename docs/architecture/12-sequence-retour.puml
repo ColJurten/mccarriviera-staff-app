@@ -1,5 +1,5 @@
 @startuml 12-sequence-retour
-' UML sequence diagram: a Retour, with the mandatory client signature (US-070 to US-075).
+' UML sequence diagram: a Retour, with the mandatory client signature (US-070 to US-075, US-044).
 !include style.iuml
 hide footbox
 autonumber "<b>0."
@@ -7,13 +7,14 @@ autonumber "<b>0."
 actor "Staff" as staff
 actor "Client" as client
 participant "App\n(iPhone)" as app
-participant "Data API +\nPostgreSQL" as db
+participant "API +\nPostgreSQL" as api
 participant "Storage" as st
+participant "Documenso" as doc
 
 == Open the rental · US-070 ==
 staff -> app : « Retour », choose the active rental
-app -> db : load the contract as last amended, departure data, open damage
-app -> st : signed links for the reference photos (≤ 5 min)
+app -> api : load the contract as last amended, departure data, open damage
+api --> app : data + photo links (≤ 5 min)
 
 == Check-in · US-071 to US-073 ==
 staff -> app : return time, km in, fuel in
@@ -21,36 +22,31 @@ app -> app : km driven, extra km
 alt new damage
   loop each new damage
     staff -> app : at least one photo + a comment
-    app -> st : upload the photos (insert-only)
-    app -> db : save as open damage, linked to this Retour
+    app -> st : upload the photos (insert-only, presigned)
+    app -> api : save as open damage, linked to this Retour
   end
 else nothing new
   staff -> app : « RAS »
 end
-opt dashboard photo (optional)
-  staff -> app : photo of km and fuel
-  app -> st : upload (insert-only)
-end
 staff -> app : final pricing lines, typed by hand
-app -> db : Retour saved as it is typed (in progress)
+app -> api : Retour saved as it is typed (in progress)
 
-== Signature, mandatory · US-074 ==
+== Signature, mandatory · US-074, US-075 ==
 alt client present
-  app -> client : recap: km, fuel, new damage or RAS, final amounts
-  client -> app : signs once on the pad
-  app -> st : upload the signature image first
-  app -> db : rpc complete_return(contract, signature, idempotency key)
-  activate db #F6EFDC
-  db -> db : one transaction:\nreturn inspection completed · final amounts\nsignature evidence · car km and fuel\ncontract closed · car available · audit
-  db --> app : closed
-  deactivate db
-  staff -> app : choose Français or English (US-075)
-  app -> app : final PDF: Départ and Retour,\nboth signatures bottom right of every page
-  app -> st : upload the PDF
-  app -> db : record the PDF (stage final)
+  app -> api : preview of the final PDF, FR or EN (switchable)
+  api -> api : render: departure image in « Signature départ »,\nexcept amendment pages
+  api -> doc : envelope: a field in « Signature retour » on every page
+  app -> client : Documenso's signing page, private web view
+  client -> doc : signs once (F-17)
+  doc -> api : webhook: document completed
+  activate api #F6EFDC
+  api -> st : store the sealed final PDF, SHA-256
+  api -> api : one transaction (complete_return):\ninspection · final amounts · signature evidence\ncar km and fuel · contract closed · car available · audit
+  deactivate api
+  app -> st : download the sealed PDF
   app -> staff : iOS share sheet
 else client absent
   app -> staff : « Retour en attente de signature »
-  note right of app : The contract stays active and the car « En cours ».\nThe company contacts the client (B-08), and the\nRetour is finished when the client signs.
+  note right of app : The envelope waits. The contract stays active\nand the car « En cours ». The company contacts\nthe client (B-08); the Retour ends when they sign.
 end
 @enduml

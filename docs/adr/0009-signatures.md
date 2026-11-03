@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | B-06, B-07, B-08 · F-04 (answered) · F-08 (partly answered) · L-01 |
+| **Superseded by ADR-0020** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | B-06, B-07, B-08 · F-04 (answered) · F-08 (partly answered) · L-01 |
 
 ## Context
 
@@ -82,16 +82,8 @@ The lawyer's answer to L-01 requires a stronger signature, or the client answers
 ## Changes
 
 - 2026-10-09: F-04 answered: the return signature is mandatory (it was optional by default). F-08 partly answered: the signature block sits at the bottom right of every page; the rule for amendment pages stays a default.
+- 2026-11-03: **superseded by [ADR-0020](0020-signatures-with-documenso.md)**. Signatures are now captured and sealed by a self-hosted Documenso. The rules on where signatures appear are carried over.
 
 ## Implemented by
 
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove signature capture and PDF generation on a real iPhone
-- [US-040](../stories/US-040-contract-pdf-template.md): Contract PDF template in French and English, with the signature block at the bottom right
-- [US-054](../stories/US-054-client-signs-the-depart.md): Client signs the Départ
-- [US-055](../stories/US-055-departure-pdf.md): Generate the departure PDF in French or English
-- [US-057](../stories/US-057-sign-departure-server-function.md): Server function: sign a Départ
-- [US-061](../stories/US-061-extend-or-amend-a-rental.md): Extend a rental or amend allowed fields
-- [US-064](../stories/US-064-amendment-pages-in-the-pdf.md): Amendment pages in the PDF
-- [US-074](../stories/US-074-client-signs-the-retour.md): Client signs the Retour and the rental is closed
-- [US-075](../stories/US-075-final-pdf.md): Generate the final PDF in French or English
-- [US-092](../stories/US-092-legal-and-privacy-checklist.md): Send the legal and privacy questions, and close them before go-live
+- Nothing: superseded by ADR-0020.

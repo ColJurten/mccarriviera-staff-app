@@ -18,7 +18,7 @@ As the developer, I want an Expo app with navigation, theme and translations in 
 - [ ] These screens exist as stubs: Sign-in, Home, Vehicle detail, Client detail, Départ flow, Retour flow, Settings.
 - [ ] Theme tokens for the gold/black palette are used by every component. Placeholder values are used until the brand assets arrive (default for R-18). Text scales with the iPhone's text-size setting.
 - [ ] Translations are set up with French as the app language (default for N-01). A test fails if a key is missing from a catalogue.
-- [ ] TanStack Query (in memory, no persister) and a Supabase client typed from the generated schema types are wired. The environment (staging or production) comes from the build profile.
+- [ ] TanStack Query (in memory, no persister) and a typed API client, using the zod schemas shared with the API, are wired. The environment (staging or production) comes from the build profile.
 - [ ] A global error screen in French never shows raw stack traces or personal data.
 - [ ] `docs/screens.md` lists the screens and the navigation between them, as a Mermaid diagram that matches the stubs.
 

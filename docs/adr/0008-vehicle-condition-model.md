@@ -72,7 +72,7 @@ A damage dispute shows the reference photos are not enough evidence.
 
 ## Implemented by
 
-- [US-006](../stories/US-006-core-database-schema-and-rls.md): Create the core database schema, access rules and storage
+- [US-006](../stories/US-006-core-database-schema-and-storage.md): Create the core database schema, access rules and storage
 - [US-022](../stories/US-022-add-a-vehicle.md): Add a vehicle with its reference photos
 - [US-023](../stories/US-023-vehicle-detail.md): Vehicle detail
 - [US-026](../stories/US-026-guided-reference-photo-capture.md): Guided reference photo capture

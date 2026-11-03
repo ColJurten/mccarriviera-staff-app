@@ -9,7 +9,7 @@
 - There is no Mac (B-01). Apple's iOS Simulator is part of Xcode, which only runs on macOS, so an iPhone can't be emulated on Windows.
 - **F-05** (2026-10-09): the developer can test on his partner's iPhone. It isn't always at hand, and each check on it needs a build installed.
 - Most of the app (screens, navigation, forms, data) is the same React Native code on iOS and Android.
-- Some parts only behave correctly on iOS: Face ID, the Keychain, the camera, the share sheet, and the PDF, which is rendered by iOS's print engine.
+- Some parts only behave correctly on iOS: Face ID, the Keychain, the camera, the share sheet, and the signing web view.
 
 ## Decision
 
@@ -20,7 +20,7 @@
   - The Android development build is made with EAS Build. It only needs rebuilding when native modules change.
   - The Metro bundler in WSL2 serves the code to the emulator, through WSL mirrored networking or `expo start --tunnel`.
   - The Android build is a development tool only. The product stays iOS only ([ADR-0003](0003-ios-distribution-ad-hoc.md)).
-- **Checked on the iPhone:** every story with a user-facing part is demonstrated on the test iPhone before it is done (Definition of Done). PDF layout, Face ID, the camera and sharing are judged on the iPhone only.
+- **Checked on the iPhone:** every story with a user-facing part is demonstrated on the test iPhone before it is done (Definition of Done). Face ID, the camera, the signing web view and sharing are judged on the iPhone only. The PDF is rendered by the API, so it is the same file on the emulator and on the iPhone.
 - **Not used for now:**
   - **Expo's cloud iOS simulator (EAS Simulator):** it streams an iOS simulator to the browser from Windows, but in October 2026 it is a limited-access preview, open by waitlist only and not included in any plan. Join the waitlist and revisit when it opens.
   - **Third-party cloud simulators** (for example Appetize.io): they run an iOS simulator build in the browser, with limited free use. Slower than the emulator, and less faithful than the iPhone.
@@ -56,4 +56,4 @@ EAS Simulator becomes generally available, or a dedicated test iPhone is bought.
 
 - [US-001](../stories/US-001-apple-developer-account-and-devices.md): Open the Apple developer account and register the iPhones
 - [US-005](../stories/US-005-eas-builds-and-internal-distribution.md): Set up EAS builds, internal distribution and over-the-air updates
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove signature capture and PDF generation on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs on a real iPhone

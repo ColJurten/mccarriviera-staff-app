@@ -28,27 +28,24 @@ package "MC Car Riviera app · Expo · React Native · TypeScript" as appPkg {
   package "Data layer · nothing stored" as data {
     component "Forms\nreact-hook-form + zod" as forms
     component "Query hooks\nTanStack Query, in memory" as hooks
-    component "Typed Supabase client\ntypes from the schema" as client
+    component "Typed API client\nzod schemas shared\nwith the API" as client
     forms -[hidden]right- hooks
   }
 
-  package "Contract document · US-040 – 042" as doc {
-    component "PDF renderer\nexpo-print, A4" as pdf
-    component "HTML templates\nversioned" as tpl
-    component "FR / EN\ncatalogues" as i18n
+  package "Contract document · US-042 – 044" as doc {
+    component "PDF preview\nFR / EN switch" as prev
+    component "Signing web view\nDocumenso's page\nprivate session" as wv
   }
 
   package "Device services · Expo modules" as dev {
     component "Camera\nresize, no location" as cam
-    component "Signature pad\nspike US-009" as sig
     component "Image viewer\nmemory cache" as img
     component "Document\npicker" as pick
     component "Share sheet" as share
-    component "Session store\nKeychain key" as kc
+    component "Session store\nKeychain" as kc
     component "Face ID lock\n<size:9><color:#5A6B86>US-011</color></size>" as lock
     component "Crash reporter\n<size:9><color:#5A6B86>US-014</color></size>" as crash
-    cam -[hidden]right- sig
-    sig -[hidden]right- img
+    cam -[hidden]right- img
     img -[hidden]right- pick
     share -[hidden]right- kc
     kc -[hidden]right- lock
@@ -57,19 +54,18 @@ package "MC Car Riviera app · Expo · React Native · TypeScript" as appPkg {
   }
 }
 
-interface "Auth API" as iAuth
-interface "Data API\nREST + RPC" as iData
-interface "Storage API\nsigned links" as iSto
+interface "API · HTTPS\nsession token" as iApi
+interface "Object storage\npresigned links" as iSto
+interface "Documenso\nsigning page" as iDoc
 interface "EAS Update" as iUpd
 
 screens --> data : read and write
-screens --> doc : print a contract
-screens --> dev : photos, signatures,\nfiles, sharing
+screens --> doc : preview and sign
+screens --> dev : photos, files,\nsharing
 hooks --> client
-pdf --> tpl
-pdf --> i18n
-client --> iAuth
-client --> iData
+client --> iApi
 client --> iSto
+prev --> iApi : PDF rendered\nby the API
+wv --> iDoc
 appPkg ..> iUpd : JavaScript updates
 @enduml

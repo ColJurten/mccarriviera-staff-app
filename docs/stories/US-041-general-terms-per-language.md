@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | E4 · Contract document | Must | P2 | S | To do |
 
-- **Depends on:** [US-006](US-006-core-database-schema-and-rls.md)
+- **Depends on:** [US-006](US-006-core-database-schema-and-storage.md)
 - **Decisions:** [ADR-0011](../adr/0011-localisation.md) · [ADR-0010](../adr/0010-contract-pdf-generation.md)
 - **Open points:** R-17, L-02 (see [open questions](../discovery/open-questions.md))
 

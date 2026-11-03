@@ -1,5 +1,5 @@
 @startuml 13-hosting-options
-' Deployment sketch of the four hosting options compared in F-11 (open question).
+' Deployment sketch of the four hosting options compared in F-11. Option C was chosen on 2026-11-03.
 ' Blue-grey: run by a provider. Red: code or servers the developer builds and runs himself.
 !include style.iuml
 skinparam nodesep 14
@@ -11,7 +11,7 @@ skinparam rectangle {
 !$YOU = "#FBE9E7;line:B5523B;line.bold"
 !$FILES = "#FFFFFF;line:4A5363"
 
-rectangle "<b>A · Supabase for everything</b>\n<size:10>current plan (default)</size>" as A {
+rectangle "<b>A · Supabase for everything</b>\n<size:10>the plan until 2026-11-03</size>" as A {
   rectangle "iOS app" as a0
   rectangle "Supabase\nAuth · Data API with\nrow-level security" as a1 $MANAGED
   database "PostgreSQL\n(Supabase)" as a2 $MANAGED
@@ -21,7 +21,7 @@ rectangle "<b>A · Supabase for everything</b>\n<size:10>current plan (default)<
   a1 --> a2
 }
 
-rectangle "<b>B · Supabase + S3 for the files</b>\n<size:10>recommended</size>" as B {
+rectangle "<b>B · Supabase + S3 for the files</b>\n<size:10>recommended on 2026-10-09</size>" as B {
   rectangle "iOS app" as b0
   rectangle "Supabase\nAuth · Data API with\nrow-level security" as b1 $MANAGED
   database "PostgreSQL\n(Supabase)" as b2 $MANAGED
@@ -34,9 +34,9 @@ rectangle "<b>B · Supabase + S3 for the files</b>\n<size:10>recommended</size>"
   b3 ..> b4
 }
 
-rectangle "<b>C · Managed Postgres + S3 + own API</b>\n<size:10>more to build</size>" as C {
+rectangle "<b>C · Managed Postgres + S3 + own API</b>\n<size:10><b>chosen on 2026-11-03</b> · Scaleway, Paris</size>" as C #F6EFDC;line:A97E22;line.bold {
   rectangle "iOS app" as c0
-  rectangle "API server you build and host\nlogins · sessions · access\nchecks · file links · TLS" as c1 $YOU
+  rectangle "API server you build and host\nFastify · better-auth · checks\nfile links · PDFs · TLS\n+ Documenso next to it" as c1 $YOU
   database "Managed PostgreSQL\n(cloud provider)" as c2 $MANAGED
   rectangle "S3 bucket · EU\nprivate" as c3 $FILES
   c0 --> c1

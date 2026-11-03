@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 | Developer, with the client's answers | B-02, B-03 · default for T-05 · F-03 · L-03 |
+| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | B-02, B-03 · default for T-05 · F-03 · L-03 |
 
 ## Context
 
@@ -18,12 +18,13 @@
   - taken inside the app and **not saved to the photo library**;
   - re-encoded before upload, which removes location metadata;
   - temporary files are deleted after upload, and leftovers are deleted at the next launch.
-- **Client documents** open through **signed URLs valid for at most 5 minutes**, in an in-app viewer, without being saved to the phone.
+- **Client documents** open through **presigned links valid for at most 5 minutes**, in an in-app viewer, without being saved to the phone.
+- **Signing page:** Documenso's page opens in an in-app web view as a private session, and keeps no cookies, cache or local storage once closed ([ADR-0020](0020-signatures-with-documenso.md)).
 - **Generated PDFs** are the only files the app keeps:
-  - they are written to the **app cache** and handed to the share sheet;
+  - they are downloaded from the API into the **app cache** and handed to the share sheet;
   - they are deleted at sign-out, and after 7 days (default for T-05);
   - copies that staff save elsewhere (Files, Mail, messaging) are outside the app's control. They are covered by the company's device-use rule (L-03).
-- **Session:** stored encrypted, with the key in the Keychain ([ADR-0012](0012-authentication-and-authorisation.md)).
+- **Session:** the session token is stored in the Keychain ([ADR-0012](0012-authentication-and-authorisation.md)).
 - **App lock** ([ADR-0012](0012-authentication-and-authorisation.md)), and the app's snapshot is covered in the app switcher.
 - **Lost phone:** staff report it, and the developer disables the account and revokes the sessions ([US-012](../stories/US-012-revoke-a-staff-members-access.md)). The data stays safe on the server.
 - **No personal data** in logs or crash reports ([ADR-0017](0017-crash-reporting.md)).
@@ -50,6 +51,10 @@
 
 More staff join, or the company provides phones.
 
+## Changes
+
+- 2026-11-03: PDFs now come from the API, and the client signs in a private web view (ADR-0019, ADR-0020).
+
 ## Implemented by
 
 - [US-010](../stories/US-010-sign-in-and-sign-out.md): Sign in and sign out
@@ -60,4 +65,5 @@ More staff join, or the company provides phones.
 - [US-026](../stories/US-026-guided-reference-photo-capture.md): Guided reference photo capture
 - [US-033](../stories/US-033-client-documents.md): Attach and view client documents
 - [US-042](../stories/US-042-archive-and-share-pdfs.md): Archive, download and share contract PDFs
+- [US-044](../stories/US-044-sign-in-documenso-from-the-app.md): Preview a contract PDF and have it signed in Documenso from the app
 - [US-092](../stories/US-092-legal-and-privacy-checklist.md): Send the legal and privacy questions, and close them before go-live

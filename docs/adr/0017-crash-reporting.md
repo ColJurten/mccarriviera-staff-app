@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | RECOMMENDED (no question) · F-02 (answered) · L-03 |
+| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | RECOMMENDED (no question) · F-02 (answered) · L-03 |
 
 ## Context
 
@@ -19,6 +19,7 @@
   - events and breadcrumbs are cleaned of request bodies, URLs with query strings, and text typed by staff;
   - the user is identified by the staff profile ID only.
 - **Readable stack traces:** each event carries the app version, build number and update ID. Source maps are uploaded during EAS builds and updates.
+- **The API** reports its errors to the same organisation with Sentry's Node SDK, under the same rules: no request bodies, no personal data, staff profile ID only ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
 - **Ownership:** the Sentry organisation is the developer's (F-02). Sentry is one of his sub-processors in the data processing agreement with the company (L-03, [US-092](../stories/US-092-legal-and-privacy-checklist.md)).
 
 ## Consequences
@@ -47,6 +48,7 @@ The client refuses another processor (fall back to self-hosting), or the free pl
 ## Changes
 
 - 2026-10-09: F-02 answered: the Sentry organisation is the developer's.
+- 2026-11-03: the developer's own API reports its errors too (ADR-0019).
 
 ## Implemented by
 

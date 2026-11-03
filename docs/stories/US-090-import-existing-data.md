@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | E9 · Go-live | Could | P6 | S | To do |
 
-- **Depends on:** [US-006](US-006-core-database-schema-and-rls.md) · [US-008](US-008-nightly-encrypted-backups.md) · [US-092](US-092-legal-and-privacy-checklist.md)
+- **Depends on:** [US-006](US-006-core-database-schema-and-storage.md) · [US-008](US-008-nightly-encrypted-backups.md) · [US-092](US-092-legal-and-privacy-checklist.md)
 - **Decisions:** —
 - **Open points:** T-02 (see [open questions](../discovery/open-questions.md))
 

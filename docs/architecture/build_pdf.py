@@ -20,7 +20,7 @@ import tempfile
 HERE = pathlib.Path(__file__).resolve().parent
 SVG_DIR = HERE / "svg"
 OUT = HERE / "architecture.pdf"
-VERSION = "Version 1.1 · 2 November 2026"
+VERSION = "Version 1.2 · 3 November 2026"
 DOC = "MC Car Riviera staff app · planned architecture"
 
 # ---------------------------------------------------------------- page content
@@ -46,15 +46,15 @@ PAGES = [
         "subtitle": "UML deployment diagram · the app in daily use",
         "diagrams": ["01-system-overview"],
         "layout": "side",
-        "legend": ACCOUNTS,
+        "legend": ACCOUNTS_NO_OPTION,
         "notes": [
-            "The app is the only part on the phones. There is no local database and no offline mode; only generated PDFs sit in the app cache, for 7 days at most.",
-            "Every call goes over HTTPS to one Supabase project in the EU. The phone holds the project URL, the public anon key and the staff member's session, never a database password or a storage key.",
-            "Files are private. The app opens them through signed links that expire within 5 minutes.",
-            "A nightly job copies the database and the new files, encrypted, to a second EU provider. The job's key can't delete anything there.",
-            "Crash reports go to Sentry in the EU, with no personal data.",
+            "The app is the only part on the phones. There is no local database and no offline mode; only PDFs to share sit in the app cache, for 7 days at most.",
+            "Every call goes over HTTPS to the developer's own API at Scaleway, in Paris. The phone holds the API's address and the staff member's session token, never a database password, a storage key or Documenso's token.",
+            "The client signs on Documenso's page, opened in a private web view. Documenso seals the PDF and tells the API, which stores it and closes the step in one transaction.",
+            "Files are private. The app reaches them through presigned links, issued by the API, that expire within 5 minutes.",
+            "A nightly job on the server copies both databases and the new files, encrypted, to a second EU provider. Its key can't delete anything there.",
         ],
-        "refs": "ADR-0004 · ADR-0005 · ADR-0012 · ADR-0013 · ADR-0014 · ADR-0015 · ADR-0017",
+        "refs": "ADR-0005 · ADR-0012 · ADR-0013 · ADR-0014 · ADR-0015 · ADR-0017 · ADR-0019 · ADR-0020",
     },
     {
         "uml": "deployment",
@@ -66,10 +66,10 @@ PAGES = [
         "notes": [
             "No Mac: EAS Build compiles the iOS app in the cloud. Builds are started on purpose; the free plan includes 15 iOS builds a month.",
             "Every build is installed by Ad Hoc internal distribution, signed with the company's Apple certificate. EAS holds it through the developer's Admin access; if the collaboration ends, the company revokes it and issues a new one.",
-            "Staging holds synthetic data only. It serves the test iPhone and the Android emulator; production serves only the two staff phones.",
-            "Migrations reach staging on merge to main, and production on a release tag after manual approval. JavaScript-only fixes go out as EAS Updates.",
+            "Staging runs on a VM on the developer's homelab, with synthetic data only. It serves the test iPhone and the Android emulator; production, at Scaleway, serves only the two staff phones.",
+            "CI checks every pull request, including contract PDFs rendered with Chromium. Staging is deployed on merge to main; production on a release tag after manual approval. JavaScript-only fixes go out as EAS Updates.",
         ],
-        "refs": "ADR-0002 · ADR-0003 · ADR-0016 · ADR-0018 · US-001 · US-005",
+        "refs": "ADR-0002 · ADR-0003 · ADR-0016 · ADR-0018 · ADR-0019 · US-001 · US-004 · US-005",
     },
     {
         "uml": "component",
@@ -80,24 +80,24 @@ PAGES = [
         "notes": [
             "Screens are in French, built with translation keys so English can be added later.",
             "Server data is kept in memory only (TanStack Query, no persister). Forms are checked with zod before anything is sent.",
-            "The contract PDF is rendered on the phone from versioned HTML templates and the FR / EN catalogues, then archived and shared.",
-            "Photos are resized and stripped of their location before upload. The session is encrypted, with its key in the Keychain. Crash reports carry no personal data.",
+            "The app renders no PDF and has no signature pad: it shows the API's preview, with a French / English switch, then opens Documenso's signing page in a private web view.",
+            "Photos are resized and stripped of their location before upload. The session token is in the Keychain. Crash reports carry no personal data.",
         ],
-        "refs": "ADR-0002 · ADR-0010 · ADR-0011 · ADR-0012 · ADR-0013 · ADR-0017",
+        "refs": "ADR-0002 · ADR-0010 · ADR-0011 · ADR-0012 · ADR-0013 · ADR-0017 · ADR-0020",
     },
     {
         "uml": "component",
-        "title": "Back end: one Supabase project",
-        "subtitle": "UML component diagram · no custom server; the database enforces the rules",
+        "title": "Back end: the developer's API and Documenso",
+        "subtitle": "UML component diagram · Scaleway, Paris; the API checks every request, the database enforces the rules",
         "diagrams": ["04-backend-components"],
         "layout": "below",
         "notes": [
-            "Row-level security on every table, denied by default: only staff with an active profile can read or write.",
-            "Every status change (sign, close, amend, void, maintenance) is one server function running in one transaction, so two phones can't rent the same car.",
-            "Status columns are read-only for the app, and evidence tables accept inserts only. Audit triggers record every write with the values before and after.",
-            "Evidence buckets have no update or delete policy. The service-role key, the database credential and the storage S3 keys live only in protected CI environments.",
+            "Every route needs an active staff session (better-auth), denied by default; a test lists every route. Revoking a session works at once.",
+            "Every status change (sign, close, amend, void, maintenance) is one SQL function running in one transaction, so two phones can't rent the same car. Status columns are read-only for the API's role, evidence tables accept inserts only, and audit triggers record every write.",
+            "Documenso runs unmodified next to the API. The API creates the envelopes, receives the webhook, and stores the sealed PDF before the contract changes state.",
+            "The API's storage key can't delete evidence. Database credentials, storage keys, Documenso's token and the signing certificate live only on the server and in protected CI environments.",
         ],
-        "refs": "ADR-0004 · ADR-0007 · ADR-0012 · ADR-0014 · ADR-0015 · ADR-0016 · US-006 · US-007",
+        "refs": "ADR-0007 · ADR-0012 · ADR-0014 · ADR-0015 · ADR-0016 · ADR-0019 · ADR-0020 · US-004 · US-006 · US-043",
     },
     {
         "uml": "class",
@@ -124,7 +124,7 @@ PAGES = [
             "A reference set has the 8 exterior angles, all required, plus an optional interior photo. It is taken with the in-app camera.",
             "The optional dashboard photo (km and fuel) belongs to a handover's inspection, not to the reference set: reused later, it would show an old odometer reading.",
             "Finishing a damage repair closes the repaired damage. The car can be rented again only once a new complete reference set exists.",
-            "Photos and reference sets are insert-only. Statuses change only through server functions.",
+            "Photos and reference sets are insert-only. Statuses change only through SQL functions.",
         ],
         "refs": "ADR-0008 · F-10 · US-022 · US-026 · US-080 – US-082",
     },
@@ -151,16 +151,16 @@ PAGES = [
         "layout": "below",
         "notation": True,
         "notes": [
-            "Each signature has an evidence record: image hash, server time, staff member, device, iOS and app versions, and the hash of the data that was signed.",
-            "Every generated PDF is archived with its SHA-256, its template version and its terms version, so it can be regenerated with the same content.",
+            "Each signature has an evidence record: Documenso's envelope and signer IDs, the sealed PDF it is in, server time, staff member, device, iOS and app versions, and the hash of the data that was signed. The departure image is read back for the final PDF (F-17).",
+            "Every PDF is archived with its SHA-256, its template version and its terms version. Copies (US-063) point to the sealed original.",
             "Completed inspections, signatures and PDF records are insert-only. Until the client signs, the Retour's km, fuel, amounts and comments can still be corrected; whether a photo or a damage entry can be taken back is open (R-10 Q5).",
         ],
-        "refs": "ADR-0007 · ADR-0009 · ADR-0010 · ADR-0014 · US-053 · US-057 · US-072 · US-074",
+        "refs": "ADR-0007 · ADR-0010 · ADR-0014 · ADR-0020 · US-044 · US-053 · US-057 · US-072 · US-074",
     },
     {
         "uml": "state",
         "title": "Lifecycle of a contract",
-        "subtitle": "UML state machine · every transition is a server function, recorded in the audit trail",
+        "subtitle": "UML state machine · every transition is an SQL function called by the API, recorded in the audit trail",
         "diagrams": ["09-contract-states"],
         "layout": "side",
         "notes": [
@@ -169,7 +169,7 @@ PAGES = [
             "An amendment adds a revision, signed by the client or recorded « sans signature du client » (default for R-11).",
             "A contract can be voided, with a reason, only before its Retour. The app never deletes a signed contract.",
         ],
-        "refs": "ADR-0007 · ADR-0009 · US-056 · US-057 · US-061 · US-062 · US-074",
+        "refs": "ADR-0007 · ADR-0020 · US-056 · US-057 · US-061 · US-062 · US-074",
     },
     {
         "uml": "state",
@@ -181,35 +181,35 @@ PAGES = [
             "A Départ is offered only for available cars with a complete reference photo set.",
             "Routine maintenance needs no new photos. After a damage repair, a new complete reference set is required before the car is available again.",
             "Only an available car, or one in maintenance, can be archived. « Restaurer » brings it back; nothing is deleted.",
-            "Statuses change only through server functions, in the same transaction as the contract or maintenance change.",
+            "Statuses change only through SQL functions, in the same transaction as the contract or maintenance change.",
         ],
         "refs": "ADR-0007 · ADR-0008 · US-022 · US-025 · US-080 – US-082",
     },
     {
         "uml": "sequence",
-        "title": "Départ: from choosing the car to the signed PDF",
-        "subtitle": "UML sequence diagram · US-050 to US-057",
+        "title": "Départ: from choosing the car to the sealed PDF",
+        "subtitle": "UML sequence diagram · US-050 to US-057, US-044",
         "diagrams": ["11-sequence-depart"],
         "layout": "portrait",
         "notes": [
-            "The signature image is uploaded before the signing function runs, so a contract is never marked signed without its signature.",
-            "Step 16 is one transaction. If another phone took the car meanwhile, nothing is stored as signed.",
-            "The client signs before the language is chosen. The same signature serves the French and the English PDF.",
+            "The language is chosen in the preview, and can be switched until the client signs (F-17). The PDF carries its contract number already, so the number is reserved at the preview (F-18).",
+            "The client draws once in Documenso, and the drawing fills the signature box of every page. Documenso seals the PDF with the company's certificate.",
+            "The contract becomes active only once the sealed PDF is stored, in one transaction. If the car was taken meanwhile, nothing is signed in the app.",
         ],
-        "refs": "ADR-0005 · ADR-0007 · ADR-0009 · ADR-0010",
+        "refs": "ADR-0005 · ADR-0007 · ADR-0010 · ADR-0020",
     },
     {
         "uml": "sequence",
         "title": "Retour: check-in, mandatory signature, final PDF",
-        "subtitle": "UML sequence diagram · US-070 to US-075",
+        "subtitle": "UML sequence diagram · US-070 to US-075, US-044",
         "diagrams": ["12-sequence-retour"],
         "layout": "portrait",
         "notes": [
             "The return signature is mandatory (F-04). Without the client, the Retour waits « en attente de signature » and the car stays « En cours ».",
             "Km driven and extra km are the only values the app computes. The final amounts are typed (F-06).",
-            "In the final PDF the return signature is on every page. The departure signature is on every page except amendment pages, which carry the amendment's own signature (F-08).",
+            "In the final PDF the client signs the « Signature retour » box of every page in Documenso. The « Signature départ » boxes show the departure image read back from Documenso, except on amendment pages (F-08, F-17).",
         ],
-        "refs": "ADR-0005 · ADR-0007 · ADR-0009 · ADR-0010 · B-08",
+        "refs": "ADR-0005 · ADR-0007 · ADR-0010 · ADR-0020 · B-08",
     },
     {"kind": "why", "diagrams": ["13-hosting-options"]},
     {"kind": "options"},
@@ -321,18 +321,19 @@ def cover_page(total):
     why = page_range(lambda p: p.get("kind") in ("why", "options"))
     glance = [
         ("Front end", "One iOS app in Expo · React Native · TypeScript, built in the cloud with EAS (no Mac needed). Installed on the two staff iPhones by Ad Hoc distribution. Online only: no business data is kept on the phones."),
-        ("Back end", "One Supabase project in the EU, on the Free plan to start: Auth for staff sign-in, a REST + RPC Data API, and private Storage with signed links that expire within 5 minutes. No custom server."),
-        ("Database", "PostgreSQL, 17 tables. Row-level security on every table, status changes only through server functions, signed data insert-only, an audit row for every write."),
-        ("Contract PDF", "Rendered on the phone from versioned HTML templates, in French or English, with the signatures at the bottom right of every page. Archived with its SHA-256."),
-        ("Operations", "Nightly encrypted backup to a second EU provider, crash reports to Sentry EU without personal data, database migrations by CI."),
-        ("Accounts", "Apple Developer Program: the company. Expo, GitHub, Supabase, backup storage and Sentry: the developer (F-02), who pays the hosting (F-07)."),
-        ("Still open", f"F-11: keep the files in Supabase Storage, or move them to an EU S3 bucket (recommended, pages {why}). Legal checks L-01 to L-07 before go-live."),
+        ("Back end", "The developer's own API (TypeScript, Fastify) at Scaleway, Paris: logins, a check on every request, 5-minute links to private files, PDF rendering. Staging on his homelab."),
+        ("Database", "Managed PostgreSQL, 17 tables. Status changes through SQL functions only; signed data insert-only; every write audited."),
+        ("Signatures", "Self-hosted Documenso: the client draws once, it fills every page, and the PDF is sealed with the company's certificate."),
+        ("Contract PDF", "Rendered by the API with Chromium, in the language chosen in the preview. Archived with its SHA-256."),
+        ("Operations", "Nightly encrypted backup to a second EU provider, Sentry EU without personal data, deployments by CI."),
+        ("Accounts", "Apple: the company. Expo, GitHub, Scaleway, backups, Sentry: the developer (F-02), who pays the hosting (F-07)."),
+        ("Still open", f"F-14 Q3, F-15, F-18; the Documenso spike (US-009); legal checks L-01 to L-07. F-11 decided: C (pages {why})."),
     ]
     rows = "".join(f"<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>" for k, v in glance)
     contents = []
     for i, p in enumerate(PAGES[1:], start=2):
-        title = p.get("title") or {"why": "Why Supabase, and not plain Postgres + S3?",
-                                   "options": "Hosting options compared (F-11)"}[p["kind"]]
+        title = p.get("title") or {"why": "Why an API between the phone and Postgres (F-11)",
+                                   "options": "Hosting options compared (F-11: C chosen)"}[p["kind"]]
         contents.append(f"<li><span>{esc(title)}</span><b>{i}</b></li>")
     read = "".join(
         f"<div class='read-item'><div><b>{esc(name)}</b><span class='pg'>p. {page_range(lambda p, k=kind: p.get('uml') == k)}</span></div>"
@@ -345,8 +346,8 @@ def cover_page(total):
     <div class="kicker">MC Car Riviera · staff app</div>
     <h1 class="title">Planned architecture</h1>
     <p class="lead">UML diagrams of the iOS app, the back end and the database, and the hosting
-    options you asked about (F-11). Drawn from the decisions (ADRs) and stories in <code>docs/</code>.</p>
-    <p class="meta">{esc(VERSION)} · class diagrams updated for contract template v1 · kept up to date by US-004, US-006, US-050 and US-070</p>
+    options compared for F-11 (option C chosen). Drawn from the decisions (ADRs) and stories in <code>docs/</code>.</p>
+    <p class="meta">{esc(VERSION)} · own API, Postgres and S3 at Scaleway; signatures with Documenso · kept up to date by US-004, US-006, US-050 and US-070</p>
   </div>
   <div class="cover-grid">
     <div>
@@ -361,7 +362,7 @@ def cover_page(total):
       <h2>How to read the diagrams</h2>
       <div class="read">{read}</div>
       <h2>Colours</h2>
-      {legend_html(ACCOUNTS, vertical=True)}
+      {legend_html(ACCOUNTS_NO_OPTION, vertical=True)}
     </div>
   </div>
   {footer(1, total, [])}
@@ -397,30 +398,30 @@ WHY_CARDS = [
     ("Traffic isn't what costs money",
      "Two staff members and a few dozen requests per handover are nothing for any of these options. What costs money is storing the files, and the security layer someone has to build and run."),
     ("The phone can't talk to Postgres directly",
-     "It would need a database password on two personal phones, and Postgres open to the internet. Something must sit in between: sign staff in, check every request against the access rules, and hand out short-lived links to private files. Supabase is that layer, built and run for you."),
-    ("Plain Postgres isn't cheaper here",
-     "The smallest managed Postgres costs about €11.40 a month (Scaleway), plus a small server for your own API (about €5.50). Supabase Free costs €0 for the database, the logins and the API."),
-    ("You're right about S3",
-     "For files, an EU S3-compatible bucket costs about €0.016 per GB a month. Supabase Free stops at 1 GB of files, about 200 rentals; after that, Pro costs $25 a month. Moving only the files to S3 (option B) removes that step for years."),
+     "It would need a database password on two personal phones, and Postgres open to the internet. Something must sit in between: sign staff in, check every request against the access rules, and hand out short-lived links to private files. With option C, that layer is the developer's own API."),
+    ("What C costs",
+     "About €25–30 a month: the managed Postgres (about €11), a server with at least 4 GB of RAM for the API and Documenso (about €15), cents for the files. And weeks of extra work: logins, permissions, file links, deployment, monitoring."),
+    ("What C gives",
+     "No free-plan pause or quota, the data on infrastructure the developer controls, in France, one language from the app to the API, and room for Documenso next to the API."),
 ]
 
 
 def why_page(p, page_no, total):
-    top = header("Why Supabase, and not plain Postgres + S3?",
-                 "Your question of 9 October · the short answer, then the four options side by side", page_no)
+    top = header("Why an API between the phone and Postgres (F-11)",
+                 "Your question of 9 October, answered on 3 November with option C · the four options side by side", page_no)
     cards = "".join(f'<div class="card"><h3>{esc(t)}</h3><p>{esc(b)}</p></div>' for t, b in WHY_CARDS)
     body = (
         f'<div class="body why"><div class="cards">{cards}</div>'
         f'<div class="dia">{inline_svg(p["diagrams"][0])}</div>'
         f'<div class="under">{legend_html(OPTION_COLOURS)}</div></div>'
     )
-    return f'<section class="page">{top}{body}{footer(page_no, total, p["diagrams"], "F-11 · ADR-0004 · ADR-0014")}</section>'
+    return f'<section class="page">{top}{body}{footer(page_no, total, p["diagrams"], "F-11 · ADR-0004 · ADR-0019 · ADR-0014")}</section>'
 
 
 OPTION_HEADS = [
-    ("A · Supabase for everything", "current plan (default)"),
-    ("B · Supabase + S3 for the files", "recommended"),
-    ("C · Managed Postgres + S3 + own API", "more to build"),
+    ("A · Supabase for everything", "the plan until 3 November"),
+    ("B · Supabase + S3 for the files", "recommended on 9 October"),
+    ("C · Managed Postgres + S3 + own API", "chosen on 3 November"),
     ("D · Everything on one server", "cheapest, most to run"),
 ]
 OPTION_ROWS = [
@@ -429,8 +430,8 @@ OPTION_ROWS = [
       "Logins, database and API on Supabase Free; files in an EU S3-compatible bucket (e.g. Scaleway, Paris)",
       "Managed Postgres, a small server for your own API, and an S3 bucket",
       "One small server (e.g. Hetzner CX23, €5.49) with Postgres and an API, or self-hosted Supabase; files in S3"]),
-    ("Per month, under 1 GB of files", ["€0", "€0 + cents", "≈ €17", "≈ €6–8"]),
-    ("Per month after ≈ 200 rentals", ["$25 (Pro)", "Cents: the text data stays under 500 MB for years", "≈ €17", "≈ €6–8"]),
+    ("Per month, under 1 GB of files", ["€0", "€0 + cents", "≈ €17; ≈ €25–30 with Documenso on a 4 GB server", "≈ €6–8"]),
+    ("Per month after ≈ 200 rentals", ["$25 (Pro)", "Cents: the text data stays under 500 MB for years", "The same, plus cents for files", "≈ €6–8"]),
     ("Extra work for you",
      ["None", "1–2 days: one function for file links, and the bucket set-up",
       "Weeks: logins, sessions, permissions, the API itself, TLS, monitoring",
@@ -441,38 +442,36 @@ OPTION_ROWS = [
 
 
 def options_page(p, page_no, total):
-    top = header("Hosting options compared (F-11)",
+    top = header("Hosting options compared (F-11: C chosen)",
                  "Approximate list prices before VAT, checked on 9 October 2026 · every option stays portable (Postgres dump, S3-compatible files)", page_no)
     thead = "<tr><th></th>" + "".join(
-        f'<th class="{"rec" if i == 1 else ""}">{esc(h)}<small>{esc(s)}</small></th>'
+        f'<th class="{"rec" if i == 2 else ""}">{esc(h)}<small>{esc(s)}</small></th>'
         for i, (h, s) in enumerate(OPTION_HEADS)) + "</tr>"
     rows = ""
     for label, cells in OPTION_ROWS:
         rows += f"<tr><th>{esc(label)}</th>" + "".join(
-            f'<td class="{"rec" if i == 1 else ""}">{esc(c)}</td>' for i, c in enumerate(cells)) + "</tr>"
+            f'<td class="{"rec" if i == 2 else ""}">{esc(c)}</td>' for i, c in enumerate(cells)) + "</tr>"
     reco = f"""
 <div class="reco">
   <div class="decide">
-    <h3>Recommendation: B</h3>
-    <p>Keep Supabase Free for the logins, the database and the API; put the files in an EU
-    S3-compatible bucket. The database rules, the audit trail and the app stay as planned,
-    apart from how files are uploaded and opened.</p>
-    <p class="ask">Your decision: reply <b>{esc("F-11")}: A, B, C or D</b>. Until then the plan stays A
-    ({esc("ADR-0004")}, {esc("ADR-0014")}).</p>
+    <h3>Decision (3 November): C</h3>
+    <p>Your own API server in TypeScript with Fastify ({esc("F-12")}), a managed Postgres and S3 storage,
+    at Scaleway in Paris ({esc("F-14")}), with staging on your homelab. Signatures with a self-hosted
+    Documenso next to the API. Recorded in {esc("ADR-0019")} and {esc("ADR-0020")}; Supabase ({esc("ADR-0004")}) is superseded.</p>
   </div>
   <div>
-    <h3>What B adds</h3>
+    <h3>What C adds since 9 October</h3>
     <ul>
-      <li>One Edge Function (the Free plan includes 500,000 calls a month) that checks the staff session and returns links valid for at most 5 minutes, only for new file names chosen by the server.</li>
-      <li>Versioning or object lock on the bucket, if the provider offers it, so a file can't be overwritten.</li>
-      <li>The nightly backup copies the files from the bucket instead of Supabase Storage.</li>
+      <li>A server with at least 4 GB of RAM, since Documenso needs 2 GB on its own: about €25–30 a month in all.</li>
+      <li>An e-mail provider, which Documenso needs even with its e-mails to clients switched off ({esc("F-15")}).</li>
+      <li>PDF rendering on the server with Chromium ({esc("F-13")}), and the nightly backup run from the server.</li>
     </ul>
   </div>
   <div>
-    <h3>Caveats</h3>
+    <h3>Still to watch</h3>
     <ul>
-      <li>Still the Free plan for the database: no service guarantee, and a pause after a week without activity. Daily use and the nightly backup should prevent it.</li>
-      <li>The bucket provider becomes one more sub-processor in your data processing agreement with the company ({esc("L-03")}).</li>
+      <li>One server: while it is down, no handover can be signed. Uptime alerts and the paper fallback cover it.</li>
+      <li>Scaleway becomes a sub-processor in your data processing agreement with the company ({esc("L-03")}).</li>
     </ul>
   </div>
 </div>"""
@@ -480,7 +479,7 @@ def options_page(p, page_no, total):
                '(€0.01606 per GB a month, Paris, multi-AZ) and Managed Databases (DB-DEV-S, €0.0156 an hour) · '
                'Hetzner\'s cloud price change of 15 June 2026 (CX23 from €3.99 to €5.49 a month). Check them again before committing.</p>')
     body = f'<div class="body opts"><table class="options"><thead>{thead}</thead><tbody>{rows}</tbody></table>{reco}{sources}</div>'
-    return f'<section class="page">{top}{body}{footer(page_no, total, [], "F-11 · ADR-0004 · ADR-0014 · ADR-0015 · L-03")}</section>'
+    return f'<section class="page">{top}{body}{footer(page_no, total, [], "F-11 · ADR-0019 · ADR-0020 · ADR-0014 · ADR-0015 · L-03")}</section>'
 
 
 CSS = """

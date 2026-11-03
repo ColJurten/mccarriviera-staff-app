@@ -1,6 +1,6 @@
 # Contract template v1
 
-The new rental contract PDF: the model template's layout and fields, plus every field of the current form. It is the reference design for [US-040](../stories/US-040-contract-pdf-template.md); the app renders the same pages on the phone with expo-print ([ADR-0010](../adr/0010-contract-pdf-generation.md)).
+The new rental contract PDF: the model template's layout and fields, plus every field of the current form. It is the reference design for [US-040](../stories/US-040-contract-pdf-template.md); the API renders the same pages with Chromium, as this prototype does ([ADR-0010](../adr/0010-contract-pdf-generation.md)), and Documenso places the client's signature in the signature boxes ([ADR-0020](../adr/0020-signatures-with-documenso.md)).
 
 First version: 2026-11-02, after the answers to R-02, R-19 Q1 and R-01 Q2 (below).
 
@@ -57,14 +57,15 @@ The model's own texts (its rules, liability and traffic-violation paragraphs, it
 
 Two readings to confirm (`INTERPRETATION`): « Informations complémentaires » is stored per rental, not per client, and « Services inclus » is typed by staff for each contract.
 
-## Rules the app version must keep (US-040)
+## Rules the production version must keep (US-040)
 
 - Every page is an explicit A4 block. The signature block is in the same place on every page, in French and in English.
 - An empty field prints as an empty cell, never as "null" or a dash (meeting notes: « champ vide »).
 - Page 1 and page 2 show the values signed at the Départ. Later changes appear on amendment pages; return values and final amounts sit in the Retour column and the final statement (ADR-0009).
 - Nothing on a page may be cut off. Photos that don't fit on page 3 continue on an « État du véhicule (suite) » page. The prototype doesn't do this yet (the specimen fits on one page), but its build prints a warning for any page whose content is larger than the page.
 - The footer gives the template version and the version of the general terms printed in that PDF's language.
-- Fonts: Inter for the text and Lora for titles, both under the SIL Open Font License, bundled in the app.
+- Fonts: Inter for the text and Lora for titles, both under the SIL Open Font License, bundled in the API's image.
+- The signature boxes become Documenso signature fields: the API needs each box's position on each page. The specimens' drawn signatures and « Signé le … » lines stand for what Documenso adds (2026-11-03).
 - Specimens use invented data only, and the scans never enter the repository.
 
 ## Rebuild

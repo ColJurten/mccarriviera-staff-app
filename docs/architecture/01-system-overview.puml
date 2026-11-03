@@ -1,40 +1,51 @@
 @startuml 01-system-overview
 ' UML deployment diagram: what runs where when the app is in use, and who holds each account.
 !include style.iuml
-skinparam nodesep 40
-skinparam ranksep 55
+skinparam nodesep 36
+skinparam ranksep 50
 
 actor "Staff\n(2 employees)" as staff
 actor "Client\n(renter)" as client
 
 node "Staff iPhone ×2" <<personal phone · Ad Hoc install>> as phone $DEVICE {
   artifact "MC Car Riviera app\nExpo · React Native · TypeScript" as app
-  database "Keychain\nsession key" as kc
-  folder "App cache\ngenerated PDFs only\ndeleted after 7 days" as cache
+  artifact "Signing web view\nDocumenso's page\nprivate session" as wv
+  database "Keychain\nsession token" as kc
+  folder "App cache\nPDFs only\ndeleted after 7 days" as cache
 }
 
-cloud "Supabase · EU region · production project" <<developer's account>> as sb $DEVELOPER {
-  component "Auth\nstaff accounts, sessions" as auth
-  component "Data API\nREST + RPC" as api
-  database "PostgreSQL\ntables · row-level security\nserver functions · audit trail" as pg
-  component "Storage\n4 private buckets" as st
+cloud "Scaleway · Paris · production" <<developer's account>> as scw $DEVELOPER {
+  node "Server · ≥ 4 GB RAM · Docker Compose" as srv {
+    component "Caddy\nTLS · reverse proxy" as caddy
+    component "API · Fastify · TypeScript\nlogins (better-auth) · checks\nfile links · PDFs (Chromium)" as api
+    component "Documenso\nsigning pages · seals the PDF\nwith the company certificate" as doc
+    component "Nightly backup job" as job
+  }
+  database "Managed PostgreSQL\nmcr · documenso\nserver access only" as pg
+  folder "Object Storage\nprivate buckets" as s3
+  component "Transactional\nEmail (SMTP)" as smtp
 }
 
-cloud "S3-compatible bucket · EU\nthe files, if F-11 picks option B" <<option>> as s3 $OPTION
-cloud "Sentry · EU\ncrash reports, no personal data" <<developer's account>> as sentry $DEVELOPER
-
-component "Nightly backup job\nGitHub Actions" <<developer's account>> as job $DEVELOPER
+cloud "Sentry · EU\nerrors, no personal data" <<developer's account>> as sentry $DEVELOPER
 cloud "Backup storage · EU\nanother provider · encrypted\nthe job can't delete" <<developer's account>> as bkp $DEVELOPER
 
 staff --> app : uses
-client --> app : signs on the screen
-app --> auth : HTTPS · sign-in, token refresh
-app --> api : HTTPS · JWT on every call
-app --> st : HTTPS · signed links ≤ 5 min
+client --> wv : signs once
+app --> caddy : HTTPS · session token
+wv --> caddy : HTTPS · sign.<domain>
+caddy --> api
+caddy --> doc
+app --> s3 : presigned links ≤ 5 min
 api --> pg
-st ..> s3 : could move (F-11)
-app ..> sentry : crash reports
-job -up-> pg : database dump
-job -up-> st : new files only
-job -right-> bkp : encrypted copies
+doc --> pg
+api --> doc : API v2 · envelopes
+doc ..> api : webhook · document signed
+api --> s3
+doc --> s3 : own bucket
+doc ..> smtp
+app ..> sentry : errors
+api ..> sentry : errors
+job --> pg : dumps
+job --> s3 : new files only
+job --> bkp : encrypted copies
 @enduml

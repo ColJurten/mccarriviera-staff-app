@@ -52,12 +52,12 @@ A third language is needed (R-17).
 ## Implemented by
 
 - [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton
-- [US-006](../stories/US-006-core-database-schema-and-rls.md): Create the core database schema, access rules and storage
+- [US-006](../stories/US-006-core-database-schema-and-storage.md): Create the core database schema, access rules and storage
 - [US-031](../stories/US-031-create-a-client.md): Create a client
 - [US-040](../stories/US-040-contract-pdf-template.md): Contract PDF template in French and English, with the signature block at the bottom right
 - [US-041](../stories/US-041-general-terms-per-language.md): Manage the general terms (CGV) per language
 - [US-052](../stories/US-052-fill-in-rental-details.md): Fill in the rental details
-- [US-055](../stories/US-055-departure-pdf.md): Generate the departure PDF in French or English
+- [US-055](../stories/US-055-departure-pdf.md): Preview and deliver the departure PDF in French or English
 - [US-063](../stories/US-063-reopen-or-regenerate-a-pdf.md): Re-open, re-share or regenerate a contract PDF
 - [US-071](../stories/US-071-return-km-and-fuel.md): Record the return km and fuel
 - [US-075](../stories/US-075-final-pdf.md): Generate the final PDF in French or English

@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | E3 · Clients | Must | P1 | S | To do |
 
-- **Depends on:** [US-006](US-006-core-database-schema-and-rls.md) · [US-010](US-010-sign-in-and-sign-out.md)
+- **Depends on:** [US-006](US-006-core-database-schema-and-storage.md) · [US-010](US-010-sign-in-and-sign-out.md)
 - **Decisions:** —
 - **Open points:** — (see [open questions](../discovery/open-questions.md))
 

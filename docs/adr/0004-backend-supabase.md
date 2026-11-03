@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | B-03, B-11 · F-02, F-07 (answered) · F-11 |
+| **Superseded by ADR-0019** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | B-03, B-11 · F-02, F-07 (answered) · F-11 |
 
 ## Context
 
@@ -88,10 +88,8 @@ An upgrade trigger fires (move to Pro), or the client wants the data on infrastr
 - 2026-10-09: storage estimate and the cheaper alternative added, to help answer F-07.
 - 2026-10-09 (later): F-02 and F-07 answered: the Supabase organisation is the developer's, and he pays the hosting. F-11 opened: files in Supabase Storage or S3-compatible storage.
 - 2026-10-09 (evening): prices rechecked for the architecture PDF. Hetzner's smallest cloud server costs €5.49 a month (before VAT) since 15 June 2026, so the VPS alternative is about €6–8 a month.
+- 2026-11-03: **superseded by [ADR-0019](0019-backend-own-api-postgres-s3.md)**. F-11 was answered with option C: the developer's own API, his own Postgres, and the files in S3.
 
 ## Implemented by
 
-- [US-004](../stories/US-004-supabase-environments.md): Create the Supabase environments
-- [US-006](../stories/US-006-core-database-schema-and-rls.md): Create the core database schema, access rules and storage
-- [US-057](../stories/US-057-sign-departure-server-function.md): Server function: sign a Départ
-- [US-093](../stories/US-093-operations-runbook.md): Write the operations runbook
+- Nothing: superseded by ADR-0019.

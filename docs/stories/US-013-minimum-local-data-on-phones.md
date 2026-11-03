@@ -20,5 +20,6 @@ As the company, I want the app to leave as little client data as possible on sta
 - [ ] Temporary photo files are deleted after upload, and any leftovers are deleted at the next launch.
 - [ ] PDFs are the only files the app keeps: in the app cache, deleted at sign-out and after 7 days (default for T-05).
 - [ ] No personal data is written to logs or crash reports (code review checklist, US-014).
-- [ ] Client documents are fetched with signed URLs valid for 5 minutes or less, and are never written to persistent storage.
+- [ ] Client documents are fetched with presigned links valid for 5 minutes or less, and are never written to persistent storage.
+- [ ] Documenso's signing page opens in a private web view that keeps no cookies, cache or local storage once closed.
 - [ ] A debug screen in development builds lists the app's files. After a full Départ and Retour, it shows no client data other than cached PDFs.

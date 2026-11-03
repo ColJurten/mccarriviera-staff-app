@@ -1,6 +1,6 @@
 # MC Car Riviera staff app: documentation
 
-> **Phase: decisions recorded, backlog ready (2026-10-07, updated 2026-10-09 with the follow-up answers).** The blocking questions are answered and recorded as
+> **Phase: decisions recorded, backlog ready (2026-10-07; updated 2026-10-09, 2026-11-02 and 2026-11-03).** On 2026-11-03 the back end moved from Supabase to the developer's own API, Postgres and S3 at Scaleway, and signatures moved to a self-hosted Documenso. The blocking questions are answered and recorded as
 > ADRs, and the MVP backlog is written as user stories. Both were reviewed independently and corrected. Some business
 > rules and follow-ups are still open. For those, the backlog uses explicit defaults, listed in
 > [`discovery/open-questions.md`](discovery/open-questions.md) § Defaults.
@@ -12,7 +12,7 @@ MC Car Riviera, a car-rental company in Juan-les-Pins (France), gets an internal
 running on their personal phones. It replaces the paper « Contrat / Facture location » they fill in today:
 
 - Staff run a **Départ** (check-out) and a **Retour** (check-in).
-- The client signs on the phone.
+- The client signs on the phone, in a self-hosted Documenso that seals the PDF.
 - The app produces the contract PDF in **French or English**, and staff share it through the iOS share sheet.
 - The app also holds the **vehicle inventory** (statuses, maintenance, reference photos, damage), the **client records** with their documents, and every **contract** with its revisions.
 - Billing and payment stay outside the app.
@@ -23,18 +23,18 @@ running on their personal phones. It replaces the paper « Contrat / Facture loc
 |---|---|---|
 | App technology | React Native + Expo (TypeScript), built in the cloud, so no Mac is needed | [0002](adr/0002-mobile-stack-expo.md) |
 | Distribution | Ad Hoc builds on the staff's registered personal iPhones (Developer Mode on), under the company's Apple account (F-02) | [0003](adr/0003-ios-distribution-ad-hoc.md) |
-| Backend | Supabase (Postgres, Auth, Storage) in the EU, on the developer's account, starting on the Free plan; hosting paid by the developer (F-02, F-07); no e-mail sending in the MVP. Where the files live is open (F-11) | [0004](adr/0004-backend-supabase.md) |
+| Backend | The developer's own API (TypeScript, Fastify), a managed Postgres and S3 storage at Scaleway in Paris (F-11 option C, F-12, F-14); staging on his homelab; hosting paid by the developer, about €25–30 a month (F-07). Replaces Supabase (ADR-0004) | [0019](adr/0019-backend-own-api-postgres-s3.md) |
 | Connectivity | Online only; no offline mode | [0005](adr/0005-online-only.md) |
 | Scope | Contract only. Prices, totals, costs and number of days typed by staff (F-06). No billing or payment. Card fields kept, but only the last four digits and the expiry date; never a full number or a CVV (F-09) | [0006](adr/0006-contract-only-scope.md) |
-| Contracts and vehicles | Signed data never changes. Amendments are revisions. State changes only through server functions. Full audit trail | [0007](adr/0007-contract-lifecycle-and-audit.md) |
+| Contracts and vehicles | Signed data never changes. Amendments are revisions. State changes only through SQL functions, called by the API. Full audit trail | [0007](adr/0007-contract-lifecycle-and-audit.md) |
 | Vehicle condition | Reference photos reused at Départ. Damage records. New reference set after a repair | [0008](adr/0008-vehicle-condition-model.md) |
-| Signatures | One signature per handover, at the bottom right of every page, in the same place in French and English (F-08). Departure and return signatures are both mandatory (F-04). Never next to values it doesn't cover: an amendment page carries its own signature (default for F-08) | [0009](adr/0009-signatures.md) |
-| PDF | Rendered on the phone from versioned HTML templates: model layout, every field of both forms (R-02), explicit A4 pages, full-size photo annex. Template v1 in [`contract-template/`](contract-template/README.md) | [0010](adr/0010-contract-pdf-generation.md) |
+| Signatures | Self-hosted Documenso, opened in the app: the client draws once and the signature fills the box at the bottom right of every page (F-08, F-17). The PDF is sealed with a self-signed company certificate. Departure and return signatures are both mandatory (F-04); the final PDF repeats the departure signature image. Never next to values it doesn't cover: an amendment page carries its own signature (default for F-08). Replaces ADR-0009 | [0020](adr/0020-signatures-with-documenso.md) |
+| PDF | Rendered on the API server with Chromium (F-13), from versioned HTML templates, in the language chosen in the preview before signing (F-17): model layout, every field of both forms (R-02), explicit A4 pages, full-size photo annex. Template v1 in [`contract-template/`](contract-template/README.md) | [0010](adr/0010-contract-pdf-generation.md) |
 | Languages | Language-neutral data, FR/EN catalogues, versioned general terms | [0011](adr/0011-localisation.md) |
-| Access and phones | Personal accounts, Face ID lock, row-level security, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
-| Files | Private buckets; evidence can be uploaded and read but never overwritten or deleted; signed URLs valid for 5 minutes at most. In Supabase Storage until F-11 is decided | [0014](adr/0014-file-storage.md) |
-| Backups | Nightly encrypted database dumps plus incremental file copies, off-site, which the CI can't delete | [0015](adr/0015-backups.md) |
-| Repository and delivery | One repository; local, staging and production; CI; EAS builds and over-the-air updates | [0016](adr/0016-repository-environments-ci.md) |
+| Access and phones | Personal accounts (better-auth in the API), Face ID lock, every request checked by the API, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
+| Files | Private Scaleway Object Storage buckets (F-11); evidence can be uploaded and read but never overwritten or deleted; presigned links issued by the API, valid for 5 minutes at most | [0014](adr/0014-file-storage.md) |
+| Backups | Nightly encrypted dumps of both databases (app and Documenso) plus incremental file copies, with a different provider, which the server's keys can't delete | [0015](adr/0015-backups.md) |
+| Repository and delivery | One repository (app, API, shared package, migrations, deployment); local, homelab staging and Scaleway production; CI with PDF tests; EAS builds and over-the-air updates | [0016](adr/0016-repository-environments-ci.md) |
 | Crash reporting | Sentry in the EU, with personal data removed | [0017](adr/0017-crash-reporting.md) |
 | Development and testing | Android emulator on Windows for day-to-day work; iOS checks on a registered test iPhone (the developer's partner's) | [0018](adr/0018-development-and-test-devices.md) |
 
@@ -44,7 +44,7 @@ running on their personal phones. It replaces the paper « Contrat / Facture loc
 2. [`adr/README.md`](adr/README.md): the decisions, and why they were taken. The UML diagrams are in [`architecture/`](architecture/README.md), also as one PDF: [`architecture/architecture.pdf`](architecture/architecture.pdf).
 3. [`contract-template/README.md`](contract-template/README.md): the new contract PDF (template v1), its field map and specimen PDFs.
 4. [`stories/README.md`](stories/README.md): the backlog, with phases, Definition of Ready and Done, every story, and the post-MVP list.
-5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-11, and the defaults in use.
+5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-18, and the defaults in use.
 6. [`discovery/source-analysis.md`](discovery/source-analysis.md): what the reference documents contain (field inventory, signature zones, general-terms rules).
 
 ## Folder layout
@@ -98,9 +98,11 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 | The test iPhone is borrowed and not always at hand | Android emulator for day-to-day work; iOS checks on the iPhone within each story ([ADR-0018](adr/0018-development-and-test-devices.md)) |
 | A staff phone turns out too old for the app | Models and iOS versions checked at registration (F-01, US-001) |
 | A car returned without its client stays « En cours » until the client signs | The company's process (B-08); the Retour data is saved meanwhile (F-04, US-070) |
-| The PDF layout breaks on device (WebKit print quirks, overflow) | Spike first (US-009); explicit pages, field limits and HTML snapshot tests ([ADR-0010](adr/0010-contract-pdf-generation.md)) |
-| Free plan limits: 1 GB storage, pausing, no backups | Upgrades paid by the developer (F-07), files possibly on S3-compatible storage (F-11), nightly backups ([ADR-0004](adr/0004-backend-supabase.md), [ADR-0015](adr/0015-backups.md)) |
-| A drawn signature is weak evidence if contested | Evidence record and hashes; lawyer's review (L-01, [ADR-0009](adr/0009-signatures.md)) |
+| Documenso doesn't behave as needed on an iPhone (one drawing for every page, e-mails off, placeholder address, reading the signature image back) | Spike first (US-009), with DocuSeal as the fallback ([ADR-0020](adr/0020-signatures-with-documenso.md)) |
+| The PDF layout breaks (overflow) | Explicit pages, field limits, and PDF tests rendered with Chromium in CI ([ADR-0010](adr/0010-contract-pdf-generation.md)) |
+| The developer builds and runs the whole back end: API, logins, server, Documenso | Managed Postgres, pinned images, automatic system updates, uptime checks, staging first, runbook ([ADR-0019](adr/0019-backend-own-api-postgres-s3.md), US-093) |
+| One server: while it is down, no handover can be signed | Uptime alerts, nightly off-site backups, paper fallback (B-03a) ([ADR-0015](adr/0015-backups.md)) |
+| A drawn signature is weak evidence if contested | Documenso's audit trail and PAdES seal, our evidence record; lawyer's review, including the self-signed certificate and the repeated departure image (L-01, [ADR-0020](adr/0020-signatures-with-documenso.md)) |
 | Reused reference photos are weak evidence of the condition at a given handover | Extra photos, optional dashboard photo, damage records ([ADR-0008](adr/0008-vehicle-condition-model.md)) |
 | Client data leaves the app through shared PDFs on personal phones | Minimum data on the phone and a written device-use rule ([ADR-0013](adr/0013-personal-device-data-protection.md), L-03) |
 | One person builds, runs and holds the accounts and keys | Data processing agreement, handover procedure in the runbook, sealed copy of the backup keys for the company (F-02, US-092, US-093) |
@@ -117,12 +119,12 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 | 11 Domain model · 14 Contract lifecycle | [ADR-0007](adr/0007-contract-lifecycle-and-audit.md) (contract and vehicle state diagrams), [ADR-0008](adr/0008-vehicle-condition-model.md) | — |
 | 12 Database schema | Table list in US-006; class diagrams in [`architecture/`](architecture/README.md) | Kept in step with the migrations in US-006 |
 | 13 File storage | [ADR-0014](adr/0014-file-storage.md) | — |
-| 15 PDF · 16 Signatures · 17 FR/EN | [ADR-0010](adr/0010-contract-pdf-generation.md), [ADR-0009](adr/0009-signatures.md), [ADR-0011](adr/0011-localisation.md); template v1 and its field map in [`contract-template/`](contract-template/README.md) | Ported to the app by US-040 |
-| 18 iOS architecture · 19 Backend · 24 API boundaries | [ADR-0002](adr/0002-mobile-stack-expo.md), [ADR-0004](adr/0004-backend-supabase.md); deployment, component and sequence diagrams in [`architecture/`](architecture/README.md) | Kept up to date with US-004 |
+| 15 PDF · 16 Signatures · 17 FR/EN | [ADR-0010](adr/0010-contract-pdf-generation.md), [ADR-0020](adr/0020-signatures-with-documenso.md), [ADR-0011](adr/0011-localisation.md); template v1 and its field map in [`contract-template/`](contract-template/README.md) | Ported to the API by US-040; signing in US-043 and US-044 |
+| 18 iOS architecture · 19 Backend · 24 API boundaries | [ADR-0002](adr/0002-mobile-stack-expo.md), [ADR-0019](adr/0019-backend-own-api-postgres-s3.md); deployment, component and sequence diagrams in [`architecture/`](architecture/README.md) | Kept up to date with US-004 |
 | 20 Auth · 21 Security and privacy | [ADR-0012](adr/0012-authentication-and-authorisation.md) to [ADR-0015](adr/0015-backups.md), [ADR-0017](adr/0017-crash-reporting.md) | — |
 | 22 Distribution · 23 Offline | [ADR-0003](adr/0003-ios-distribution-ad-hoc.md), [ADR-0005](adr/0005-online-only.md) | — |
 | 25 Implementation phases | [`stories/README.md`](stories/README.md) (P0–P6) | — |
-| 26 Testing strategy | Definition of Done; database tests (US-006, US-007, US-057); HTML snapshot tests (US-040) | `testing.md` with US-002 |
+| 26 Testing strategy | Definition of Done; database tests (US-006, US-007, US-057); API tests (US-004, US-044); PDF tests with Chromium (US-040) | `testing.md` with US-002 |
 | 27 Technical risks | § Main risks above; Consequences sections of the ADRs | — |
 | 28 Legal/accounting questions | open-questions L-01–L-07; US-092 | — |
 | 29 Post-MVP | [`stories/README.md`](stories/README.md) § Post-MVP | — |

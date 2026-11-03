@@ -49,8 +49,9 @@ class Signature <<table: signatures>> {
   contract_id : uuid
   revision_no : integer
   stage : departure | amendment | return
-  image_path, image_sha256 : text
-  strokes_path : text [0..1]
+  documenso_envelope_id, documenso_signer_id : text
+  sealed_pdf_id : uuid {the sealed PDF it is in}
+  image_path, image_sha256 : text [0..1] {departure image, read back}
   signed_at : timestamptz {server time}
   staff_id : uuid
   device_model, ios_version, app_version : text
@@ -69,6 +70,8 @@ class ContractDocument <<table: contract_documents>> {
   template_version : text
   terms_version_id : uuid
   storage_path, sha256 : text
+  documenso_envelope_id : text [0..1] {sealed PDFs}
+  copy_of_id : uuid [0..1] {copies, US-063}
   --
   {insert-only}
 }
