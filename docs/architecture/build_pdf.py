@@ -20,7 +20,7 @@ import tempfile
 HERE = pathlib.Path(__file__).resolve().parent
 SVG_DIR = HERE / "svg"
 OUT = HERE / "architecture.pdf"
-VERSION = "Version 1.2 · 3 November 2026"
+VERSION = "Version 1.3 · 3 November 2026"
 DOC = "MC Car Riviera staff app · planned architecture"
 
 # ---------------------------------------------------------------- page content
@@ -48,8 +48,8 @@ PAGES = [
         "layout": "side",
         "legend": ACCOUNTS_NO_OPTION,
         "notes": [
-            "The app is the only part on the phones. There is no local database and no offline mode; only PDFs to share sit in the app cache, for 7 days at most.",
-            "Every call goes over HTTPS to the developer's own API at Scaleway, in Paris. The phone holds the API's address and the staff member's session token, never a database password, a storage key or Documenso's token.",
+            "The same app runs on the iPhones and, as a web app, on the staff laptops and the agency computer (F-19). No local database and no offline mode; only PDFs to share sit in the iPhone's cache, for 7 days at most.",
+            "Every call goes over HTTPS to the developer's own API at Scaleway, in Paris, at mcr.developerworkshop.online. The app holds only its session (Keychain on the iPhone, a protected cookie on the web), never a database password, a storage key or Documenso's token.",
             "The client signs on Documenso's page, opened in a private web view. Documenso seals the PDF and tells the API, which stores it and closes the step in one transaction.",
             "Files are private. The app reaches them through presigned links, issued by the API, that expire within 5 minutes.",
             "A nightly job on the server copies both databases and the new files, encrypted, to a second EU provider. Its key can't delete anything there.",
@@ -73,12 +73,12 @@ PAGES = [
     },
     {
         "uml": "component",
-        "title": "Front end: the iOS app",
-        "subtitle": "UML component diagram · one Expo app; each screen lists the stories that build it",
+        "title": "Front end: the iOS app and the web app",
+        "subtitle": "UML component diagram · one Expo codebase for iOS and the web; each screen lists the stories that build it",
         "diagrams": ["03-app-components"],
         "layout": "below",
         "notes": [
-            "Screens are in French, built with translation keys so English can be added later.",
+            "One codebase for the iPhone and the web (F-19). Screens are in French, built with translation keys so English can be added later.",
             "Server data is kept in memory only (TanStack Query, no persister). Forms are checked with zod before anything is sent.",
             "The app renders no PDF and has no signature pad: it shows the API's preview, with a French / English switch, then opens Documenso's signing page in a private web view.",
             "Photos are resized and stripped of their location before upload. The session token is in the Keychain. Crash reports carry no personal data.",
@@ -164,8 +164,8 @@ PAGES = [
         "diagrams": ["09-contract-states"],
         "layout": "side",
         "notes": [
-            "A draft never changes the vehicle's status. Discarding it deletes the unsigned data, and the audit trail keeps a record.",
-            "Signing the Départ assigns the number, freezes revision 1 and marks the car rented, in one transaction.",
+            "A draft never changes the vehicle's status. Before the preview it can be discarded; once the preview reserves a number, it can only be cancelled, and is kept as « Annulé avant signature » (F-18).",
+            "Signing the Départ confirms the number, freezes revision 1 and marks the car rented, in one transaction.",
             "An amendment adds a revision, signed by the client or recorded « sans signature du client » (default for R-11).",
             "A contract can be voided, with a reason, only before its Retour. The app never deletes a signed contract.",
         ],

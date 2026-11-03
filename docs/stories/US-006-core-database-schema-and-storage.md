@@ -36,7 +36,7 @@ As the developer, I want the tables, constraints, access rules and storage bucke
 ## Notes
 
 - Tables (working names): `staff_profiles`, `vehicles`, `condition_baselines`, `photos`, `damages`, `maintenance_records`, `clients`, `client_documents`, `contracts`, `contract_revisions`, `contract_drivers`, `inspections` (stage = departure | return), `signatures`, `contract_documents` (generated PDFs), `terms_versions`, `audit_events`, `contract_number_counters`.
-- Vehicle statuses: `available`, `rented`, `maintenance`, `archived` (default for R-13). Contract statuses: `draft`, `active`, `closed`, `void` ([ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)).
+- Vehicle statuses: `available`, `rented`, `maintenance`, `archived` (default for R-13). Contract statuses: `draft`, `awaiting_signature`, `active`, `closed`, `void` (F-18) ([ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)).
 - Contract numbers: `MCR-YYYY-NNNN` (default for R-09).
 - Client fields are listed in US-031 (default for R-03). Maintenance fields are in US-080 (default for R-14).
 - Columns added for the model template's fields (R-02): in `clients`, `title`, `first_name` and `last_name` (instead of `full_name`), `email`, `state_region`, and the issue and expiry dates of the ID document and the licence; in the contract terms, the pick-up place, flight or train, number of days, deposit, services included, additional information and a second « Jours sup » rate; in `inspections`, car papers, clean inside, clean outside and GPS (yes/no); in `staff_profiles`, `display_name`, printed on the contract (R-19).

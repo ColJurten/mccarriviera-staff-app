@@ -15,7 +15,7 @@ As a staff member, I want each generated PDF archived and shareable through the 
 ## Acceptance criteria
 
 - [ ] The API archives each PDF in `contract-pdfs` with a database row: contract, revision, stage (`departure`, `amendment` or `final`), language, template version, terms version, SHA-256, author, time. For a signed document, it is the sealed PDF returned by Documenso.
-- [ ] The app downloads the PDF into its cache and opens the iOS share sheet (Files, Mail, Messages, WhatsApp, AirDrop…). The app sends nothing by itself.
+- [ ] The iPhone app downloads the PDF into its cache and opens the iOS share sheet (Files, Mail, Messages, WhatsApp, AirDrop…). The web app opens it in the browser's viewer, with a download button, and the browser's share function where it exists. The app sends nothing by itself.
 - [ ] The file is named `{contract number}_{depart|avenant-N|final}_{fr|en}.pdf`, for example `MCR-2026-0042_depart_fr.pdf`.
 - [ ] If the download fails, the app tries again.
 - [ ] A copy can be rendered again from the stored data ([US-063](US-063-reopen-or-regenerate-a-pdf.md)). The sealed original stays the reference.

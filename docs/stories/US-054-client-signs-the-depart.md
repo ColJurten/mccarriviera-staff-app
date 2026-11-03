@@ -10,7 +10,7 @@
 
 ## Story
 
-As a staff member, I want the client to sign once on my phone, so that the contract is concluded and the vehicle becomes rented in one step.
+As a staff member, I want the client to sign once, on my phone or in the web app, so that the contract is concluded and the vehicle becomes rented in one step.
 
 ## Acceptance criteria
 

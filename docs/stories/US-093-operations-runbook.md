@@ -19,12 +19,13 @@ As the developer maintaining the app alone, I want a runbook for recurring tasks
   - registering a new phone;
   - publishing an over-the-air update;
   - applying a migration;
-  - the monthly cost and usage check (database, storage, e-mail);
+  - the monthly cost and usage check (database, storage, e-mail, and the end of turboSMTP's free period);
+  - the yearly renewal of the domain `developerworkshop.online`;
   - system, container and Documenso updates (back up first, staging first);
   - the expiry and renewal of the signing certificate (ADR-0020) and of the TLS certificates (automatic, monitored);
   - backup monitoring and restore;
   - revoking a user;
   - the erasure procedure (US-094);
   - upgrading the Expo SDK;
-  - the handover procedure if the maintenance contract ends: transfer or export the Scaleway project (or the databases and buckets), the GitHub repository, the Expo project and the backup bucket to the company or its next provider, hand over the backup keys and the Documenso signing certificate, and have the company issue a new Apple signing certificate.
+  - the handover procedure if the maintenance contract ends: transfer or export the Scaleway project (or the databases and buckets), the GitHub repository, the Expo project and the backup bucket to the company or its next provider, hand over the backup keys and the Documenso signing certificate, and have the company issue a new Apple signing certificate. The public names are on the developer's domain: a new provider needs new names, a new iOS build and a redeployed web app.
 - [ ] Every procedure that can be rehearsed has been run once on staging. The yearly renewal is rehearsed by checking the expiry dates in the Apple and EAS consoles.

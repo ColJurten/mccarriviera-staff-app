@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | Brief · B-06, B-08 · F-04 (answered) · defaults for R-09, R-11, R-12, R-13 |
+| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | Brief · B-06, B-08 · F-04, F-18 (answered) · defaults for R-09, R-11, R-12, R-13 |
 
 ## Context
 
@@ -19,9 +19,11 @@
 - **Snapshot:** at signature, a revision stores the client and vehicle values as printed. Later edits to the client or vehicle records never change a signed contract.
 - **Retour:** a separate record added to the contract. It holds the return time, km, fuel, new damage or RAS, comments, the final pricing lines and the client's return signature, which is mandatory (F-04). Until the client signs, the Retour stays in progress ([ADR-0020](0020-signatures-with-documenso.md)).
 - **Contract states** (diagram below):
-  - draft → active when the Départ is signed;
+  - draft → awaiting signature (« En attente de signature ») when the preview to sign is created: the contract number is reserved and the vehicle is held (F-18);
+  - awaiting signature → active when the client signs. Until then, staff can still correct values or switch the language; each change renders a new preview with the same number;
+  - awaiting signature → void (« Annulé avant signature ») when it will never be signed. It is kept with its number, never deleted (F-18);
   - active → closed when the Retour is completed;
-  - drafts can be discarded;
+  - drafts without a number (before the preview) can be discarded;
   - an active contract can be voided with a reason, but never deleted (default for R-12).
 - **One active contract per vehicle:** enforced by a partial unique index and by the transition functions.
 - **Write paths:**
@@ -39,15 +41,18 @@
 
   In storage, the evidence buckets accept uploads and reads only ([ADR-0014](0014-file-storage.md)).
 - **Audit trail:** triggers on every business table append a row to `audit_events` with the server time, the user, the action, the row, and the values before and after. These rows contain personal values, so they follow the retention procedure ([US-094](../stories/US-094-retention-and-erasure.md)).
-- **Contract number:** `MCR-YYYY-NNNN`, assigned at signature from a yearly counter. Gaps are acceptable because it is not an invoice number (default for R-09).
+- **Contract number:** `MCR-YYYY-NNNN`, from a yearly counter (default for R-09). It is reserved when the preview to sign is created, since the sealed PDF carries it, and a contract never signed keeps it as « Annulé avant signature ». The numbering therefore has no gaps (F-18, answered 2026-11-03).
 - **Amendment signature:** if the client is present, they sign the amendment. If not, it is recorded « sans signature du client » (default for R-11). How amendments appear in the PDF is in [ADR-0020](0020-signatures-with-documenso.md).
 - **Vehicle statuses:** available, rented, maintenance, archived (default for R-13). Their transitions are in the second diagram below.
 
 ```mermaid
 stateDiagram-v2
     [*] --> draft : Départ started
-    draft --> [*] : discarded
-    draft --> active : client signs (vehicle becomes rented)
+    draft --> [*] : discarded (no number yet)
+    draft --> awaiting_signature : preview created (number reserved, vehicle held)
+    awaiting_signature --> awaiting_signature : values or language changed (new preview, same number)
+    awaiting_signature --> active : client signs (vehicle becomes rented)
+    awaiting_signature --> void : « Annulé avant signature » (kept, vehicle released)
     active --> active : amendment = new revision
     active --> closed : Retour completed (vehicle becomes available)
     active --> void : voided with reason (vehicle becomes available)
@@ -95,6 +100,7 @@ Legal advice (L-01, L-07) requires a different evidence model.
 ## Changes
 
 - 2026-10-09: wording aligned with F-04: the client's return signature is mandatory, so a Retour is completed only when the client signs. The UML state machines in `docs/architecture/` show both lifecycles.
+- 2026-11-03: F-18 answered: a contract waits « En attente de signature » with its number reserved, and one that is never signed is kept as « Annulé avant signature », so the numbering has no gaps.
 
 ## Implemented by
 

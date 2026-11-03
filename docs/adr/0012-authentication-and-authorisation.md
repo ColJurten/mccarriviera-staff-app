@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | B-02 · defaults for T-03, R-16 · F-03 · F-11, F-12 (answered) |
+| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | B-02 · defaults for T-03, R-16 · F-03 · F-11, F-12, F-19 (answered) |
 
 ## Context
 
@@ -16,6 +16,12 @@
 - **better-auth**, in the API, with e-mail and password (default for T-03). Public sign-up is disabled; the developer creates the accounts with a script.
 - **One account per person.** No shared login.
 - **Passwords:** at least 12 characters, hashed by better-auth. Sign-in attempts are rate-limited.
+- **On the web app** (F-19, [ADR-0021](0021-web-app.md)):
+  - a second factor at every sign-in: a one-time code from an authenticator app (better-auth's two-factor support), with backup codes;
+  - the session is an `HttpOnly`, `Secure`, `SameSite=Strict` cookie, which JavaScript can't read;
+  - it ends after 30 minutes without activity, and after 12 hours in any case (`RECOMMENDED`).
+
+  The iPhone app keeps the password and the Face ID lock.
 - **Sessions:**
   - sessions are stored in Postgres, and every request checks them, so a revoked session stops working at once;
   - a session expires after 30 days, and is extended while it is used (`RECOMMENDED`);
@@ -29,7 +35,7 @@
   - files are reached only through presigned links that the API issues after its checks ([ADR-0014](0014-file-storage.md));
   - database credentials, storage keys, the Documenso API token and the signing certificate live only on the servers and in protected CI environments. None of them ships in the app.
 - **Revocation:** the developer marks the staff profile inactive and revokes its sessions. The next request from that phone is refused ([US-012](../stories/US-012-revoke-a-staff-members-access.md)).
-- **Multi-factor authentication:** not in the MVP. better-auth can add one-time codes later.
+- **Multi-factor authentication:** required on the web app (above). On the iPhone, the Face ID lock plays that role; a second factor can be added there later.
 
 ## Consequences
 
@@ -62,13 +68,15 @@ The company hires more staff, or different access levels are needed (R-16).
 ## Changes
 
 - 2026-11-03: Supabase Auth and row-level security replaced by better-auth and permission checks in the API, after F-11 and F-12 ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
+- 2026-11-03 (later): F-19 answered: on the web app, a second factor at every sign-in and a cookie session with an idle timeout.
 
 ## Implemented by
 
-- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton
+- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for iOS and the web
 - [US-004](../stories/US-004-api-server-and-environments.md): Create the API server and its environments: local, homelab staging, Scaleway production
 - [US-006](../stories/US-006-core-database-schema-and-storage.md): Create the core database schema, access rules and storage
 - [US-007](../stories/US-007-audit-trail-and-immutability.md): Record an audit trail and protect signed data
 - [US-010](../stories/US-010-sign-in-and-sign-out.md): Sign in and sign out
 - [US-011](../stories/US-011-app-lock-with-face-id.md): Lock the app with Face ID
 - [US-012](../stories/US-012-revoke-a-staff-members-access.md): Revoke a staff member's access (lost phone or departure)
+- [US-015](../stories/US-015-web-sign-in-second-factor.md): Sign in to the web app with a second factor, and sign out when idle

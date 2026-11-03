@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-09 | Developer, with the client's answers | F-05 (answered) · B-01 |
+| **Accepted** | 2026-10-09 (updated 2026-11-03) | Developer, with the client's answers | F-05 (answered) · B-01 |
 
 ## Context
 
@@ -16,7 +16,7 @@
 - **Test iPhone:** the partner's iPhone is registered as the developer's test device ([US-001](../stories/US-001-apple-developer-account-and-devices.md)), with Developer Mode on.
   - It receives development and preview builds only. They use the **staging** backend, which holds synthetic data only, so no client data reaches it.
   - Production builds go only to the staff phones.
-- **Day-to-day UI work:** an Android emulator on Windows (Android Studio), running an Android development build of the same app (`RECOMMENDED`).
+- **Day-to-day UI work:** the web app in a browser, which is also a product target now ([ADR-0021](0021-web-app.md)), and an Android emulator on Windows (Android Studio), running an Android development build of the same app (`RECOMMENDED`).
   - The Android development build is made with EAS Build. It only needs rebuilding when native modules change.
   - The Metro bundler in WSL2 serves the code to the emulator, through WSL mirrored networking or `expo start --tunnel`.
   - The Android build is a development tool only. The product stays iOS only ([ADR-0003](0003-ios-distribution-ad-hoc.md)).
@@ -52,8 +52,12 @@
 
 EAS Simulator becomes generally available, or a dedicated test iPhone is bought.
 
+## Changes
+
+- 2026-11-03: the web app is a product target and the quickest development loop (ADR-0021).
+
 ## Implemented by
 
 - [US-001](../stories/US-001-apple-developer-account-and-devices.md): Open the Apple developer account and register the iPhones
 - [US-005](../stories/US-005-eas-builds-and-internal-distribution.md): Set up EAS builds, internal distribution and over-the-air updates
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone

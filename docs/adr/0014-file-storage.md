@@ -82,6 +82,7 @@ The volume grows enough for storage costs to matter, or the provider changes.
 
 - [US-006](../stories/US-006-core-database-schema-and-storage.md): Create the core database schema, access rules and storage
 - [US-013](../stories/US-013-minimum-local-data-on-phones.md): Keep client data on staff phones to a minimum
+- [US-016](../stories/US-016-client-data-in-the-browser.md): Keep client data out of the browser on laptops and the agency computer
 - [US-022](../stories/US-022-add-a-vehicle.md): Add a vehicle with its reference photos
 - [US-026](../stories/US-026-guided-reference-photo-capture.md): Guided reference photo capture
 - [US-033](../stories/US-033-client-documents.md): Attach and view client documents

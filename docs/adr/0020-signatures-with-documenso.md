@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-11-03 | Developer, with the client's answers | B-06, B-07, B-08 · F-04, F-16, F-17 (answered) · F-08 (partly answered) · default for R-11 · L-01 |
+| **Accepted** | 2026-11-03 (updated 2026-11-03) | Developer, with the client's answers | B-06, B-07, B-08 · F-04, F-16, F-17, F-18, F-19 (answered) · F-08 (partly answered) · default for R-11 · L-01 |
 
 ## Context
 
@@ -36,17 +36,18 @@
 
 ## Decision
 
-- **Where it runs:** Documenso Community Edition, **unmodified**, pinned to an exact version, on the production server at `sign.<company domain>` ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
+- **Where it runs:** Documenso Community Edition, **unmodified**, pinned to an exact version, on the production server at `sign.mcr.developerworkshop.online` ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
   - It has its own database (`documenso`), its own bucket, and sends any e-mail through the provider of F-15.
   - Public sign-up is disabled. There is one team, and one API token, held only by the API.
   - Staging has its own instance on the homelab, with its own certificate.
 - **Signature fields:** the API places a Documenso signature field in the signature box of **every page**: « Signature départ » at the Départ, « Signature retour » at the Retour. The boxes sit at the same position in French and English (B-06, B-07, F-08), and the template gives the API their coordinates ([ADR-0010](0010-contract-pdf-generation.md)).
 - **One signature for every page** (F-17): the client draws once, and the drawing fills every field. Whether Documenso can do this without a tap on each page is proven in the spike [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md) before anything is built on it. If it can't, the fallback (for example, one tap per page after the first drawing) is agreed with the client.
 - **Départ:**
-  1. When the recap is complete, the app asks the API for the **preview**. The API renders the PDF in the chosen language ([ADR-0010](0010-contract-pdf-generation.md)) and creates a Documenso envelope with one signer (the client), the fields, e-mail sending switched off, and the contract and revision as its external ID.
+  1. When the recap is complete, the app asks the API for the **preview**. The API renders the PDF in the chosen language ([ADR-0010](0010-contract-pdf-generation.md)) and creates a Documenso envelope with one signer (the client), the fields, e-mail sending switched off, and the contract and revision as its external ID. The contract becomes « En attente de signature », with its number reserved, since the sealed PDF carries it (F-18).
   2. The preview screen shows the PDF with a French/English switch. Switching renders a new PDF and replaces the waiting envelope; the old one is deleted in Documenso, and the replacement is recorded. This is possible until the client signs (F-17).
-  3. « Faire signer le client » opens Documenso's signing page for that envelope in an in-app web view, as a private session that keeps no cookies or cache ([ADR-0013](0013-personal-device-data-protection.md)). The client reads the document, draws once and confirms.
+  3. « Faire signer le client » opens Documenso's signing page for that envelope in an in-app web view, as a private session that keeps no cookies or cache ([ADR-0013](0013-personal-device-data-protection.md)). In the web app, the page is embedded or opened in a new tab ([ADR-0021](0021-web-app.md)). The client reads the document, draws once and confirms.
   4. Documenso seals the PDF and calls the API's webhook (`DOCUMENT_COMPLETED`), checked with a shared secret. The API downloads the sealed PDF, stores it in `contract-pdfs` with its SHA-256, then runs the sign-departure transaction ([US-057](../stories/US-057-sign-departure-server-function.md)). **The contract becomes active only once the sealed PDF is stored.** If the webhook is late, the app asks the API, which asks Documenso.
+- **A Départ that is never signed** (F-18): the contract isn't deleted. It is kept with its number as « Annulé avant signature », and its envelope is deleted in Documenso. The numbering therefore has no gaps.
 - **Retour:** the same, with the final PDF and the fields in the « Signature retour » boxes. The signature is **mandatory** (F-04). If the client isn't there, the envelope waits and the Retour stays « en attente de signature »; the vehicle stays « En cours » until then (`RECOMMENDED`). How the company reaches the client is outside the app (B-08).
 - **The departure signature on later PDFs** (F-17): once the Départ is signed, the API reads the image of the client's departure signature back from Documenso and stores it in `signatures`, with its SHA-256, linked to the evidence record. It is printed in the « Signature départ » boxes of the final PDF and of any later copy, except on amendment pages.
   - How to read it back (Documenso's API, or its database) is settled in the spike US-009.
@@ -57,7 +58,7 @@
   - changes appear on amendment pages;
   - return values and final amounts appear in the Retour section;
   - the departure signature isn't placed on amendment pages.
-- **The client's e-mail** (F-16): Documenso signers carry an e-mail address. The client's e-mail is used when it is known. Otherwise, a placeholder is used, made from the contract number on a subdomain of the company's domain that has no mail server, for example `mcr-2026-0042@nomail.<company domain>` (`RECOMMENDED`).
+- **The client's e-mail** (F-16): Documenso signers carry an e-mail address. The client's e-mail is used when it is known. Otherwise, a placeholder is used, made from the contract number on a subdomain of the company's domain that has no mail server, for example `mcr-2026-0042@nomail.mcr.developerworkshop.online` (`RECOMMENDED`).
   - Documenso's e-mails to signers (requests, reminders, completed copies) are switched off. Staff share the PDF from the app, as before ([US-042](../stories/US-042-archive-and-share-pdfs.md)).
   - That these e-mails can be switched off for each document is checked in the spike US-009.
 - **Evidence:**
@@ -102,16 +103,18 @@ The spike US-009 fails on a point that matters, the lawyer's answer to L-01 requ
 ## Changes
 
 - 2026-11-03: written. Supersedes ADR-0009, with the answers to F-16 and F-17.
+- 2026-11-03 (later): F-18 answered (a contract never signed is kept as « Annulé avant signature », with its number) and F-19 (signing from the web app). The public names are on the developer's domain (F-14).
 
 ## Implemented by
 
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone
 - [US-040](../stories/US-040-contract-pdf-template.md): Contract PDF template in French and English, with the signature block at the bottom right
 - [US-042](../stories/US-042-archive-and-share-pdfs.md): Archive, download and share contract PDFs
 - [US-043](../stories/US-043-deploy-documenso.md): Deploy Documenso and connect it to the API
 - [US-044](../stories/US-044-sign-in-documenso-from-the-app.md): Preview a contract PDF and have it signed in Documenso from the app
 - [US-054](../stories/US-054-client-signs-the-depart.md): Client signs the Départ
 - [US-055](../stories/US-055-departure-pdf.md): Preview and deliver the departure PDF in French or English
+- [US-056](../stories/US-056-resume-or-discard-a-draft.md): Resume or discard a draft Départ
 - [US-057](../stories/US-057-sign-departure-server-function.md): API: sign a Départ in one database transaction
 - [US-061](../stories/US-061-extend-or-amend-a-rental.md): Extend a rental or amend allowed fields
 - [US-063](../stories/US-063-reopen-or-regenerate-a-pdf.md): Re-open, re-share or regenerate a contract PDF

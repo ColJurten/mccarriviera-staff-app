@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-11-03 | Developer, with the client's answers | F-11 (answered: option C) · F-12, F-13, F-14 (answered) · B-03, B-11 · F-02, F-07 · defaults for F-14 (domain names), F-15 |
+| **Accepted** | 2026-11-03 (updated 2026-11-03) | Developer, with the client's answers | F-11 (answered: option C) · F-12, F-13, F-14, F-15, F-19, F-20 (answered) · B-03, B-11 · F-02, F-07 |
 
 ## Context
 
@@ -39,20 +39,26 @@
 - **Files:** **Scaleway Object Storage**, Paris region, private buckets only ([ADR-0014](0014-file-storage.md)). Documenso's files go in a bucket of their own.
 - **Server:** one Scaleway instance in Paris with at least 4 GB of RAM, since Documenso alone needs 2 GB in production. It runs Docker Compose:
   - **Caddy**, the reverse proxy, with automatic TLS certificates;
-  - the **API**;
+  - the **API**, and the web app's static files ([ADR-0021](0021-web-app.md));
   - **Documenso** ([ADR-0020](0020-signatures-with-documenso.md)).
 
   Container images are pinned to exact versions. Operating-system security updates install automatically. SSH accepts keys only, and the firewall opens only HTTPS (and HTTP for certificate renewal).
-- **Public names** (default for F-14): `api.<company domain>` for the API and `sign.<company domain>` for Documenso's signing pages, which the phones open. The company adds the DNS records.
-- **E-mail** (default for F-15): **Scaleway Transactional Email**, sending from the company's domain (SPF and DKIM records). Documenso needs an SMTP server even though its e-mails to clients are switched off ([ADR-0020](0020-signatures-with-documenso.md)). The app itself still sends no e-mail in the MVP.
+- **Public names** (F-14 Q3, answered 2026-11-03): on the developer's own domain, `developerworkshop.online`, held like his other accounts (F-02). The exact names are `RECOMMENDED`:
+  - production: `mcr.developerworkshop.online`, with the web app at `/` and the API at `/api/` ([ADR-0021](0021-web-app.md)), and `sign.mcr.developerworkshop.online` for Documenso's signing pages;
+  - staging: `stg.developerworkshop.online` and `sign.stg.developerworkshop.online`.
+
+  Caddy obtains and renews a Let's Encrypt certificate for each name automatically.
+- **E-mail** (F-15, answered 2026-11-03): **turboSMTP**, through its EU server (`pro.eu.turbo-smtp.com`), on its free plan, in the developer's account. It sends from the developer's domain, with the SPF and DKIM records turboSMTP asks for. Documenso needs an SMTP server even though its e-mails to clients are switched off ([ADR-0020](0020-signatures-with-documenso.md)). The app itself still sends no e-mail in the MVP.
+  - The credentials live only in the servers' secret environment and in the developer's password manager, as `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD`. They are never written in the repository or the docs.
+  - The free plan is described as 6,000 e-mails a month for the first 6 months, then paid, from €14.95 a month (third-party review, checked 2026-11-03; to confirm in the account). Documenso's administrative e-mails stay far below that volume.
 - **Environments** ([ADR-0016](0016-repository-environments-ci.md)):
-  - local: Docker Compose on WSL2;
+  - local: Docker Compose on WSL2, with Postgres, **Garage** as the S3 store, **Mailpit** to catch e-mails, Documenso and the API (F-20, `RECOMMENDED`). MinIO stopped publishing its community images in October 2025. Locally, Documenso keeps its files in its own database, its default;
   - **staging: a dedicated VM on the developer's homelab Proxmox** (F-14), with synthetic data only, and its own Postgres, Documenso and buckets;
   - production: Scaleway, as above.
 - **Operations:**
   - an uptime check on `api` and `sign` alerts the developer;
   - the runbook ([US-093](../stories/US-093-operations-runbook.md)) covers patching, image and Documenso upgrades, certificates and restores.
-- **Cost** (estimate, prices to recheck when ordering): the managed Postgres node costs about €11 a month (checked 2026-10-09), and a 4 GB instance about €15. Object storage costs cents at this size, and the e-mail volume stays within the free tier. That's roughly **€25–30 a month** before VAT, covered by the developer's maintenance fee (F-07).
+- **Cost** (estimate, prices to recheck when ordering): the managed Postgres node costs about €11 a month (checked 2026-10-09), and a 4 GB instance about €15. Object storage costs cents at this size, and the e-mail volume stays within the free tier. That's roughly **€25–30 a month** before VAT, covered by the developer's maintenance fee (F-07). Add about €15 a month for e-mail if turboSMTP's free plan ends after 6 months.
 
 ## Consequences
 
@@ -90,6 +96,7 @@ Running the server takes more time than planned, one server's availability isn't
 ## Changes
 
 - 2026-11-03: written from the answers to F-11 (option C), F-12, F-13 and F-14. Supersedes ADR-0004.
+- 2026-11-03 (later): F-14 Q3 (the developer's domain), F-15 (turboSMTP), F-19 (web app on the same address) and F-20 (Garage and Mailpit locally) answered.
 
 ## Implemented by
 

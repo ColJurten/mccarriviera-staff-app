@@ -18,3 +18,7 @@ As a staff member using my personal phone, I want the app to lock itself, so tha
 - [ ] While the app is locked, no client, vehicle or contract data is visible.
 - [ ] In the app switcher, the app's snapshot is covered (logo or blur) whenever the app is inactive.
 - [ ] If the phone has no passcode, Face ID can't be used. The app explains that a passcode is required (F-03) and stays locked.
+
+## Notes
+
+- iPhone only. On the web, the idle sign-out of [US-015](US-015-web-sign-in-second-factor.md) plays this role.

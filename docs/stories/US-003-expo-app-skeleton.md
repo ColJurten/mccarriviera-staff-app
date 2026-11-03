@@ -1,16 +1,16 @@
-# US-003 · Create the Expo app skeleton
+# US-003 · Create the Expo app skeleton, for iOS and the web
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
 | E0 · Foundations | Must | P0 | M | To do |
 
 - **Depends on:** [US-002](US-002-repository-and-agent-guidance.md)
-- **Decisions:** [ADR-0002](../adr/0002-mobile-stack-expo.md) · [ADR-0011](../adr/0011-localisation.md) · [ADR-0012](../adr/0012-authentication-and-authorisation.md)
+- **Decisions:** [ADR-0002](../adr/0002-mobile-stack-expo.md) · [ADR-0021](../adr/0021-web-app.md) · [ADR-0011](../adr/0011-localisation.md) · [ADR-0012](../adr/0012-authentication-and-authorisation.md)
 - **Open points:** N-01, R-18 (see [open questions](../discovery/open-questions.md))
 
 ## Story
 
-As the developer, I want an Expo app with navigation, theme and translations in place, so that features can be added screen by screen.
+As the developer, I want one Expo app with navigation, theme and translations in place, running on the iPhone and in a browser, so that features can be added screen by screen for both.
 
 ## Acceptance criteria
 
@@ -19,6 +19,7 @@ As the developer, I want an Expo app with navigation, theme and translations in 
 - [ ] Theme tokens for the gold/black palette are used by every component. Placeholder values are used until the brand assets arrive (default for R-18). Text scales with the iPhone's text-size setting.
 - [ ] Translations are set up with French as the app language (default for N-01). A test fails if a key is missing from a catalogue.
 - [ ] TanStack Query (in memory, no persister) and a typed API client, using the zod schemas shared with the API, are wired. The environment (staging or production) comes from the build profile.
+- [ ] The same code runs on iOS and on the web (React Native for Web, Expo Router). Layouts adapt to phone and laptop widths. Platform-only code (Face ID, Keychain, share sheet, camera) sits behind small platform modules ([ADR-0021](../adr/0021-web-app.md)).
 - [ ] A global error screen in French never shows raw stack traces or personal data.
 - [ ] `docs/screens.md` lists the screens and the navigation between them, as a Mermaid diagram that matches the stubs.
 

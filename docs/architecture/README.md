@@ -1,6 +1,6 @@
 # Architecture diagrams
 
-UML diagrams of the planned iOS app, back end and database, drawn from the [decisions](../adr/README.md) and [stories](../stories/README.md). First version: 2026-10-09. The class diagrams 07 and 08 were updated on 2026-11-02 with the fields of [contract template v1](../contract-template/field-map.md). On 2026-11-03 the system, build, front-end, back-end and sequence diagrams were redrawn for the developer's own API at Scaleway ([ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)) and for signing with Documenso ([ADR-0020](../adr/0020-signatures-with-documenso.md)).
+UML diagrams of the planned iOS app, back end and database, drawn from the [decisions](../adr/README.md) and [stories](../stories/README.md). First version: 2026-10-09. The class diagrams 07 and 08 were updated on 2026-11-02 with the fields of [contract template v1](../contract-template/field-map.md). On 2026-11-03 the system, build, front-end, back-end and sequence diagrams were redrawn for the developer's own API at Scaleway ([ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)) and for signing with Documenso ([ADR-0020](../adr/0020-signatures-with-documenso.md)); later the same day, the web app ([ADR-0021](../adr/0021-web-app.md)) and the « En attente de signature » state (F-18) were added.
 
 - **To read them:** [`architecture.pdf`](architecture.pdf), 15 A4 pages. Each diagram comes with a few key points and the ADRs and stories it is based on. The last two pages compare the hosting options of [F-11](../discovery/open-questions.md); option C was chosen on 2026-11-03.
 - **To change them:** edit the PlantUML sources (`NN-*.puml`) and regenerate. The SVG files in [`svg/`](svg/) and the PDF are generated; never edit them by hand.
@@ -9,7 +9,7 @@ UML diagrams of the planned iOS app, back end and database, drawn from the [deci
 |---|---|---|---|
 | 01 | [System overview](svg/01-system-overview.svg) · [source](01-system-overview.puml) | Deployment | What runs where in daily use, how the parts talk, and who holds each account |
 | 02 | [Build, release and development](svg/02-build-and-release.svg) · [source](02-build-and-release.puml) | Deployment | From the developer's PC to the staff phones and the servers: GitHub, EAS, Apple signing, homelab staging, Scaleway production |
-| 03 | [Front end](svg/03-app-components.svg) · [source](03-app-components.puml) | Component | The Expo app: screens (with their stories), data layer, PDF preview and signing web view, device services |
+| 03 | [Front end](svg/03-app-components.svg) · [source](03-app-components.puml) | Component | The Expo app, for iOS and the web: screens (with their stories), data layer, PDF preview and signing web view, device services |
 | 04 | [Back end](svg/04-backend-components.svg) · [source](04-backend-components.puml) | Component | The production server (Caddy, the API, Documenso), the managed Postgres with its SQL functions, the buckets, the backup job |
 | 05 | [Database overview](svg/05-data-overview.svg) · [source](05-data-overview.puml) | Class | The 17 tables and how they relate |
 | 06 | [Fleet, photos, damage, maintenance](svg/06-data-fleet.svg) · [source](06-data-fleet.puml) | Class | Fields of `vehicles`, `condition_baselines`, `photos`, `damages`, `maintenance_records` |

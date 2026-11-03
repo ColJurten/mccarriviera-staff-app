@@ -18,5 +18,5 @@ As the developer, I want crashes on the staff phones reported to me without any 
 - [ ] `sendDefaultPii` is off, with no screenshots and no session replay. Events and breadcrumbs are cleaned of request bodies, URLs with query strings, and text typed by staff. The user is identified by the staff profile ID only.
 - [ ] Each event carries the app version, build number and update ID. Source maps are uploaded during EAS builds and updates, so stack traces are readable.
 - [ ] A test crash in a preview build shows up with a readable stack trace and no personal data.
-- [ ] The API reports its errors to the same organisation with Sentry's Node SDK, without request bodies or personal data.
+- [ ] The API (Sentry's Node SDK) and the web app (its browser SDK) report to the same organisation, without request bodies or personal data.
 - [ ] The data processing agreement is tracked in [US-092](US-092-legal-and-privacy-checklist.md).

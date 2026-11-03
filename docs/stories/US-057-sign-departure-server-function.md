@@ -6,7 +6,7 @@
 
 - **Depends on:** [US-007](US-007-audit-trail-and-immutability.md) · [US-041](US-041-general-terms-per-language.md)
 - **Decisions:** [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0020](../adr/0020-signatures-with-documenso.md) · [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)
-- **Open points:** R-09, F-18 (see [open questions](../discovery/open-questions.md))
+- **Open points:** R-09 (see [open questions](../discovery/open-questions.md))
 
 ## Story
 
@@ -28,4 +28,4 @@ As the company, I want signing a Départ to happen in one server-side transactio
 
 ## Notes
 
-- The PDF the client signs must already carry the contract number, since a sealed PDF can't change. The API therefore reserves the number when it creates the envelope, and this function confirms it (default for F-18). A language switch keeps the same number. A Départ cancelled before signing leaves a gap in the numbering, logged with its reason; whether gaps are acceptable depends on R-09 and L-04.
+- The PDF the client signs must already carry the contract number, since a sealed PDF can't change. The API therefore reserves the number when it creates the envelope, and this function confirms it. A language switch keeps the same number. A contract never signed keeps its number as « Annulé avant signature », so the numbering has no gaps (F-18, answered 2026-11-03).

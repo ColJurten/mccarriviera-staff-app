@@ -23,3 +23,7 @@ As the company, I want the app to leave as little client data as possible on sta
 - [ ] Client documents are fetched with presigned links valid for 5 minutes or less, and are never written to persistent storage.
 - [ ] Documenso's signing page opens in a private web view that keeps no cookies, cache or local storage once closed.
 - [ ] A debug screen in development builds lists the app's files. After a full Départ and Retour, it shows no client data other than cached PDFs.
+
+## Notes
+
+- The web app's counterpart is [US-016](US-016-client-data-in-the-browser.md).

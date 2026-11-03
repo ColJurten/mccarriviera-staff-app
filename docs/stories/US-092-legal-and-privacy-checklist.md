@@ -22,8 +22,8 @@ As the company, I want the legal points checked before the app replaces paper, s
   - the data needed for traffic fines (L-06);
   - retention periods (L-07).
 - [ ] The accountant's feedback on the contract title and invoicing is recorded (L-04).
-- [ ] A data processing agreement between the company (controller) and the developer (processor) is signed, since client data is hosted in his accounts (F-02). It lists his sub-processors: Scaleway (server, database, files, e-mail), the backup storage provider, Expo and Sentry. Documenso is self-hosted, so it adds no processor. The company's record of processing is updated (L-03).
-- [ ] The staff device-use rule (L-03) is written and given to both staff members.
+- [ ] A data processing agreement between the company (controller) and the developer (processor) is signed, since client data is hosted in his accounts (F-02). It lists his sub-processors: Scaleway (server, database, files), turboSMTP (e-mail; the contracting company is to be confirmed), the backup storage provider, Expo and Sentry. Documenso is self-hosted, so it adds no processor. The company's record of processing is updated (L-03).
+- [ ] The staff device-use rule (L-03) is written and given to both staff members. It covers their phones, their laptops and the agency computer (web app).
 - [ ] Every resulting change becomes a story before go-live. The retention answers feed US-094.
 
 ## Notes

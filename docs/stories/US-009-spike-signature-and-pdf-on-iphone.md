@@ -1,11 +1,11 @@
-# US-009 · Spike: prove Documenso signing and server-rendered PDFs on a real iPhone
+# US-009 · Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
 | E0 · Foundations | Must | P0 | M | To do |
 
-- **Depends on:** [US-005](US-005-eas-builds-and-internal-distribution.md)
-- **Decisions:** [ADR-0020](../adr/0020-signatures-with-documenso.md) · [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0002](../adr/0002-mobile-stack-expo.md) · [ADR-0018](../adr/0018-development-and-test-devices.md)
+- **Depends on:** —
+- **Decisions:** [ADR-0020](../adr/0020-signatures-with-documenso.md) · [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0021](../adr/0021-web-app.md) · [ADR-0002](../adr/0002-mobile-stack-expo.md) · [ADR-0018](../adr/0018-development-and-test-devices.md)
 - **Open points:** F-16, L-01 (see [open questions](../discovery/open-questions.md))
 
 ## Story
@@ -16,7 +16,7 @@ As the developer, I want to try the riskiest technical parts on a real iPhone be
 
 - [ ] A throwaway Documenso (pinned version, Community Edition) runs on the homelab VM, with a self-signed .p12 certificate and public sign-up disabled.
 - [ ] A test PDF is rendered with Chromium (Playwright) from the template v1 prototype, with synthetic data: a contract page, 30 photo thumbnails continuing over several pages, full-size photo pages, terms over several pages and 5 amendment pages. Every page repeats the header, the footer and the signature box at the same position, in French and in English (B-07).
-- [ ] The PDF is sent to Documenso through its API (v2), with a signature field in the « Signature départ » box of every page, and its signing page opens in a react-native-webview on the test iPhone.
+- [ ] The PDF is sent to Documenso through its API (v2), with a signature field in the « Signature départ » box of every page, and its signing page opens in a desktop browser, embedded in a page or in a new tab, as the web app would (F-19). At the start of the front end, the same page is opened in a react-native-webview on the test iPhone (needs [US-005](US-005-eas-builds-and-internal-distribution.md)).
 - [ ] **One drawing fills every signature field** (F-17). If Documenso asks for a tap on each field, this is measured, and the options are taken to the client before US-044.
 - [ ] Documenso's e-mails to the signer can be switched off for the document, and the signer can be a placeholder address on a subdomain with no mail server (F-16). How is recorded.
 - [ ] The webhook `DOCUMENT_COMPLETED` reaches a test endpoint and is checked with its secret. The sealed PDF downloads, and opens in Files, Mail and WhatsApp. Adobe Reader shows the seal (signer identity unverified, with a self-signed certificate) and detects a modified copy.
@@ -30,4 +30,4 @@ As the developer, I want to try the riskiest technical parts on a real iPhone be
 ## Notes
 
 - This is throwaway code. Only what is learned is kept.
-- It doesn't wait for US-004: the throwaway Documenso and a small test endpoint run on the homelab.
+- Run it in two parts. The server and browser checks come first, with the back end (build order, 2026-11-03), since their answers shape US-044. The iPhone web view check comes at the start of the front end.

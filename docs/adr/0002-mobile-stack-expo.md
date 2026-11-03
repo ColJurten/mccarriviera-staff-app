@@ -17,6 +17,7 @@
 - Use the latest stable Expo SDK at project start (SDK 57 was released on 30 June 2026). Upgrade deliberately, one SDK at a time.
 - Use Expo's continuous native generation. No `ios/` folder is committed: native configuration lives in `app.config.ts` and config plugins.
 - Compile iOS builds in the cloud with **EAS Build**. No local Xcode.
+- **Web:** the same code also builds for the web (React Native for Web, with Expo Router), for staff laptops and the agency computer ([ADR-0021](0021-web-app.md)).
 - Test on a real iPhone with a development build (`expo-dev-client`), installed through internal distribution ([ADR-0003](0003-ios-distribution-ad-hoc.md)). There is no iOS simulator on Windows. The test iPhone, and the Android emulator used for day-to-day work, are in [ADR-0018](0018-development-and-test-devices.md).
 - The Metro bundler runs in WSL2. The phone reaches it through WSL mirrored networking (Windows 11) or `expo start --tunnel`. Development builds use the staging backend ([ADR-0016](0016-repository-environments-ci.md)).
 - Native crash logs can't be read without a Mac, so crashes are reported to an EU-hosted service with personal data removed ([ADR-0017](0017-crash-reporting.md)).
@@ -64,9 +65,10 @@ A Mac becomes available and a native-only capability becomes necessary, or Expo'
 
 - 2026-10-09: F-05 answered (the test iPhone is the developer's partner's); the development and test setup moved to ADR-0018.
 - 2026-11-03: the app talks to the developer's own API (ADR-0019); the signature pad and expo-print are dropped, since signing moves to Documenso (ADR-0020) and PDF rendering to the API (F-13).
+- 2026-11-03 (later): the same code also builds a web app (F-19, ADR-0021).
 
 ## Implemented by
 
-- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton
+- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for iOS and the web
 - [US-005](../stories/US-005-eas-builds-and-internal-distribution.md): Set up EAS builds, internal distribution and over-the-air updates
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone

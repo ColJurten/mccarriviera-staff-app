@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-10-09) | Developer, with the client's answers | B-02, B-11 · F-02, F-03 (answered) · F-01 |
+| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | B-02, B-11 · F-02, F-03 (answered) · F-01 |
 
 ## Context
 
@@ -73,6 +73,7 @@ The options are in the table above. Custom app and Unlisted both avoid Developer
 
 - 2026-10-09: F-03 answered (Developer Mode likely acceptable, confirmed at registration); phone models are checked at registration (F-01); the test iPhone is the developer's partner's (F-05).
 - 2026-10-09 (later): F-02 answered: the company holds the Apple account; EAS runs under the developer's Expo account.
+- 2026-11-03: a web app is added next to the iPhone app (F-19, [ADR-0021](0021-web-app.md)). This ADR still covers the iPhone app.
 
 ## Implemented by
 

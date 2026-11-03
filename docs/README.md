@@ -9,7 +9,7 @@
 ## The project in one paragraph
 
 MC Car Riviera, a car-rental company in Juan-les-Pins (France), gets an internal iPhone app for its two employees,
-running on their personal phones. It replaces the paper « Contrat / Facture location » they fill in today:
+running on their personal phones, and the same app on the web for their laptops and the agency computer. It replaces the paper « Contrat / Facture location » they fill in today:
 
 - Staff run a **Départ** (check-out) and a **Retour** (check-in).
 - The client signs on the phone, in a self-hosted Documenso that seals the PDF.
@@ -23,7 +23,8 @@ running on their personal phones. It replaces the paper « Contrat / Facture loc
 |---|---|---|
 | App technology | React Native + Expo (TypeScript), built in the cloud, so no Mac is needed | [0002](adr/0002-mobile-stack-expo.md) |
 | Distribution | Ad Hoc builds on the staff's registered personal iPhones (Developer Mode on), under the company's Apple account (F-02) | [0003](adr/0003-ios-distribution-ad-hoc.md) |
-| Backend | The developer's own API (TypeScript, Fastify), a managed Postgres and S3 storage at Scaleway in Paris (F-11 option C, F-12, F-14); staging on his homelab; hosting paid by the developer, about €25–30 a month (F-07). Replaces Supabase (ADR-0004) | [0019](adr/0019-backend-own-api-postgres-s3.md) |
+| Web app | The same Expo code built for the web, with every feature of the iPhone app, at go-live (F-19). Password + second factor, idle sign-out, nothing kept in the browser. Analytics and an admin panel after the MVP | [0021](adr/0021-web-app.md) |
+| Backend | The developer's own API (TypeScript, Fastify), a managed Postgres and S3 storage at Scaleway in Paris (F-11 option C, F-12, F-14); staging on his homelab; names on `developerworkshop.online`; e-mail through turboSMTP (F-15); hosting paid by the developer, about €25–30 a month (F-07). Replaces Supabase (ADR-0004) | [0019](adr/0019-backend-own-api-postgres-s3.md) |
 | Connectivity | Online only; no offline mode | [0005](adr/0005-online-only.md) |
 | Scope | Contract only. Prices, totals, costs and number of days typed by staff (F-06). No billing or payment. Card fields kept, but only the last four digits and the expiry date; never a full number or a CVV (F-09) | [0006](adr/0006-contract-only-scope.md) |
 | Contracts and vehicles | Signed data never changes. Amendments are revisions. State changes only through SQL functions, called by the API. Full audit trail | [0007](adr/0007-contract-lifecycle-and-audit.md) |
@@ -31,7 +32,7 @@ running on their personal phones. It replaces the paper « Contrat / Facture loc
 | Signatures | Self-hosted Documenso, opened in the app: the client draws once and the signature fills the box at the bottom right of every page (F-08, F-17). The PDF is sealed with a self-signed company certificate. Departure and return signatures are both mandatory (F-04); the final PDF repeats the departure signature image. Never next to values it doesn't cover: an amendment page carries its own signature (default for F-08). Replaces ADR-0009 | [0020](adr/0020-signatures-with-documenso.md) |
 | PDF | Rendered on the API server with Chromium (F-13), from versioned HTML templates, in the language chosen in the preview before signing (F-17): model layout, every field of both forms (R-02), explicit A4 pages, full-size photo annex. Template v1 in [`contract-template/`](contract-template/README.md) | [0010](adr/0010-contract-pdf-generation.md) |
 | Languages | Language-neutral data, FR/EN catalogues, versioned general terms | [0011](adr/0011-localisation.md) |
-| Access and phones | Personal accounts (better-auth in the API), Face ID lock, every request checked by the API, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
+| Access and phones | Personal accounts (better-auth in the API), Face ID lock on the iPhone, a second factor on the web, every request checked by the API, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
 | Files | Private Scaleway Object Storage buckets (F-11); evidence can be uploaded and read but never overwritten or deleted; presigned links issued by the API, valid for 5 minutes at most | [0014](adr/0014-file-storage.md) |
 | Backups | Nightly encrypted dumps of both databases (app and Documenso) plus incremental file copies, with a different provider, which the server's keys can't delete | [0015](adr/0015-backups.md) |
 | Repository and delivery | One repository (app, API, shared package, migrations, deployment); local, homelab staging and Scaleway production; CI with PDF tests; EAS builds and over-the-air updates | [0016](adr/0016-repository-environments-ci.md) |
@@ -44,7 +45,7 @@ running on their personal phones. It replaces the paper « Contrat / Facture loc
 2. [`adr/README.md`](adr/README.md): the decisions, and why they were taken. The UML diagrams are in [`architecture/`](architecture/README.md), also as one PDF: [`architecture/architecture.pdf`](architecture/architecture.pdf).
 3. [`contract-template/README.md`](contract-template/README.md): the new contract PDF (template v1), its field map and specimen PDFs.
 4. [`stories/README.md`](stories/README.md): the backlog, with phases, Definition of Ready and Done, every story, and the post-MVP list.
-5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-18, and the defaults in use.
+5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-20, and the defaults in use.
 6. [`discovery/source-analysis.md`](discovery/source-analysis.md): what the reference documents contain (field inventory, signature zones, general-terms rules).
 
 ## Folder layout

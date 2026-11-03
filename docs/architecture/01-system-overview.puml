@@ -14,22 +14,28 @@ node "Staff iPhone ×2" <<personal phone · Ad Hoc install>> as phone $DEVICE {
   folder "App cache\nPDFs only\ndeleted after 7 days" as cache
 }
 
+node "Staff laptop · agency computer" <<browser>> as pc $DEVICE {
+  artifact "Web app\nsame Expo code\npassword + second factor" as web
+}
+
 cloud "Scaleway · Paris · production" <<developer's account>> as scw $DEVELOPER {
   node "Server · ≥ 4 GB RAM · Docker Compose" as srv {
-    component "Caddy\nTLS · reverse proxy" as caddy
+    component "Caddy · Let's Encrypt\nmcr.developerworkshop.online\nsign.mcr.developerworkshop.online" as caddy
     component "API · Fastify · TypeScript\nlogins (better-auth) · checks\nfile links · PDFs (Chromium)" as api
     component "Documenso\nsigning pages · seals the PDF\nwith the company certificate" as doc
     component "Nightly backup job" as job
   }
   database "Managed PostgreSQL\nmcr · documenso\nserver access only" as pg
   folder "Object Storage\nprivate buckets" as s3
-  component "Transactional\nEmail (SMTP)" as smtp
 }
+cloud "turboSMTP · EU\nSMTP for Documenso" <<developer's account>> as smtp $DEVELOPER
 
 cloud "Sentry · EU\nerrors, no personal data" <<developer's account>> as sentry $DEVELOPER
 cloud "Backup storage · EU\nanother provider · encrypted\nthe job can't delete" <<developer's account>> as bkp $DEVELOPER
 
 staff --> app : uses
+staff --> web : uses
+web --> caddy : HTTPS · cookie session
 client --> wv : signs once
 app --> caddy : HTTPS · session token
 wv --> caddy : HTTPS · sign.<domain>

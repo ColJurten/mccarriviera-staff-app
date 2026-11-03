@@ -7,6 +7,7 @@
 ## Context
 
 - The phones are personal (B-02): no device management and no remote wipe.
+- Staff also use the web app on their personal laptops and on the company computer at the agency (F-19).
 - Client ID documents, licences, signatures and contracts pass through them.
 - The app works online only ([ADR-0005](0005-online-only.md)).
 
@@ -28,6 +29,7 @@
 - **App lock** ([ADR-0012](0012-authentication-and-authorisation.md)), and the app's snapshot is covered in the app switcher.
 - **Lost phone:** staff report it, and the developer disables the account and revokes the sessions ([US-012](../stories/US-012-revoke-a-staff-members-access.md)). The data stays safe on the server.
 - **No personal data** in logs or crash reports ([ADR-0017](0017-crash-reporting.md)).
+- **Web app** (F-19, [ADR-0021](0021-web-app.md)): the same rules in the browser. Data in memory only, nothing in browser storage, images and documents not cached, PDFs opened in the browser's viewer, sign-out after 30 minutes idle. On the shared agency computer, each person uses their own account, signs out at the end, and never lets the browser save the password. The device rule (L-03) also covers laptops and the agency computer, including downloaded PDFs.
 
 ## Consequences
 
@@ -54,6 +56,7 @@ More staff join, or the company provides phones.
 ## Changes
 
 - 2026-11-03: PDFs now come from the API, and the client signs in a private web view (ADR-0019, ADR-0020).
+- 2026-11-03 (later): the web app's rules added (F-19, ADR-0021).
 
 ## Implemented by
 
@@ -62,6 +65,8 @@ More staff join, or the company provides phones.
 - [US-012](../stories/US-012-revoke-a-staff-members-access.md): Revoke a staff member's access (lost phone or departure)
 - [US-013](../stories/US-013-minimum-local-data-on-phones.md): Keep client data on staff phones to a minimum
 - [US-014](../stories/US-014-crash-reporting.md): Report crashes without personal data
+- [US-015](../stories/US-015-web-sign-in-second-factor.md): Sign in to the web app with a second factor, and sign out when idle
+- [US-016](../stories/US-016-client-data-in-the-browser.md): Keep client data out of the browser on laptops and the agency computer
 - [US-026](../stories/US-026-guided-reference-photo-capture.md): Guided reference photo capture
 - [US-033](../stories/US-033-client-documents.md): Attach and view client documents
 - [US-042](../stories/US-042-archive-and-share-pdfs.md): Archive, download and share contract PDFs

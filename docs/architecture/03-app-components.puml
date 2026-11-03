@@ -5,7 +5,7 @@
 skinparam nodesep 16
 skinparam ranksep 30
 
-package "MC Car Riviera app · Expo · React Native · TypeScript" as appPkg {
+package "MC Car Riviera app · Expo · React Native · TypeScript · iOS and web" as appPkg {
 
   package "Screens · Expo Router · in French" as screens {
     component "Sign-in, app lock\n<size:9><color:#5A6B86>US-010, US-011</color></size>" as sSign
@@ -42,8 +42,8 @@ package "MC Car Riviera app · Expo · React Native · TypeScript" as appPkg {
     component "Image viewer\nmemory cache" as img
     component "Document\npicker" as pick
     component "Share sheet" as share
-    component "Session store\nKeychain" as kc
-    component "Face ID lock\n<size:9><color:#5A6B86>US-011</color></size>" as lock
+    component "Session\nKeychain (iOS)\ncookie (web)" as kc
+    component "Face ID lock (iOS)\nidle sign-out (web)\n<size:9><color:#5A6B86>US-011, US-015</color></size>" as lock
     component "Crash reporter\n<size:9><color:#5A6B86>US-014</color></size>" as crash
     cam -[hidden]right- img
     img -[hidden]right- pick

@@ -10,9 +10,15 @@ skinparam ranksep 40
 state Draft
 Draft : details saved as they are typed
 Draft : the vehicle status doesn't change
-Draft --> [*] : discarded\n/ draft deleted, audited
+Draft --> [*] : discarded (no number yet)\n/ draft deleted, audited
 
-Draft --> Active : client signs the Départ\n/ number MCR-YYYY-NNNN\n/ revision 1 frozen\n/ vehicle → rented
+state "Awaiting signature" as Awaiting
+Awaiting : « En attente de signature »
+Awaiting : number reserved · vehicle held
+Awaiting : values or language can change
+Draft --> Awaiting : preview created\n/ number MCR-YYYY-NNNN reserved (F-18)
+Awaiting --> Active : client signs in Documenso\n/ revision 1 frozen\n/ vehicle → rented
+Awaiting --> Void : never signed\n« Annulé avant signature »\n/ number kept, vehicle free
 
 state Active {
   state "On rental" as OnRental

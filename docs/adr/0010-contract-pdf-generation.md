@@ -85,7 +85,7 @@ Rendering on the server proves too slow or too heavy for the server (spike US-00
 
 ## Implemented by
 
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone
 - [US-040](../stories/US-040-contract-pdf-template.md): Contract PDF template in French and English, with the signature block at the bottom right
 - [US-041](../stories/US-041-general-terms-per-language.md): Manage the general terms (CGV) per language
 - [US-042](../stories/US-042-archive-and-share-pdfs.md): Archive, download and share contract PDFs

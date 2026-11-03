@@ -22,6 +22,8 @@ labels below.
 | Éraflure · Bosse · Manque | Scratch · Dent · Missing part | Legend of the current damage diagram (to be replaced by photos) |
 | RAS (Rien à signaler) | Nothing to report | Return inspection with no new damage |
 | Retour en attente de signature | Check-in awaiting signature | Return data entered, but the client hasn't signed yet. The car stays « En cours » (F-04) |
+| En attente de signature (contrat) | Awaiting signature | The Départ's preview exists and the contract number is reserved; the client hasn't signed yet (F-18) |
+| Annulé avant signature | Cancelled before signature | A contract that was never signed, kept with its number, never deleted (F-18) |
 | Reset (du statut / de l'état) | Status / baseline reset | Brief: new reference condition photos after a damage repair, only when appropriate. Meeting notes: « Reset status ou pas » next to Maintenance |
 
 ## Vehicle statuses (meeting notes, plus « Archivé »)
@@ -118,3 +120,6 @@ labels below.
 | Self-signed certificate | The company's own sealing certificate, not issued by a recognised authority: the seal is intact, but Adobe Reader shows the company's identity as unverified (F-17, L-01) |
 | Presigned link | A temporary link (5 minutes at most) to one private file, issued by the API after its checks ([ADR-0014](adr/0014-file-storage.md)) |
 | Staging | The test environment, on the developer's homelab, with invented data only (F-14) |
+| Web app | The same app in a browser, for staff laptops and the agency computer (F-19, [ADR-0021](adr/0021-web-app.md)) |
+| Second factor (TOTP) | A one-time code from an authenticator app, asked at every sign-in on the web (F-19) |
+| Garage · Mailpit | The local stand-ins for S3 storage and for the e-mail server, in the developer's local stack (F-20) |

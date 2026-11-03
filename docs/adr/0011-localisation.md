@@ -51,7 +51,7 @@ A third language is needed (R-17).
 
 ## Implemented by
 
-- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton
+- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for iOS and the web
 - [US-006](../stories/US-006-core-database-schema-and-storage.md): Create the core database schema, access rules and storage
 - [US-031](../stories/US-031-create-a-client.md): Create a client
 - [US-040](../stories/US-040-contract-pdf-template.md): Contract PDF template in French and English, with the signature block at the bottom right

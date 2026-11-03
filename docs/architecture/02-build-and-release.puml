@@ -7,13 +7,13 @@ skinparam ranksep 55
 
 node "Developer PC\nWindows 11 + WSL2" <<device>> as pc {
   component "Code + Metro bundler" as metro
-  component "Local stack · Docker Compose\nPostgres · S3 store · API · Documenso" as local
+  component "Local stack · Docker Compose\nPostgres · Garage (S3) · Mailpit\nAPI · Documenso · web app" as local
   component "Android emulator\nday-to-day UI work" as emu
 }
 
 cloud "GitHub · private repository" <<developer's account>> as gh $DEVELOPER {
   component "Checks on every pull request\ntypes · lint · unit · API · database\ncontract PDFs rendered with Chromium" as ci
-  component "Images → private registry\nstaging: on merge to main\nproduction: on a release tag, after approval\nmigrations with dbmate" as rel
+  component "Images + web build → private registry\nstaging: on merge to main\nproduction: on a release tag, after approval\nmigrations with dbmate" as rel
 }
 
 cloud "Expo EAS" <<developer's account>> as eas $DEVELOPER {
@@ -26,7 +26,7 @@ cloud "Apple Developer Program" <<company account>> as apple $COMPANY {
 }
 
 node "Homelab · Proxmox VM" <<developer's>> as lab $DEVELOPER {
-  component "Staging stack\nAPI · Documenso · Postgres\nsynthetic data only" as stg
+  component "Staging stack · stg.developerworkshop.online\nAPI · web app · Documenso · Postgres\nsynthetic data only" as stg
   component "GitHub runner\ndeploys staging" as runner
 }
 

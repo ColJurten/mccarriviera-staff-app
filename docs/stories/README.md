@@ -1,6 +1,6 @@
 # User stories: MVP backlog
 
-59 stories (51 Must, 6 Should, 2 Could), written from the brief, the
+61 stories (53 Must, 6 Should, 2 Could), written from the brief, the
 reference documents and the answers of 2026-10-07, 2026-10-09, 2026-11-02 and 2026-11-03, and revised after an independent review. Each story links the decisions
 ([`../adr/`](../adr/README.md)) and the open points ([`../discovery/open-questions.md`](../discovery/open-questions.md)) it
 depends on.
@@ -16,7 +16,7 @@ depends on.
 - **Priority:** **Must** = needed for the MVP; **Should** = MVP if time allows; **Could** = only if needed.
 - **Status:** To do · In progress · Blocked · Done. Update the status line in the story file.
 - **Size:** S ≈ up to 1 day, M ≈ 2–3 days, L ≈ 4–5 days, for one developer. These are rough guides for ordering, not commitments.
-  - Must stories add up to roughly 107 developer-days (115 for everything).
+  - Must stories add up to roughly 110 developer-days (118 for everything).
   - Add time for learning React Native and iOS, and for waiting on Apple, the client and the lawyer.
 
 ## Definition of Ready
@@ -32,7 +32,7 @@ depends on.
 ## Definition of Done
 
 - Every acceptance criterion is met.
-- Stories with a user-facing part are demonstrated on a real iPhone with a staging build.
+- Stories with a user-facing part are demonstrated on a real iPhone and in a browser (web app), with a staging build.
 - Typecheck, lint, unit tests, API tests, contract PDF tests and database tests pass in CI.
 - Every new API route requires an active staff session, and any state change goes through a SQL function in one transaction. No bucket is public, and no database credential or storage key is in the app.
 - No real personal data appears in code, fixtures, seeds, screenshots, logs or crash reports.
@@ -47,16 +47,26 @@ flowchart LR
     P0[P0 Foundations] --> P1[P1 Access, vehicles, clients] --> P2[P2 Contract document] --> P3[P3 Départ] --> P4[P4 Active rentals and Retour] --> P5[P5 Maintenance] --> P6[P6 Go-live]
 ```
 
+### Build order (2026-11-03)
+
+The back end comes first, run locally, then the front end (the iPhone app and the web app, from the same code):
+
+1. **Back end, local:** US-002, US-004 (local stack first: Postgres, Garage, Mailpit, Documenso, the API), the server and browser half of the spike US-009, US-006, US-007, US-043, then the API side of each feature story: routes, SQL functions, PDF rendering (US-040, US-041), signing (US-044's API part), with API tests.
+2. **Back end, deployed:** staging on the homelab, then production at Scaleway (US-004).
+3. **Front end:** US-001, US-003, US-005, the iPhone half of the spike US-009, then each feature story's screens, checked on the iPhone and in a browser.
+
+Within a phase, a feature story is done only when both its API and its screens are done.
+
 ### P0 · Foundations: accounts, repository, app skeleton, backend, builds, schema, spike, legal questions sent
 
 - [US-001](US-001-apple-developer-account-and-devices.md) Open the Apple developer account and register the iPhones (Must, S)
 - [US-002](US-002-repository-and-agent-guidance.md) Set up the repository, checks and agent guidance (Must, S)
-- [US-003](US-003-expo-app-skeleton.md) Create the Expo app skeleton (Must, M)
+- [US-003](US-003-expo-app-skeleton.md) Create the Expo app skeleton, for iOS and the web (Must, M)
 - [US-004](US-004-api-server-and-environments.md) Create the API server and its environments: local, homelab staging, Scaleway production (Must, L)
 - [US-005](US-005-eas-builds-and-internal-distribution.md) Set up EAS builds, internal distribution and over-the-air updates (Must, M)
 - [US-006](US-006-core-database-schema-and-storage.md) Create the core database schema, access rules and storage (Must, L)
 - [US-007](US-007-audit-trail-and-immutability.md) Record an audit trail and protect signed data (Must, M)
-- [US-009](US-009-spike-signature-and-pdf-on-iphone.md) Spike: prove Documenso signing and server-rendered PDFs on a real iPhone (Must, M)
+- [US-009](US-009-spike-signature-and-pdf-on-iphone.md) Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone (Must, M)
 - [US-014](US-014-crash-reporting.md) Report crashes without personal data (Should, S)
 - [US-043](US-043-deploy-documenso.md) Deploy Documenso and connect it to the API (Must, M)
 - [US-092](US-092-legal-and-privacy-checklist.md) Send the legal and privacy questions, and close them before go-live (Must, S)
@@ -66,6 +76,7 @@ flowchart LR
 - [US-010](US-010-sign-in-and-sign-out.md) Sign in and sign out (Must, M)
 - [US-011](US-011-app-lock-with-face-id.md) Lock the app with Face ID (Must, S)
 - [US-012](US-012-revoke-a-staff-members-access.md) Revoke a staff member's access (lost phone or departure) (Must, S)
+- [US-015](US-015-web-sign-in-second-factor.md) Sign in to the web app with a second factor, and sign out when idle (Must, M)
 - [US-020](US-020-home-screen.md) Home screen: Départ, Retour and the fleet (Must, M)
 - [US-021](US-021-search-filter-sort-vehicles.md) Search, filter and sort vehicles (Must, S)
 - [US-022](US-022-add-a-vehicle.md) Add a vehicle with its reference photos (Must, M)
@@ -81,6 +92,7 @@ flowchart LR
 ### P2 · Contract document
 
 - [US-013](US-013-minimum-local-data-on-phones.md) Keep client data on staff phones to a minimum (Must, S)
+- [US-016](US-016-client-data-in-the-browser.md) Keep client data out of the browser on laptops and the agency computer (Must, S)
 - [US-040](US-040-contract-pdf-template.md) Contract PDF template in French and English, with the signature block at the bottom right (Must, L)
 - [US-041](US-041-general-terms-per-language.md) Manage the general terms (CGV) per language (Must, S)
 - [US-042](US-042-archive-and-share-pdfs.md) Archive, download and share contract PDFs (Must, M)
@@ -133,18 +145,20 @@ flowchart LR
 |---|---|---|---|---|---|---|---|
 | [US-001](US-001-apple-developer-account-and-devices.md) | Open the Apple developer account and register the iPhones | E0 | Must | P0 | S | — | To do |
 | [US-002](US-002-repository-and-agent-guidance.md) | Set up the repository, checks and agent guidance | E0 | Must | P0 | S | — | To do |
-| [US-003](US-003-expo-app-skeleton.md) | Create the Expo app skeleton | E0 | Must | P0 | M | US-002 | To do |
+| [US-003](US-003-expo-app-skeleton.md) | Create the Expo app skeleton, for iOS and the web | E0 | Must | P0 | M | US-002 | To do |
 | [US-004](US-004-api-server-and-environments.md) | Create the API server and its environments: local, homelab staging, Scaleway production | E0 | Must | P0 | L | US-002 | To do |
 | [US-005](US-005-eas-builds-and-internal-distribution.md) | Set up EAS builds, internal distribution and over-the-air updates | E0 | Must | P0 | M | US-001, US-003 | To do |
 | [US-006](US-006-core-database-schema-and-storage.md) | Create the core database schema, access rules and storage | E0 | Must | P0 | L | US-004 | To do |
 | [US-007](US-007-audit-trail-and-immutability.md) | Record an audit trail and protect signed data | E0 | Must | P0 | M | US-006 | To do |
 | [US-008](US-008-nightly-encrypted-backups.md) | Run nightly encrypted backups and test a restore | E0 | Must | P6 | M | US-006, US-043 | To do |
-| [US-009](US-009-spike-signature-and-pdf-on-iphone.md) | Spike: prove Documenso signing and server-rendered PDFs on a real iPhone | E0 | Must | P0 | M | US-005 | To do |
+| [US-009](US-009-spike-signature-and-pdf-on-iphone.md) | Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone | E0 | Must | P0 | M | — | To do |
 | [US-010](US-010-sign-in-and-sign-out.md) | Sign in and sign out | E1 | Must | P1 | M | US-004, US-005, US-006 | To do |
 | [US-011](US-011-app-lock-with-face-id.md) | Lock the app with Face ID | E1 | Must | P1 | S | US-010 | To do |
 | [US-012](US-012-revoke-a-staff-members-access.md) | Revoke a staff member's access (lost phone or departure) | E1 | Must | P1 | S | US-010 | To do |
 | [US-013](US-013-minimum-local-data-on-phones.md) | Keep client data on staff phones to a minimum | E1 | Must | P2 | S | US-026, US-033, US-042 | To do |
 | [US-014](US-014-crash-reporting.md) | Report crashes without personal data | E1 | Should | P0 | S | US-005 | To do |
+| [US-015](US-015-web-sign-in-second-factor.md) | Sign in to the web app with a second factor, and sign out when idle | E1 | Must | P1 | M | US-010 | To do |
+| [US-016](US-016-client-data-in-the-browser.md) | Keep client data out of the browser on laptops and the agency computer | E1 | Must | P2 | S | US-015, US-033, US-042 | To do |
 | [US-020](US-020-home-screen.md) | Home screen: Départ, Retour and the fleet | E2 | Must | P1 | M | US-010, US-006 | To do |
 | [US-021](US-021-search-filter-sort-vehicles.md) | Search, filter and sort vehicles | E2 | Must | P1 | S | US-020 | To do |
 | [US-022](US-022-add-a-vehicle.md) | Add a vehicle with its reference photos | E2 | Must | P1 | M | US-020, US-026 | To do |
