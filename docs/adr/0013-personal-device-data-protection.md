@@ -1,4 +1,4 @@
-# ADR-0013: Protect client data on staff personal phones
+# ADR-0013: Protect client data on staff phones, laptops and the agency computer
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|

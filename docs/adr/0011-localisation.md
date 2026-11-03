@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 | Developer, with the client's answers | Brief · B-07 · defaults for R-17, N-01 |
+| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | Brief · B-07 · defaults for R-17, N-01 |
 
 ## Context
 
@@ -24,7 +24,8 @@
   - English v1 is the client's approved translation (R-17);
   - each contract revision records which versions were in force at signature.
 - **English PDFs** are refused, with an explanation, until an approved English text exists (default for R-17).
-- **Regenerating in the other language** ([US-063](../stories/US-063-reopen-or-regenerate-a-pdf.md)) prints that language's terms version in force at signature. If none existed then, the regeneration is refused.
+- **The language** is chosen in the preview, before the client signs, and can be switched until then (F-17, [ADR-0020](0020-signatures-with-documenso.md)).
+- **A copy in the other language** ([US-063](../stories/US-063-reopen-or-regenerate-a-pdf.md)) prints that language's terms version in force at signature. If none existed then, the copy is refused. The copy isn't signed by the client; the sealed original stays the reference ([ADR-0010](0010-contract-pdf-generation.md)).
 - **The staff app itself** is in French, built with translation keys so English can be added cheaply (default for N-01).
 
 ## Consequences
@@ -32,7 +33,7 @@
 **Positive**
 
 - One data set and one template serve both languages.
-- A signed contract can be rendered again in either language, when that language's terms were in force.
+- A signed contract can be copied in the other language, when that language's terms were in force.
 
 **Negative / risks**
 
@@ -48,6 +49,10 @@
 ## Revisit when
 
 A third language is needed (R-17).
+
+## Changes
+
+- 2026-11-03: the language is chosen in the preview before signing, and a copy in the other language is unsigned (F-17, ADR-0020).
 
 ## Implemented by
 

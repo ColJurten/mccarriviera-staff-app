@@ -1,5 +1,5 @@
 @startuml 09-contract-states
-' UML state machine: the life of a contract (ADR-0007). Every transition is a server function.
+' UML state machine: the life of a contract (ADR-0007). Every transition is an SQL function called by the API.
 !include style.iuml
 hide empty description
 skinparam nodesep 30

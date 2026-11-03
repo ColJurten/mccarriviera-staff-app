@@ -13,7 +13,7 @@ samples/specimen.json, and prints four PDFs to samples/:
     specimen-depart-fr.pdf   the PDF shared right after the Départ is signed
     modele-vierge-fr.pdf     every page with empty fields, for the client's review
 
-The app renders the same pages with expo-print (ADR-0010); this script only shows what they look like.
+The API renders the same pages with Chromium (ADR-0010), and Documenso places the signatures (ADR-0020); this script only shows what they look like.
 Never put real client data in samples/specimen.json.
 """
 import copy

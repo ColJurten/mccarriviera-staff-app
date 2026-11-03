@@ -40,7 +40,7 @@ This renders every `NN-*.puml` to `svg/` and prints `architecture.pdf`. The page
 
 ## When to update
 
-- [US-004](../stories/US-004-api-server-and-environments.md) keeps the system, back-end and sequence diagrams up to date as server functions are added.
+- [US-004](../stories/US-004-api-server-and-environments.md) keeps the system, back-end and sequence diagrams up to date as API routes are added.
 - [US-006](../stories/US-006-core-database-schema-and-storage.md) keeps the class diagrams in step with the migrations.
 - [US-050](../stories/US-050-start-a-depart.md) and [US-070](../stories/US-070-start-a-retour.md) check the Départ and Retour sequences against the flows as built.
 - A change to an ADR that alters a diagram updates the diagram in the same pull request.

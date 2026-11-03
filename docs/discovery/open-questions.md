@@ -322,7 +322,7 @@ The app needs a few online accounts. "Holding" one means whose name and payment 
 | Apple Developer Program | Lets the app be signed and installed on the registered iPhones | 99 USD/year |
 | Expo (EAS) | Builds the app in the cloud and keeps the signing certificate | Free plan |
 | GitHub | Holds the code; runs the automatic checks and the nightly backup | Free |
-| Supabase | Hosts the backend: database, staff logins and file storage | Free plan to start ([ADR-0004](../adr/0004-backend-supabase.md)) |
+| Supabase | Hosts the backend: database, staff logins and file storage | Free plan to start ([ADR-0004](../adr/0004-backend-supabase.md)). *Replaced on 2026-11-03 by the developer's Scaleway account: [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)* |
 | Backup storage (for example Backblaze B2) | Keeps the encrypted nightly backups | Free tier |
 | Sentry | Receives crash reports from the phones | Free plan |
 
@@ -406,7 +406,7 @@ Ad Hoc distribution puts three requirements on each phone:
 ### F-07 · Hosting budget after the free plan
 **Owner:** client · **Needed by:** before the pilot (US-091)
 
-The app on the phone is only the front end. The backend runs at a cloud provider, Supabase ([ADR-0004](../adr/0004-backend-supabase.md)), which hosts two things:
+The app on the phone is only the front end. The backend runs at a cloud provider, Supabase at the time ([ADR-0004](../adr/0004-backend-supabase.md); Scaleway since 2026-11-03, [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)), which hosts two things:
 
 - the **database**: text such as clients, contracts and their history. It stays small.
 - the **file storage**: vehicle photos, scanned licences and IDs, signatures and the contract PDFs. This is what grows.

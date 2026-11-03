@@ -17,6 +17,6 @@ As a staff member, I want to put a car into maintenance with the reason, so that
 - [ ] Only an available vehicle can go into maintenance. A rented vehicle goes through the Retour first.
 - [ ] Staff choose a kind (default for R-14): « Entretien courant », « Réparation de dégâts » (selecting the open damages being repaired) or « Autre ».
 - [ ] They add a description. The start date defaults to today, and the odometer is optional (default for R-14).
-- [ ] A server function sets the status to `maintenance`, and the vehicle disappears from the Départ list.
+- [ ] An SQL function, called by the API, sets the status to `maintenance`, and the vehicle disappears from the Départ list.
 - [ ] After a Retour that recorded new damage, the Retour summary offers « Mettre en maintenance », with those damages preselected for repair.
 - [ ] The change is recorded in the audit trail.

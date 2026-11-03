@@ -40,9 +40,9 @@ class ClientDocument <<table: client_documents>> {
 
 class Contract <<table: contracts>> {
   id : uuid
-  number : text [0..1] {MCR-YYYY-NNNN, set at signature}
+  number : text [0..1] {MCR-YYYY-NNNN, reserved at the preview (F-18)}
   vehicle_id : uuid
-  status : draft | active | closed | void {server functions only}
+  status : draft | awaiting_signature | active | closed | void {SQL functions only}
   current_revision_no : integer
   void_reason : text [0..1]
 }
