@@ -26,7 +26,7 @@ end
 == Preview · US-044, US-055 ==
 staff -> app : recap complete, choose FR or EN
 app -> api : preview
-api -> api : check the car is free, mark the draft « en signature »\nreserve MCR-YYYY-NNNN (F-18) · render the PDF (Chromium)
+api -> api : check the car is free · contract « En attente de signature »\nreserve MCR-YYYY-NNNN (F-18) · render the PDF (Chromium)
 api -> doc : create the envelope: client, a field\nin « Signature départ » on every page, no e-mails
 api --> app : preview PDF
 opt language switched (until the client signs)

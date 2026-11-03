@@ -1,5 +1,5 @@
 @startuml 10-vehicle-states
-' UML state machine: the status of a vehicle (ADR-0007, ADR-0008). Every transition is a server function.
+' UML state machine: the status of a vehicle (ADR-0007, ADR-0008). Every transition is an SQL function called by the API.
 !include style.iuml
 hide empty description
 skinparam nodesep 34

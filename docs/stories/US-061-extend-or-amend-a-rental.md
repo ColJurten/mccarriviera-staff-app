@@ -20,7 +20,7 @@ As a staff member, I want to extend a rental or correct the terms that may chang
 - [ ] A reason is required, for example « Prolongation demandée par téléphone le … ».
 - [ ] If the client is present, they sign the amendment PDF in Documenso ([US-044](US-044-sign-in-documenso-from-the-app.md)). If not, staff confirm « sans signature du client » (default for R-11).
 - [ ] Earlier revisions stay readable. The contract screen shows the revision history: who, when, why, and what changed.
-- [ ] One server function saves the amendment. It accepts it only for an active contract whose latest revision number matches what the staff member was editing, so two people can't overwrite each other.
+- [ ] One SQL function, called by the API, saves the amendment. It accepts it only for an active contract whose latest revision number matches what the staff member was editing, so two people can't overwrite each other.
 - [ ] After saving, the amendment PDF is generated ([US-064](US-064-amendment-pages-in-the-pdf.md)).
 
 ## Notes

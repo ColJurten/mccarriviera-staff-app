@@ -25,7 +25,7 @@ Labels used inside the ADRs:
 | [ADR-0010](0010-contract-pdf-generation.md) | Generate the contract PDF on the API server from versioned HTML templates | Accepted | B-04, B-06, B-07 · F-08 (partly answered) · F-13, F-17, R-01 Q2, R-02, R-19 Q1 (answered) · defaults for R-01, R-18, R-19, F-08 · R-17, L-02 |
 | [ADR-0011](0011-localisation.md) | Localisation: language-neutral data, FR/EN catalogues, versioned general terms | Accepted | Brief · B-07 · defaults for R-17, N-01 |
 | [ADR-0012](0012-authentication-and-authorisation.md) | Authentication and authorisation: personal accounts, invite-only, every request checked by the API | Accepted | B-02 · defaults for T-03, R-16 · F-03 · F-11, F-12, F-19 (answered) |
-| [ADR-0013](0013-personal-device-data-protection.md) | Protect client data on staff personal phones | Accepted | B-02, B-03 · default for T-05 · F-03 · L-03 |
+| [ADR-0013](0013-personal-device-data-protection.md) | Protect client data on staff phones, laptops and the agency computer | Accepted | B-02, B-03 · default for T-05 · F-03 · L-03 |
 | [ADR-0014](0014-file-storage.md) | File storage: private S3 buckets, upload-only evidence, short-lived presigned links | Accepted | Brief · B-04, B-09 · F-11 (answered) · defaults for R-15, L-03, L-07 |
 | [ADR-0015](0015-backups.md) | Nightly encrypted off-site backups: database dumps plus incremental file copies | Accepted | B-11 · F-02, F-11, F-14 (answered) · defaults for L-03, L-07 |
 | [ADR-0016](0016-repository-environments-ci.md) | One repository, three environments and an automated delivery pipeline | Accepted | F-02, F-12, F-14 (answered) · defaults for T-04, N-06 |

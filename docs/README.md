@@ -12,7 +12,7 @@ MC Car Riviera, a car-rental company in Juan-les-Pins (France), gets an internal
 running on their personal phones, and the same app on the web for their laptops and the agency computer. It replaces the paper « Contrat / Facture location » they fill in today:
 
 - Staff run a **Départ** (check-out) and a **Retour** (check-in).
-- The client signs on the phone, in a self-hosted Documenso that seals the PDF.
+- The client signs on the phone or in the web app, in a self-hosted Documenso that seals the PDF.
 - The app produces the contract PDF in **French or English**, and staff share it through the iOS share sheet.
 - The app also holds the **vehicle inventory** (statuses, maintenance, reference photos, damage), the **client records** with their documents, and every **contract** with its revisions.
 - Billing and payment stay outside the app.
@@ -83,7 +83,7 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 
 - Work from a story file. Read the ADRs it links, and check its open points before you start.
 - Don't invent requirements. If something is `OPEN` and has no default, ask.
-- Signed contractual data is never overwritten. Changes create revisions, and state changes go through server functions ([ADR-0007](adr/0007-contract-lifecycle-and-audit.md)).
+- Signed contractual data is never overwritten. Changes create revisions, and state changes go through SQL functions called by the API ([ADR-0007](adr/0007-contract-lifecycle-and-audit.md)).
 - Never put real customer data in the repository, fixtures, seeds, screenshots, logs or tests, including data from the scanned reference documents. Use synthetic data.
 - When code and docs disagree, raise it. Don't silently "fix" the docs to match the code.
 - A changed decision means a new ADR that supersedes the old one ([ADR-0001](adr/0001-record-architecture-decisions.md)).
@@ -105,7 +105,7 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 | One server: while it is down, no handover can be signed | Uptime alerts, nightly off-site backups, paper fallback (B-03a) ([ADR-0015](adr/0015-backups.md)) |
 | A drawn signature is weak evidence if contested | Documenso's audit trail and PAdES seal, our evidence record; lawyer's review, including the self-signed certificate and the repeated departure image (L-01, [ADR-0020](adr/0020-signatures-with-documenso.md)) |
 | Reused reference photos are weak evidence of the condition at a given handover | Extra photos, optional dashboard photo, damage records ([ADR-0008](adr/0008-vehicle-condition-model.md)) |
-| Client data leaves the app through shared PDFs on personal phones | Minimum data on the phone and a written device-use rule ([ADR-0013](adr/0013-personal-device-data-protection.md), L-03) |
+| Client data leaves the app through shared or downloaded PDFs on personal phones, laptops and the agency computer | Minimum data on the devices, nothing kept in the browser, and a written device-use rule ([ADR-0013](adr/0013-personal-device-data-protection.md), [ADR-0021](adr/0021-web-app.md), L-03) |
 | One person builds, runs and holds the accounts and keys | Data processing agreement, handover procedure in the runbook, sealed copy of the backup keys for the company (F-02, US-092, US-093) |
 
 ## Where each section of the original brief now lives
@@ -123,7 +123,7 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 | 15 PDF · 16 Signatures · 17 FR/EN | [ADR-0010](adr/0010-contract-pdf-generation.md), [ADR-0020](adr/0020-signatures-with-documenso.md), [ADR-0011](adr/0011-localisation.md); template v1 and its field map in [`contract-template/`](contract-template/README.md) | Ported to the API by US-040; signing in US-043 and US-044 |
 | 18 iOS architecture · 19 Backend · 24 API boundaries | [ADR-0002](adr/0002-mobile-stack-expo.md), [ADR-0019](adr/0019-backend-own-api-postgres-s3.md); deployment, component and sequence diagrams in [`architecture/`](architecture/README.md) | Kept up to date with US-004 |
 | 20 Auth · 21 Security and privacy | [ADR-0012](adr/0012-authentication-and-authorisation.md) to [ADR-0015](adr/0015-backups.md), [ADR-0017](adr/0017-crash-reporting.md) | — |
-| 22 Distribution · 23 Offline | [ADR-0003](adr/0003-ios-distribution-ad-hoc.md), [ADR-0005](adr/0005-online-only.md) | — |
+| 22 Distribution · 23 Offline | [ADR-0003](adr/0003-ios-distribution-ad-hoc.md) (iPhone), [ADR-0021](adr/0021-web-app.md) (web app), [ADR-0005](adr/0005-online-only.md) | — |
 | 25 Implementation phases | [`stories/README.md`](stories/README.md) (P0–P6) | — |
 | 26 Testing strategy | Definition of Done; database tests (US-006, US-007, US-057); API tests (US-004, US-044); PDF tests with Chromium (US-040) | `testing.md` with US-002 |
 | 27 Technical risks | § Main risks above; Consequences sections of the ADRs | — |

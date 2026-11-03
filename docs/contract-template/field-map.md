@@ -17,11 +17,11 @@ Every field of the new contract PDF: where it sits, its label in each language, 
 | Logo, top right | — | — | C + M | S | company config | Placeholder until the brand assets arrive (R-18) |
 | Document title | Contrat / facture location | Rental contract / invoice | C | S | i18n | Title kept, as decided in B-04 (L-04) |
 | Page title | Contrat de location, Conditions financières… | Rental agreement, Rates and payment… | M | S | i18n | One topic per page, as on the model |
-| Contract number | N° de contrat | Contract no. | M (Reservation no.) | D | `contracts.number` | `MCR-YYYY-NNNN` (R-09) |
+| Contract number | N° de contrat | Contract no. | M (Reservation no.) | D | `contracts.number` | `MCR-YYYY-NNNN` (R-09), reserved when the preview to sign is created, since the sealed PDF carries it (F-18) |
 | Revision | Révision | Revision | Decision | A | `contracts.current_revision_no` | ADR-0007 |
 | PDF stage | PDF du départ / PDF final | Pick-up PDF / Final PDF | Decision | — | `contract_documents.stage` | ADR-0010 |
-| Signature block, bottom right | Signature départ · Signature retour | Pick-up signature · Drop-off signature | C (S1–S4) + M (one per page) | D, R | `signatures` | Same position in FR and EN. Amendment pages show the amendment's signature or « Sans signature du client » instead of the departure one (ADR-0009) |
-| Signature date and time | Signé le … | Signed on … | Decision | D, R | `signatures.signed_at` | Server time |
+| Signature block, bottom right | Signature départ · Signature retour | Pick-up signature · Drop-off signature | C (S1–S4) + M (one per page) | D, R | `signatures` | Documenso's signature fields sit in these boxes (ADR-0020); the final PDF repeats the departure signature image read back from Documenso (F-17). Same position in FR and EN. Amendment pages show the amendment's signature or « Sans signature du client » instead of the departure one (ADR-0009) |
+| Signature date and time | Signé le … | Signed on … | Decision | D, R | `signatures.signed_at` | Server time, when Documenso reports the signature; Documenso also prints its own times on its certificate page |
 | Footer: company identity | Name, address, SIRET, APE, phones, website | same | C (header) + M (footer) | S | [`config/company.json`](config/company.json) | Copied from the current form, to be confirmed by the client; e-mail unknown |
 | Footer: page, edition date, template and terms versions | Page n / N · Édité le … · modèle v1 · CGV FR v1 | Page n of N · Issued on … · template v1 · terms EN … | Decision | — | `contract_documents` | ADR-0010. The terms version is the one printed in that PDF's language |
 

@@ -21,7 +21,7 @@ As a staff member, I want the app to guide me through the standard photo angles,
 - [ ] Each photo can be retaken before saving. The set is saved only when every exterior angle has a photo.
 - [ ] Photos are resized (1600 px on the long edge, JPEG about 0.7), stripped of location metadata, and uploaded to `condition-photos`.
 - [ ] Uploads retry automatically while the app is open ([ADR-0005](../adr/0005-online-only.md)).
-- [ ] Once every upload has succeeded, one server function creates the set and its photo rows (angle, size, SHA-256, author, time). They can't be changed afterwards.
+- [ ] Once every upload has succeeded, one SQL function, called by the API, creates the set and its photo rows (angle, size, SHA-256, author, time). They can't be changed afterwards.
 - [ ] A new set replaces the previous one as current. The old set stays in the history and is never deleted.
 
 ## Notes

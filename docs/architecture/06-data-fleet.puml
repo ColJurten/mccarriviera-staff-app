@@ -22,7 +22,7 @@ class Vehicle <<table: vehicles>> {
   fuel_type : code {default unleaded_95}
   current_km : integer ≥ 0
   {field} current_fuel : integer 0–8 (eighths)
-  status : VehicleStatus {server functions only}
+  status : VehicleStatus {SQL functions only}
   current_baseline_id : uuid [0..1]
   notes : text [0..1]
 }
@@ -55,7 +55,7 @@ class Damage <<table: damages>> {
   id : uuid
   vehicle_id : uuid
   comment : text {at least one photo}
-  status : open | repaired {server functions only}
+  status : open | repaired {SQL functions only}
   found_in_inspection_id : uuid [0..1]
   repaired_in_maintenance_id : uuid [0..1]
   repaired_on : date [0..1]
