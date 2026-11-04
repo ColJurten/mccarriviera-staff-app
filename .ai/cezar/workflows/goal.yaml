@@ -1,0 +1,81 @@
+# Goal workflow: one agent ticket (label `agent-goal`) from plan to an approved change.
+# Started by the conductor on the orchestration VPS, which also moves the board and opens the PR.
+#
+#   resume → plan (Codex) → implement (Codex) → test (Claude Code) → checks (pnpm check) → review (Claude Code)
+#                                ↑                                                            │
+#                                └──────── fix (Codex) ← rework (at most 4 cycles) ←──────────┘
+#
+# Every checkpoint (cp_*) records the step for the conductor and pushes the work in progress; it never
+# fails the run. A usage limit is resumed by Cezar itself, at the step that was interrupted. When a
+# run can't be resumed (a reboot during an agent step, a limit Cezar couldn't read), the conductor
+# starts a new run with `Resume-From:` in its task, and `resume` puts the previous work back first.
+version: 2
+name: goal
+nodes:
+  - { id: start, type: start }
+  - { id: resume, type: check, command: "node .ai/cezar/bin/resume.mjs" }
+
+  - id: plan
+    type: agent
+    runner: codex
+    skill: goal-planner
+    verdicts: [ready, blocked]
+    prompt: "{{task}}"
+  - { id: cp_plan, type: check, command: "node .ai/cezar/bin/checkpoint.mjs plan" }
+  - { id: cp_blocked, type: check, command: "node .ai/cezar/bin/checkpoint.mjs blocked" }
+
+  - id: implement
+    type: agent
+    runner: codex
+    skill: goal-coder
+    prompt: "{{task}}\n\nImplement the plan in .ai/run/plan.md."
+  - { id: cp_implement, type: check, command: "node .ai/cezar/bin/checkpoint.mjs implement" }
+
+  - id: test
+    type: agent
+    runner: claude
+    skill: goal-tester
+    verdicts: [pass, fail]
+    prompt: "{{task}}\n\nTest the change against the acceptance criteria above."
+
+  - { id: checks, type: check, command: "node .ai/cezar/bin/checkpoint.mjs checks && pnpm -s check" }
+
+  - id: review
+    type: agent
+    runner: claude
+    skill: goal-reviewer
+    verdicts: [approve, changes]
+    prompt: "{{task}}\n\nReview the change on this branch against the ticket above."
+  - { id: cp_review, type: check, command: "node .ai/cezar/bin/checkpoint.mjs review-changes" }
+  - { id: cp_done, type: check, command: "node .ai/cezar/bin/checkpoint.mjs done" }
+
+  - { id: rework, type: loop, max: 4 }
+  - id: fix
+    type: agent
+    runner: codex
+    skill: goal-coder
+    session: { continue: implement }
+    prompt: "Rework {{nodes.rework.iteration}}/{{nodes.rework.max}}. Read .ai/run/test-report.md and .ai/run/review.md, fix every finding without widening the scope, and keep .ai/run/plan.md up to date. Output of the last checks: {{nodes.checks.output}}"
+  - { id: cp_fix, type: check, command: "node .ai/cezar/bin/checkpoint.mjs fix" }
+
+  - { id: ok, type: end, status: success }
+
+edges:
+  - { from: start, to: resume }
+  - { from: resume.pass, to: plan }              # resume.fail is unwired: the run fails rather than redo the work from main
+  - { from: plan.ready, to: cp_plan }
+  - { from: plan.blocked, to: cp_blocked }      # ends the run; the conductor marks the ticket blocked
+  - { from: cp_plan.pass, to: implement }
+  - { from: implement.done, to: cp_implement }
+  - { from: cp_implement.pass, to: test }
+  - { from: test.pass, to: checks }
+  - { from: test.fail, to: rework }
+  - { from: checks.pass, to: review }
+  - { from: checks.fail, to: rework }
+  - { from: review.approve, to: cp_done }
+  - { from: review.changes, to: cp_review }
+  - { from: cp_review.pass, to: rework }
+  - { from: rework.repeat, to: fix }            # rework.exhausted is left unwired: the run fails after 4 cycles
+  - { from: fix.done, to: cp_fix }
+  - { from: cp_fix.pass, to: test }
+  - { from: cp_done.pass, to: ok }

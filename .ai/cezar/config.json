@@ -1,0 +1,5 @@
+{
+  "baseBranch": "main",
+  "taskWorkspace": "worktree",
+  "landing": "review"
+}

@@ -1,0 +1,17 @@
+# Secrets and local settings: never committed (the repository is public).
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Scanned reference documents hold real customer data: they stay out of the repository.
+*.scan.pdf
+scans/
+
+# Dependencies and build output.
+node_modules/
+dist/
+coverage/
