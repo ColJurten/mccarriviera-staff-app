@@ -15,7 +15,15 @@ commit secrets, credentials, local environment files or scanned reference PDFs.
 ## Setup and checks
 
 Use Node 22.14.0 (also in `.node-version`) and pnpm 10.6.5 (in `packageManager`).
-Install that pnpm version, then run at the repository root:
+With that Node version active, install pnpm once and ensure its global binary
+directory is on your PATH (including in new shells):
+
+```sh
+npm install --global pnpm@10.6.5
+pnpm --version
+```
+
+Then run at the repository root:
 
 ```sh
 pnpm install

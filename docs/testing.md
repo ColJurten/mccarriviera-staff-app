@@ -7,7 +7,10 @@ customer data or scanned reference PDFs.
 
 ## Available now (US-002)
 
-Use Node 22.14.0 and pnpm 10.6.5. From the repository root:
+Use Node 22.14.0 and pnpm 10.6.5. With that Node version active, install pnpm
+once using `npm install --global pnpm@10.6.5` and ensure its global binary directory
+is on PATH in new shells. Verify `pnpm --version` prints `10.6.5`. From the
+repository root:
 
 ```sh
 pnpm install
