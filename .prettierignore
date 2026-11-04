@@ -1,0 +1,14 @@
+# Existing documentation and agent tooling are outside this ticket's formatting scope.
+.ai/
+.agents/
+.claude/
+docs/**
+!docs/testing.md
+INIT.md
+node_modules/
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
+**/.expo/
+pnpm-lock.yaml
