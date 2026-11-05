@@ -1,7 +1,7 @@
 # Architecture decision records
 
 Decisions taken from the client's answers of 2026-10-07, revised after an independent review the same day, and updated
-with the answers of 2026-10-09, 2026-11-02 and 2026-11-03. The format, the labels and the rule for changing a decision are in
+with the answers of 2026-10-09, 2026-11-02, 2026-11-03 and 2026-11-05. The format, the labels and the rule for changing a decision are in
 [ADR-0001](0001-record-architecture-decisions.md). In short: when an open question is answered, the ADR is updated in
 place and the change is logged in its **Changes** section; any other change gets a new ADR that supersedes the old one.
 
@@ -34,3 +34,4 @@ Labels used inside the ADRs:
 | [ADR-0019](0019-backend-own-api-postgres-s3.md) | Run our own TypeScript API (Fastify) with managed Postgres and S3 storage at Scaleway, Paris | Accepted | F-11 (answered: option C) · F-12, F-13, F-14, F-15, F-19, F-20 (answered) · B-03, B-11 · F-02, F-07 |
 | [ADR-0020](0020-signatures-with-documenso.md) | Signatures through a self-hosted Documenso: one signature fills every page, sealed with the company's certificate | Accepted | B-06, B-07, B-08 · F-04, F-16, F-17, F-18, F-19 (answered) · F-08 (partly answered) · default for R-11 · L-01 |
 | [ADR-0021](0021-web-app.md) | A web app from the same Expo code, with the iPhone app's features, for staff laptops and the agency computer | Accepted | F-19 (answered) · B-01, B-02 · L-03 |
+| [ADR-0022](0022-postgresql-17.md) | PostgreSQL 17 in every environment: Scaleway in production, the same major on staging, locally and in CI | Accepted | F-21 (answered) |

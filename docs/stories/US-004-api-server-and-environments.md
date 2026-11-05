@@ -5,7 +5,7 @@
 | E0 · Foundations | Must | P0 | L | To do |
 
 - **Depends on:** [US-002](US-002-repository-and-agent-guidance.md)
-- **Decisions:** [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) · [ADR-0016](../adr/0016-repository-environments-ci.md) · [ADR-0012](../adr/0012-authentication-and-authorisation.md) · [ADR-0021](../adr/0021-web-app.md)
+- **Decisions:** [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) · [ADR-0016](../adr/0016-repository-environments-ci.md) · [ADR-0022](../adr/0022-postgresql-17.md) · [ADR-0012](../adr/0012-authentication-and-authorisation.md) · [ADR-0021](../adr/0021-web-app.md)
 - **Open points:** — (see [open questions](../discovery/open-questions.md))
 
 ## Story
@@ -14,11 +14,11 @@ As the developer, I want the API server running in a local stack, on staging and
 
 ## Acceptance criteria
 
-- [ ] Production at Scaleway, Paris, in the developer's account (F-02, F-14): a managed PostgreSQL instance (smallest node) with the databases `mcr` and `documenso`; an instance with at least 4 GB of RAM; the Object Storage buckets of [ADR-0014](../adr/0014-file-storage.md); and turboSMTP's EU server for e-mail, from the developer's domain (F-15).
+- [ ] Production at Scaleway, Paris, in the developer's account (F-02, F-14): a managed PostgreSQL 17 instance (smallest node, [ADR-0022](../adr/0022-postgresql-17.md)) with the databases `mcr` and `documenso`; an instance with at least 4 GB of RAM; the Object Storage buckets of [ADR-0014](../adr/0014-file-storage.md); and turboSMTP's EU server for e-mail, from the developer's domain (F-15).
 - [ ] The database accepts connections only from the production server, and only over TLS.
 - [ ] The server runs Docker Compose from `deploy/`: Caddy (automatic Let's Encrypt certificates), the API, the web app's static files and Documenso ([US-043](US-043-deploy-documenso.md)). Production answers at `mcr.developerworkshop.online` (web app at `/`, API at `/api/`) and `sign.mcr.developerworkshop.online` (F-14). System security updates install automatically, SSH accepts keys only, and the firewall opens only HTTP and HTTPS.
-- [ ] Staging runs on a dedicated VM on the developer's homelab Proxmox (F-14), with the same Compose stack, its own Postgres container (same major version as production) and its own buckets. It holds synthetic data only, uses its own buckets at Scaleway, and is reached over HTTPS at `stg.developerworkshop.online` and `sign.stg.developerworkshop.online` (F-14).
-- [ ] Locally, `docker compose up` in WSL2 starts Postgres, Garage (S3), Mailpit (e-mail), Documenso and the API (F-20). The API can be developed and tested end to end without any phone.
+- [ ] Staging runs on a dedicated VM on the developer's homelab Proxmox (F-14), with the same Compose stack, its own PostgreSQL 17 container (the production major version, [ADR-0022](../adr/0022-postgresql-17.md)) and its own buckets. It holds synthetic data only, uses its own buckets at Scaleway, and is reached over HTTPS at `stg.developerworkshop.online` and `sign.stg.developerworkshop.online` (F-14).
+- [ ] Locally, `docker compose up` in WSL2 starts PostgreSQL 17, Garage (S3), Mailpit (e-mail), Documenso and the API (F-20). The API can be developed and tested end to end without any phone.
 - [ ] The API skeleton (TypeScript, Fastify) has a `/health` route that checks the database and the storage, structured logs without personal data (pino), request validation with the shared zod schemas, and a generated OpenAPI description.
 - [ ] Every route except `/health` and the sign-in routes requires an active staff session ([US-010](US-010-sign-in-and-sign-out.md)). A test lists every route and fails if one is unprotected.
 - [ ] Secrets (database credentials, storage keys, Documenso's token and webhook secret, the signing certificate, the SMTP credentials) live only on the servers, in protected CI environments and in the developer's password manager. `.env.example` lists them.

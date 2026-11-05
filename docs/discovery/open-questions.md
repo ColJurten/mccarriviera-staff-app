@@ -1,6 +1,6 @@
 # Open questions
 
-> **Status (2026-11-03):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). On 2026-11-03, F-11 was answered (option C: your own API, your own Postgres, files in S3), and you chose Documenso for signatures. That opened F-12 to F-20, all answered the same day, including a web app with the iPhone app's features (F-19): see [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) and [ADR-0020](../adr/0020-signatures-with-documenso.md) and [ADR-0021](../adr/0021-web-app.md). Of the earlier follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
+> **Status (2026-11-05):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). On 2026-11-03, F-11 was answered (option C: your own API, your own Postgres, files in S3), and you chose Documenso for signatures. That opened F-12 to F-20, all answered the same day, including a web app with the iPhone app's features (F-19): see [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) and [ADR-0020](../adr/0020-signatures-with-documenso.md) and [ADR-0021](../adr/0021-web-app.md). On 2026-11-05, F-21 was answered: PostgreSQL 17 in every environment ([ADR-0022](../adr/0022-postgresql-17.md)). Of the earlier follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
 > **How to answer:** write under each **Answer** line, or reply with the IDs (for example "B-03: b").
 > Some questions show a **Suggested default**. This is a recommendation, not an assumption, and it is used only if you confirm it.
 > **Owners:** **You** (developer) · **Client** (MC Car Riviera) · **Lawyer** · **Accountant** · **Bank/PSP**.
@@ -41,6 +41,7 @@
 | **F-18** | Contract number on the PDF the client signs | You + client | Answered: reserved at the preview; a contract never signed is kept as « Annulé avant signature » |
 | **F-19** | A web app | You + client | Answered: same features as the iPhone app, in the MVP, on staff laptops and the agency computer, password + second factor → [ADR-0021](../adr/0021-web-app.md) |
 | **F-20** | Local S3 store | You | Answered: no preference; Garage (`RECOMMENDED`) |
+| **F-21** | PostgreSQL major version | You | Answered: PostgreSQL 17 → [ADR-0022](../adr/0022-postgresql-17.md) |
 | R-01 | Layout of the new contract | Client | Q2 answered: thumbnails plus a full-size photo annex → [template v1](../contract-template/README.md); the rest is a default |
 | **R-02** | Fields only the model template has | Client | Answered: all of them are kept → [template v1](../contract-template/field-map.md) |
 | R-03 | Client fields and additional drivers | Client | Open, default applied |
@@ -639,6 +640,17 @@ You planned MinIO for local S3. MinIO stopped publishing its free community Dock
 > **Answer (2026-11-03):** no preference.
 >
 > **Decision:** Garage, a small maintained S3-compatible store (`RECOMMENDED`). Locally it doesn't enforce Scaleway's bucket policies, so the no-delete rules are tested on staging, whose buckets are at Scaleway. Locally, Documenso keeps its files in its own database (its default), so Garage serves only the API. → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md), [ADR-0016](../adr/0016-repository-environments-ci.md)
+
+### F-21 · PostgreSQL major version
+**Owner:** you · **Needed by:** US-004
+
+The ADRs require local, CI and staging to run the same PostgreSQL major version as production, but none was chosen. The coding agent stopped on ticket #4 for that reason.
+
+> **Answer (2026-11-05):** PostgreSQL 17.
+>
+> **Decision:** PostgreSQL 17 everywhere: Scaleway Managed Database in production, the official image pinned to an exact minor version on staging, locally and in CI. → [ADR-0022](../adr/0022-postgresql-17.md)
+>
+> **Consequences:** supported upstream until November 2029. A major upgrade has to be planned before then, in every environment together.
 
 ---
 
