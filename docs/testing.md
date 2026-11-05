@@ -113,3 +113,10 @@ As the features become available, verify:
 Device execution is not applicable to US-002, which introduces no user-facing
 behaviour. Later PRs record both automated results and relevant device/browser
 evidence in their testing notes.
+
+CI first waits for PostgreSQL TCP readiness and Garage, then runs the Garage
+initializer synchronously with `run --build --rm --no-deps garage-init`. Its exit status
+must succeed before migration and integration checks begin. The initializer is
+not selected in `up --wait`: it is a one-shot job, not a long-running service.
+The API image normalizes copied file permissions before switching to `USER node`,
+so pnpm-written mode-600 manifests do not prevent startup.

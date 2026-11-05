@@ -27,7 +27,8 @@ jobs:
           echo "LOCAL_ENV_FILE=$LOCAL_SECRETS_DIR/local.env" >> "$GITHUB_ENV"
       - name: Start disposable PostgreSQL 17 and Garage
         run: |
-          timeout 300 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml up -d --build --wait postgres garage garage-init
+          timeout 300 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml up -d --build --wait postgres garage
+          timeout 120 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml run --build --rm --no-deps garage-init
       - name: Migrations, schema drift and API integration
         run: |
           set -a
