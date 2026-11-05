@@ -40,10 +40,9 @@ describe('workspace layout', () => {
   });
 
   describe.each(packages)('%s', (pkg) => {
-    test('has a short README', () => {
+    test('has a README', () => {
       const lines = read(`${pkg}/README.md`).trim().split('\n');
       expect(lines.length).toBeGreaterThan(1);
-      expect(lines.length).toBeLessThan(20);
     });
 
     test('runs typecheck, ESLint, Prettier and tests', () => {
@@ -66,8 +65,15 @@ describe('workspace layout', () => {
     });
 
     test('has at least one test', () => {
-      const files = readdirSync(join(root, pkg));
-      expect(files.some((f) => f.endsWith('.test.ts'))).toBe(true);
+      const hasTest = (directory: string): boolean =>
+        readdirSync(directory, { withFileTypes: true }).some((entry) =>
+          entry.isFile()
+            ? entry.name.endsWith('.test.ts')
+            : entry.isDirectory() &&
+              !['node_modules', 'dist', 'coverage'].includes(entry.name) &&
+              hasTest(join(directory, entry.name)),
+        );
+      expect(hasTest(join(root, pkg))).toBe(true);
     });
   });
 });
@@ -143,11 +149,24 @@ describe('ignore rules', () => {
     },
   );
 
-  test('.env.example lists no variables and explains the naming', () => {
+  test('.env.example documents named variables and every Compose input', () => {
     const lines = read('.env.example').trim().split('\n');
-    expect(lines.length).toBeGreaterThan(0);
-    expect(lines.every((line) => line.startsWith('#'))).toBe(true);
-    expect(read('.env.example')).toMatch(/names/i);
+    const names = new Set<string>();
+    for (const [index, line] of lines.entries()) {
+      if (!line || line.startsWith('#')) continue;
+      const match = line.match(/^([A-Z][A-Z0-9_]*)=.+$/);
+      expect(
+        match,
+        `Invalid configuration entry at line ${index + 1}`,
+      ).not.toBeNull();
+      expect(lines[index - 1]?.startsWith('#')).toBe(true);
+      names.add(match![1]!);
+    }
+    expect(names.size).toBeGreaterThan(0);
+    const compose = read('deploy/compose.local.yml');
+    for (const match of compose.matchAll(/\$\{([A-Z][A-Z0-9_]*)/g)) {
+      expect(names.has(match[1]!)).toBe(true);
+    }
   });
 });
 

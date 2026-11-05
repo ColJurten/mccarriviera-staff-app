@@ -1,0 +1,16 @@
+.git
+.ai
+.agents
+.claude
+**/node_modules
+**/.env*
+.env*
+**/*.p12
+**/*.pem
+**/*.key
+docs
+**/dist
+**/coverage
+**/*.pfx
+**/scans
+**/*.scan.pdf

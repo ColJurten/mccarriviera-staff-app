@@ -5,6 +5,15 @@
   "scripts": {
     "typecheck": "tsc --project tsconfig.json",
     "lint": "eslint . && prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "migrate": "node scripts/migrate.mjs",
+    "generate": "node scripts/generate-types.mjs",
+    "check-generated": "node scripts/generate-types.mjs --check"
+  },
+  "devDependencies": {
+    "dbmate": "2.37.0",
+    "kysely-codegen": "0.20.0",
+    "kysely": "0.29.8",
+    "pg": "8.23.1"
   }
 }

@@ -44,3 +44,14 @@ This renders every `NN-*.puml` to `svg/` and prints `architecture.pdf`. The page
 - [US-006](../stories/US-006-core-database-schema-and-storage.md) keeps the class diagrams in step with the migrations.
 - [US-050](../stories/US-050-start-a-depart.md) and [US-070](../stories/US-070-start-a-retour.md) check the Départ and Retour sequences against the flows as built.
 - A change to an ADR that alters a diagram updates the diagram in the same pull request.
+
+## Local implementation status (US-004 part 1)
+
+Diagrams 01 and 04 describe the planned production deployment and its business
+flows. The local foundation is now in `deploy/compose.local.yml`: PostgreSQL 17,
+Garage, Mailpit, unmodified Documenso CE with database file storage, and Fastify.
+`GET /api/health` (also HEAD) probes the app database and private storage; these
+are the only public API routes. All future routes fail closed until US-010.
+No production component or business sequence was added by this slice, so its
+PlantUML sources and generated production diagrams are unchanged. See the
+[local deployment guide](../../deploy/README.md) for startup and service ports.

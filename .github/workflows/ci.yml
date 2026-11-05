@@ -20,3 +20,25 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      - name: Prepare disposable local configuration
+        run: |
+          export LOCAL_SECRETS_DIR="$RUNNER_TEMP/mcr-local"
+          bash scripts/local-secrets.sh
+          echo "LOCAL_ENV_FILE=$LOCAL_SECRETS_DIR/local.env" >> "$GITHUB_ENV"
+      - name: Start disposable PostgreSQL 17 and Garage
+        run: |
+          timeout 300 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml up -d --build --wait postgres garage garage-init
+      - name: Migrations, schema drift and API integration
+        run: |
+          set -a
+          source "$LOCAL_ENV_FILE"
+          set +a
+          pnpm db:migrate
+          pnpm db:migrate
+          pnpm db:check
+          pnpm --filter @mccarriviera/api test:integration
+      - name: Build API container
+        run: timeout 300 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml build api
+      - name: Remove disposable services and volumes
+        if: always() && env.LOCAL_ENV_FILE != ''
+        run: docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml down -v

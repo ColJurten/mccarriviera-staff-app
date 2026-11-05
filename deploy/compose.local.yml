@@ -1,0 +1,137 @@
+name: mcr-local
+
+services:
+  postgres:
+    image: postgres:17.11-bookworm
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate external local.env first}
+      MCR_DB_PASSWORD: ${MCR_DB_PASSWORD:?Generate external local.env first}
+      DOCUMENSO_DB_PASSWORD: ${DOCUMENSO_DB_PASSWORD:?Generate external local.env first}
+    ports: ['127.0.0.1:5432:5432']
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./postgres/init.sh:/docker-entrypoint-initdb.d/01-databases.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  garage:
+    image: dxflrs/garage:v2.1.0
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?Generate external local.env first}
+    ports: ['127.0.0.1:3900:3900']
+    volumes:
+      - garage:/var/lib/garage
+      - ./garage/garage.toml:/etc/garage.toml:ro
+    healthcheck:
+      test: ['CMD', '/garage', 'status']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  garage-init:
+    build:
+      context: ./garage
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?Generate external local.env first}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Generate external local.env first}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Generate external local.env first}
+    # Share the node namespace so the CLI's loopback RPC targets Garage itself.
+    network_mode: service:garage
+    volumes:
+      - garage:/var/lib/garage
+      - ./garage/garage.toml:/etc/garage.toml:ro
+      - ./garage/init.sh:/init.sh:ro
+    depends_on:
+      garage: { condition: service_healthy }
+
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    ports: ['127.0.0.1:8025:8025', '127.0.0.1:1025:1025']
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  documenso:
+    image: documenso/documenso:v2.20.0
+    environment:
+      PORT: '3000'
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?Generate external local.env first}
+      NEXT_PRIVATE_ENCRYPTION_KEY: ${NEXT_PRIVATE_ENCRYPTION_KEY:?Generate external local.env first}
+      NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY: ${NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY:?Generate external local.env first}
+      NEXT_PUBLIC_WEBAPP_URL: http://localhost:3000
+      NEXT_PRIVATE_INTERNAL_WEBAPP_URL: http://localhost:3000
+      NEXT_PRIVATE_DATABASE_URL: ${DOCUMENSO_DATABASE_URL:?Generate external local.env first}
+      NEXT_PRIVATE_DIRECT_DATABASE_URL: ${DOCUMENSO_DATABASE_URL:?Generate external local.env first}
+      NEXT_PUBLIC_UPLOAD_TRANSPORT: database
+      NEXT_PUBLIC_DISABLE_SIGNUP: 'true'
+      NEXT_PRIVATE_SMTP_TRANSPORT: smtp-auth
+      NEXT_PRIVATE_SMTP_HOST: mailpit
+      NEXT_PRIVATE_SMTP_PORT: '1025'
+      NEXT_PRIVATE_SMTP_SECURE: 'false'
+      NEXT_PRIVATE_SMTP_FROM_NAME: Local Signing
+      NEXT_PRIVATE_SMTP_FROM_ADDRESS: signing@example.test
+      NEXT_PRIVATE_SIGNING_TRANSPORT: local
+      NEXT_PRIVATE_SIGNING_LOCAL_FILE_PATH: /opt/documenso/cert.p12
+      NEXT_PRIVATE_SIGNING_PASSPHRASE: ${NEXT_PRIVATE_SIGNING_PASSPHRASE:?Generate external local.env first}
+      DOCUMENSO_DISABLE_TELEMETRY: 'true'
+    ports: ['127.0.0.1:3000:3000']
+    volumes:
+      - type: bind
+        source: ${LOCAL_SECRETS_DIR:?Generate external local.env first}/cert.p12
+        target: /opt/documenso/cert.p12
+        read_only: true
+        bind: { create_host_path: false }
+    depends_on:
+      postgres: { condition: service_healthy }
+      mailpit: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+  api:
+    build:
+      context: ..
+      dockerfile: api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://mcr:${MCR_DB_PASSWORD:?Generate external local.env first}@postgres:5432/mcr
+      S3_ENDPOINT: http://garage:3900
+      S3_REGION: garage
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Generate external local.env first}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Generate external local.env first}
+      S3_HEALTH_BUCKET: condition-photos
+      API_PORT: '3001'
+      HEALTH_TIMEOUT_MS: '1500'
+    ports: ['127.0.0.1:3001:3001']
+    depends_on:
+      postgres: { condition: service_healthy }
+      garage-init: { condition: service_completed_successfully }
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3001/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  postgres:
+  garage:
