@@ -120,3 +120,27 @@ must succeed before migration and integration checks begin. The initializer is
 not selected in `up --wait`: it is a one-shot job, not a long-running service.
 The API image normalizes copied file permissions before switching to `USER node`,
 so pnpm-written mode-600 manifests do not prevent startup.
+
+## Disposable Documenso API/browser spike (US-009 part 1)
+
+The `spikes/documenso` workspace participates in `pnpm check` but is excluded
+from the production Docker context. Its Vitest suite checks manifest bounds,
+API failure handling, replacement refusal/partial failure, webhook authentication,
+ownership, completion and duplicate delivery, image fallback and Mailpit filtering.
+These service-free checks do not establish Documenso behaviour.
+
+Follow [the spike runbook](../spikes/documenso/README.md) for the pinned Python
+renderer, local stack/API token setup, Mailpit baseline, creation, replacement
+and completion receiver. The tested callback helper shares Documenso’s network
+namespace and forwards loopback DB access without host firewall changes. It
+requires Node 22.21.1 and the pinned Node runtime image in the runbook.
+Render both languages explicitly; the renderer rejects
+overflow, signed boxes and FR/EN coordinate differences. Generated artifacts
+and run state are ignored. Keep all credentials in mode-600 files outside every
+checkout. Retain only sanitized findings in
+[US-009 findings](spikes/US-009-findings.md).
+
+Drawing once, counting field taps and Adobe Reader's seal/modified-copy checks
+remain « to confirm by hand » until a person records evidence. The iPhone web
+view, data cleanup and sharing checks belong to part 2. US-009's story checkboxes
+remain unchanged; a person reviews them after the complete story is verified.

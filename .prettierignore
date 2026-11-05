@@ -11,3 +11,6 @@ docs/**
 
 # Existing repository bootstrap notes.
 INIT.md
+
+spikes/documenso/output/
+spikes/documenso/.venv/
