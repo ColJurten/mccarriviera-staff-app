@@ -28,12 +28,13 @@ app and localisation stories. Every workspace currently has its own smoke test.
 
 ## Database tests
 
-With the database stories, apply migrations from scratch to disposable Postgres
-of the same major version as production, then load synthetic seeds. Test
-constraints, grants and SQL functions, including atomic transitions, immutable
-signed data, audit entries and rejected operations. Regenerate database types
-and fail CI if committed types differ. Tear down the database after the run;
-never target staging or production for destructive tests.
+With the database stories, apply migrations from scratch to disposable
+PostgreSQL 17, the same major version as production (ADR-0022), then load
+synthetic seeds. Test constraints, grants and SQL functions, including atomic
+transitions, immutable signed data, audit entries and rejected operations.
+Regenerate database types and fail CI if committed types differ. Tear down the
+database after the run; never target staging or production for destructive
+tests.
 
 ## API tests
 
