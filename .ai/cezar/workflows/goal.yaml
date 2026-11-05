@@ -5,6 +5,21 @@
 #                                ↑                                                            │
 #                                └──────── fix (Codex) ← rework (at most 4 cycles) ←──────────┘
 #
+# Models and reasoning effort, per role:
+#
+#   | Step           | Skill         | Model           | Effort |
+#   |----------------|---------------|-----------------|--------|
+#   | plan           | goal-planner  | gpt-6.1-sol     | high   |
+#   | implement, fix | goal-coder    | gpt-6.1-sol     | xhigh  |
+#   | test           | goal-tester   | claude-opus-5-5 | high   |
+#   | review         | goal-reviewer | claude-opus-5-5 | xhigh  |
+#
+# The model is each agent step's `model:`. Cezar has no per-step effort setting, so each effort_*
+# step writes the effort of the agent step that follows into the task's worktree, and the launchers
+# .ai/cezar/bin/codex-effort and claude-effort pass it to the CLI when Cezar starts it. Cezar must be
+# told to use them (CEZ_CODEX_BIN, CEZ_CLAUDE_BIN in the cezar service); without them, each CLI
+# uses the effort of its own configuration.
+#
 # Every checkpoint (cp_*) records the step for the conductor and pushes the work in progress; it never
 # fails the run. A usage limit is resumed by Cezar itself, at the step that was interrupted. When a
 # run can't be resumed (a reboot during an agent step, a limit Cezar couldn't read), the conductor
@@ -15,34 +30,42 @@ nodes:
   - { id: start, type: start }
   - { id: resume, type: check, command: "node .ai/cezar/bin/resume.mjs" }
 
+  - { id: effort_plan, type: check, command: "node .ai/cezar/bin/effort.mjs codex high" }
   - id: plan
     type: agent
     runner: codex
+    model: gpt-6.1-sol
     skill: goal-planner
     verdicts: [ready, blocked]
     prompt: "{{task}}"
   - { id: cp_plan, type: check, command: "node .ai/cezar/bin/checkpoint.mjs plan" }
   - { id: cp_blocked, type: check, command: "node .ai/cezar/bin/checkpoint.mjs blocked" }
 
+  - { id: effort_implement, type: check, command: "node .ai/cezar/bin/effort.mjs codex xhigh" }
   - id: implement
     type: agent
     runner: codex
+    model: gpt-6.1-sol
     skill: goal-coder
     prompt: "{{task}}\n\nImplement the plan in .ai/run/plan.md."
   - { id: cp_implement, type: check, command: "node .ai/cezar/bin/checkpoint.mjs implement" }
 
+  - { id: effort_test, type: check, command: "node .ai/cezar/bin/effort.mjs claude high" }
   - id: test
     type: agent
     runner: claude
+    model: claude-opus-5-5
     skill: goal-tester
     verdicts: [pass, fail]
     prompt: "{{task}}\n\nTest the change against the acceptance criteria above."
 
   - { id: checks, type: check, command: "node .ai/cezar/bin/checkpoint.mjs checks && pnpm -s check" }
 
+  - { id: effort_review, type: check, command: "node .ai/cezar/bin/effort.mjs claude xhigh" }
   - id: review
     type: agent
     runner: claude
+    model: claude-opus-5-5
     skill: goal-reviewer
     verdicts: [approve, changes]
     prompt: "{{task}}\n\nReview the change on this branch against the ticket above."
@@ -50,9 +73,11 @@ nodes:
   - { id: cp_done, type: check, command: "node .ai/cezar/bin/checkpoint.mjs done" }
 
   - { id: rework, type: loop, max: 4 }
+  - { id: effort_fix, type: check, command: "node .ai/cezar/bin/effort.mjs codex xhigh" }
   - id: fix
     type: agent
     runner: codex
+    model: gpt-6.1-sol
     skill: goal-coder
     session: { continue: implement }
     prompt: "Rework {{nodes.rework.iteration}}/{{nodes.rework.max}}. Read .ai/run/test-report.md and .ai/run/review.md, fix every finding without widening the scope, and keep .ai/run/plan.md up to date. Output of the last checks: {{nodes.checks.output}}"
@@ -62,20 +87,25 @@ nodes:
 
 edges:
   - { from: start, to: resume }
-  - { from: resume.pass, to: plan }              # resume.fail is unwired: the run fails rather than redo the work from main
+  - { from: resume.pass, to: effort_plan }       # resume.fail is unwired: the run fails rather than redo the work from main
+  - { from: effort_plan.pass, to: plan }         # an effort_* failure (unknown level) ends the run, rather than run at the wrong effort
   - { from: plan.ready, to: cp_plan }
-  - { from: plan.blocked, to: cp_blocked }      # ends the run; the conductor marks the ticket blocked
-  - { from: cp_plan.pass, to: implement }
+  - { from: plan.blocked, to: cp_blocked }       # ends the run; the conductor marks the ticket blocked
+  - { from: cp_plan.pass, to: effort_implement }
+  - { from: effort_implement.pass, to: implement }
   - { from: implement.done, to: cp_implement }
-  - { from: cp_implement.pass, to: test }
+  - { from: cp_implement.pass, to: effort_test }
+  - { from: effort_test.pass, to: test }
   - { from: test.pass, to: checks }
   - { from: test.fail, to: rework }
-  - { from: checks.pass, to: review }
+  - { from: checks.pass, to: effort_review }
+  - { from: effort_review.pass, to: review }
   - { from: checks.fail, to: rework }
   - { from: review.approve, to: cp_done }
   - { from: review.changes, to: cp_review }
   - { from: cp_review.pass, to: rework }
-  - { from: rework.repeat, to: fix }            # rework.exhausted is left unwired: the run fails after 4 cycles
+  - { from: rework.repeat, to: effort_fix }      # rework.exhausted is left unwired: the run fails after 4 cycles
+  - { from: effort_fix.pass, to: fix }
   - { from: fix.done, to: cp_fix }
-  - { from: cp_fix.pass, to: test }
+  - { from: cp_fix.pass, to: effort_test }
   - { from: cp_done.pass, to: ok }

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Launcher Cezar uses instead of `codex` when the cezar service sets
+#   CEZ_CODEX_BIN=<this repository>/.ai/cezar/bin/codex-effort
+# Inside a goal-workflow worktree, it adds the reasoning effort the last effort_* step chose
+# (.ai/run/effort-codex) as `-c model_reasoning_effort=...`, which overrides ~/.codex/config.toml.
+# Anywhere else (version checks, model lists, other projects) it runs codex unchanged.
+set -euo pipefail
+
+self="$(readlink -f "$0")"
+real="${MCR_REAL_CODEX:-}"
+if [ -z "$real" ]; then
+  while IFS= read -r candidate; do
+    if [ "$(readlink -f "$candidate")" != "$self" ]; then real="$candidate"; break; fi
+  done < <(type -ap codex || true)
+fi
+if [ -z "$real" ]; then
+  echo "codex-effort: no codex program on PATH (or set MCR_REAL_CODEX)" >&2
+  exit 127
+fi
+
+effort_file="$PWD/.ai/run/effort-codex"
+if [ -f "$effort_file" ]; then
+  effort="$(tr -d '[:space:]' < "$effort_file")"
+  case "$effort" in
+    low | medium | high | xhigh | max | ultra) ;;
+    *) echo "codex-effort: unknown effort '$effort' in $effort_file" >&2; exit 2 ;;
+  esac
+  printf -- '- %s codex %s, effort %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${1:-}" "$effort" \
+    >> "$PWD/.ai/run/agent-launches.md" 2>/dev/null || true
+  exec "$real" -c "model_reasoning_effort=\"$effort\"" "$@"
+fi
+exec "$real" "$@"
