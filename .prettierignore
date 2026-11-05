@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+coverage/
+.expo/
+.ai/
+pnpm-lock.yaml
+# Existing documentation and assets keep their original formatting.
+docs/**
+!docs/testing.md
+
+# Existing repository bootstrap notes.
+INIT.md

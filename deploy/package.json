@@ -1,0 +1,10 @@
+{
+  "name": "@mccarriviera/deploy",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json",
+    "lint": "eslint . && prettier --check .",
+    "test": "vitest run"
+  }
+}

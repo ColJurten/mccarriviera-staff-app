@@ -1,6 +1,5 @@
 # Secrets and local settings: never committed (the repository is public).
-.env
-.env.*
+.env*
 !.env.example
 *.pem
 *.key
@@ -15,3 +14,9 @@ scans/
 node_modules/
 dist/
 coverage/
+
+build/
+.expo/
+.pnpm-store/
+*.tsbuildinfo
+.ai/run/
