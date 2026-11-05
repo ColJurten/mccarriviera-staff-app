@@ -1,0 +1,7 @@
+# Local-only opt-in: allow one Docker-to-host callback on unmodified v2.20.0.
+services:
+  documenso:
+    extra_hosts:
+      - 'spike-callback.test:${SPIKE_CALLBACK_HOST:?Set the local Docker bridge gateway address}'
+    environment:
+      NEXT_PRIVATE_WEBHOOK_SSRF_BYPASS_HOSTS: spike-callback.test

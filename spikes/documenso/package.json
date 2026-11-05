@@ -1,0 +1,22 @@
+{
+  "name": "@mccarriviera/documenso-spike",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json",
+    "lint": "eslint . && prettier --check .",
+    "test": "vitest run",
+    "create": "tsx src/create.ts",
+    "replace": "tsx src/replace.ts",
+    "webhook": "tsx src/webhook.ts",
+    "mail-check": "tsx src/mail-check.ts"
+  },
+  "dependencies": {
+    "pg": "8.23.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/pg": "8.15.6",
+    "tsx": "4.23.15"
+  }
+}
