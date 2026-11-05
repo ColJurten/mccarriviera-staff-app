@@ -5,3 +5,5 @@ packages:
   - db
   - deploy
   - scripts
+allowBuilds:
+  esbuild@0.28.2: true

@@ -1,7 +1,10 @@
-# Shared
+# Shared schemas
 
-Reserved for zod schemas and TypeScript types shared by the app and API. No domain schemas yet. The existing contract template stays in docs/contract-template until its implementation story.
+US-004 / ADR-0019. `src/index.ts` exports zod schemas and inferred types for both
+API and future app consumers. Health has an empty strict query schema and a
+strict response with `database` and `storage`, each `ok` or `error`. Sanitized
+error responses have a fixed error-code enum. No dependency messages or personal
+data enter these contracts. The API uses these same schemas for validation,
+serialization and its generated OpenAPI artifact.
 
-From the repository root, run `pnpm check` for all workspaces, or
-`pnpm --filter @mccarriviera/shared test` for this placeholder test.
-TypeScript, ESLint and Prettier use the root configuration.
+`pnpm --filter @mccarriviera/shared test` checks accepted and rejected contracts.

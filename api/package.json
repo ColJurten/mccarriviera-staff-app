@@ -5,6 +5,23 @@
   "scripts": {
     "typecheck": "tsc --project tsconfig.json",
     "lint": "eslint . && prettier --check .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "start": "tsx src/server.ts",
+    "openapi": "tsx scripts/openapi.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@mccarriviera/shared": "workspace:*",
+    "fastify": "5.12.8",
+    "fastify-type-provider-zod": "7.0.0",
+    "@fastify/swagger": "9.9.3",
+    "kysely": "0.29.8",
+    "pg": "8.23.1",
+    "@aws-sdk/client-s3": "3.1140.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/pg": "8.15.6",
+    "tsx": "4.23.15"
   }
 }

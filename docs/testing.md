@@ -1,9 +1,9 @@
 # Testing
 
 US-002 establishes the check pipeline for [ADR-0016](adr/0016-repository-environments-ci.md).
-Only one trivial Vitest smoke test per workspace runs today. These prove the
-runner is wired, not application behaviour. No database, API, PDF, browser or
-iPhone suite exists yet; add those with their implementation stories.
+US-004 adds API/shared contract tests, a registered-route session audit, and
+real PostgreSQL 17/Garage integration checks. Other workspaces still have smoke
+tests. PDF, app browser and iPhone suites arrive with their stories.
 
 Use synthetic data throughout, including fixtures, PDFs, screenshots and logs.
 Never copy scanned customer documents into tests. Keep credentials out of test
@@ -16,8 +16,11 @@ Use the Node and pnpm versions in the root guidance. Run `pnpm install` and
 Prettier and every workspace's tests, and fails if any check fails. Run
 `pnpm --filter @mccarriviera/shared test` to target one package.
 CI runs the same checks after `pnpm install --frozen-lockfile` on every pull
-request and push to main, with the pnpm store cached. No services or secrets
-are needed for the placeholder tests.
+request and push to main, with the pnpm store cached. Unit checks need no services.
+Then CI generates disposable external credentials, starts pinned PostgreSQL
+17.11 and Garage 2.1.0, applies migrations twice, checks generated types and runs
+the API integration suite. It builds the API container and removes volumes even
+on failure. No deployment credentials or customer data are used.
 
 ## Unit tests
 
@@ -38,8 +41,28 @@ tests.
 
 ## API tests
 
-With the Fastify API, exercise requests through its test injection interface and
-use disposable services for integration cases. Verify every protected route
+`pnpm --filter @mccarriviera/api test` exercises Fastify injection: health
+success/failures, aborted timeouts, strict input validation, sanitized logs,
+OpenAPI artifact parity and actual route hook coverage (including generated
+HEAD routes and a negative test with misleading metadata). The global guard
+denies nonpublic requests until US-010; it does not implement staff sessions.
+
+`pnpm --filter @mccarriviera/api test:integration` requires the external local
+environment and migrated services from [deploy/README.md](../deploy/README.md).
+It queries the real PostgreSQL version and migration metadata, checks authenticated
+access to all four app buckets, denies access to Documenso's bucket and rejects
+anonymous/invalid storage credentials. Missing prerequisites fail the suite.
+`pnpm db:check` regenerates types into a temporary directory and detects drift.
+
+For the local-stack smoke check, start the whole stack, check health and
+Documenso certificate status, bootstrap the synthetic admin and request its
+password-reset mail in Mailpit. Keep signup disabled. Repeat startup on existing
+volumes, check database isolation, stop each API dependency and confirm HTTP 503,
+then restart and confirm recovery. Container/browser checks require Docker access;
+record unavailable checks explicitly. No iPhone check applies to this
+infrastructure-only US-004 slice.
+
+With later authentication stories, Verify every protected route
 requires an active staff session, rejects missing, expired or revoked sessions,
 and enforces authorisation. Cover validation, transaction failures, signing and
 private storage access without real credentials or customer data.
@@ -90,3 +113,10 @@ As the features become available, verify:
 Device execution is not applicable to US-002, which introduces no user-facing
 behaviour. Later PRs record both automated results and relevant device/browser
 evidence in their testing notes.
+
+CI first waits for PostgreSQL TCP readiness and Garage, then runs the Garage
+initializer synchronously with `run --build --rm --no-deps garage-init`. Its exit status
+must succeed before migration and integration checks begin. The initializer is
+not selected in `up --wait`: it is a one-shot job, not a long-running service.
+The API image normalizes copied file permissions before switching to `USER node`,
+so pnpm-written mode-600 manifests do not prevent startup.
