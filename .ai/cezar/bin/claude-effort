@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Launcher Cezar uses instead of `claude` when the cezar service sets
+#   CEZ_CLAUDE_BIN=<this repository>/.ai/cezar/bin/claude-effort
+# Inside a goal-workflow worktree, it adds the effort the last effort_* step chose
+# (.ai/run/effort-claude) as `--effort ...`, which takes precedence over Claude Code's settings.
+# Anywhere else (version checks, other projects) it runs claude unchanged.
+set -euo pipefail
+
+self="$(readlink -f "$0")"
+real="${MCR_REAL_CLAUDE:-}"
+if [ -z "$real" ]; then
+  while IFS= read -r candidate; do
+    if [ "$(readlink -f "$candidate")" != "$self" ]; then real="$candidate"; break; fi
+  done < <(type -ap claude || true)
+  [ -n "$real" ] || { [ -x "$HOME/.local/bin/claude" ] && real="$HOME/.local/bin/claude"; } || true
+fi
+if [ -z "$real" ]; then
+  echo "claude-effort: no claude program on PATH (or set MCR_REAL_CLAUDE)" >&2
+  exit 127
+fi
+
+effort_file="$PWD/.ai/run/effort-claude"
+if [ -f "$effort_file" ]; then
+  effort="$(tr -d '[:space:]' < "$effort_file")"
+  case "$effort" in
+    low | medium | high | xhigh | max) ;;
+    *) echo "claude-effort: unknown effort '$effort' in $effort_file" >&2; exit 2 ;;
+  esac
+  model="default"
+  args=("$@")
+  for i in "${!args[@]}"; do
+    if [ "${args[$i]}" = "--model" ]; then model="${args[$((i + 1))]:-default}"; fi
+  done
+  printf -- '- %s claude, model %s, effort %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$model" "$effort" \
+    >> "$PWD/.ai/run/agent-launches.md" 2>/dev/null || true
+  exec "$real" --effort "$effort" "$@"
+fi
+exec "$real" "$@"
