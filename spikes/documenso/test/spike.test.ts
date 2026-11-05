@@ -229,11 +229,12 @@ describe('completion receiver', () => {
         event: 'DOCUMENT_COMPLETED',
         payload: { envelopeId: state.id },
       },
+      raw = false,
     ) =>
       fetch(`http://127.0.0.1:${address.port}/webhook`, {
         method: 'POST',
         headers: secret === undefined ? {} : { 'X-Documenso-Secret': secret },
-        body: JSON.stringify(body),
+        body: raw ? String(body) : JSON.stringify(body),
       });
     return { post, complete, client };
   }
@@ -264,6 +265,13 @@ describe('completion receiver', () => {
     ).toBe(409);
     expect(complete).not.toHaveBeenCalled();
     expect(client.get).not.toHaveBeenCalled();
+  });
+  it('rejects malformed JSON without processing and accepts a later valid event', async () => {
+    const { post, complete, client } = await setup();
+    expect((await post('synthetic-secret', '{invalid', true)).status).toBe(400);
+    expect(complete).not.toHaveBeenCalled();
+    expect(client.get).not.toHaveBeenCalled();
+    expect((await post()).status).toBe(200);
   });
   it('handles concurrent duplicates exactly once', async () => {
     const { post, complete } = await setup();

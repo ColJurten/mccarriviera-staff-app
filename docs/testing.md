@@ -131,7 +131,10 @@ These service-free checks do not establish Documenso behaviour.
 
 Follow [the spike runbook](../spikes/documenso/README.md) for the pinned Python
 renderer, local stack/API token setup, Mailpit baseline, creation, replacement
-and completion receiver. Render both languages explicitly; the renderer rejects
+and completion receiver. The tested callback helper shares Documenso’s network
+namespace and forwards loopback DB access without host firewall changes. It
+requires Node 22.21.1 and the pinned Node runtime image in the runbook.
+Render both languages explicitly; the renderer rejects
 overflow, signed boxes and FR/EN coordinate differences. Generated artifacts
 and run state are ignored. Keep all credentials in mode-600 files outside every
 checkout. Retain only sanitized findings in

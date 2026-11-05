@@ -71,9 +71,14 @@ export function receiver(deps: {
         }
         chunks.push(Buffer.from(chunk));
       }
-      const parsed = eventSchema.safeParse(
-        JSON.parse(Buffer.concat(chunks).toString('utf8')),
-      );
+      let body: unknown;
+      try {
+        body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      } catch {
+        res.writeHead(400).end();
+        return;
+      }
+      const parsed = eventSchema.safeParse(body);
       if (!parsed.success) {
         res.writeHead(400).end();
         return;

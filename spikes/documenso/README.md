@@ -19,6 +19,10 @@ timeout 300 spikes/documenso/.venv/bin/python spikes/documenso/render.py --lang 
 timeout 300 spikes/documenso/.venv/bin/python spikes/documenso/render.py --lang en
 ```
 
+`playwright install --with-deps` needs administrator rights for the OS libraries.
+On a host without those rights, have the libraries provisioned first, then run
+`playwright install chromium` as the normal user.
+
 The prototype's image helper expects Inter under `/usr/share/fonts/opentype/inter`.
 Alternatively set `SPIKE_FONT_DIR` to a directory holding `Inter-Regular.otf`,
 `Inter-SemiBold.otf`, `Lora-Regular.ttf`; the renderer then loads those files for
@@ -68,40 +72,77 @@ must target `/documenso` on loopback. It uses `BEGIN READ ONLY`, a five-second
 statement timeout and parameters scoped to the tracked envelope/external ID/
 recipient. Never point it at the app DB, staging or production.
 
-## Callback from Docker to the host
+## Local callback without host firewall rules (tested route)
 
-The receiver defaults to `127.0.0.1:3210/webhook`. Docker containers cannot reach
-the host's loopback through their own `localhost`. On Linux use the existing
-Compose network's **host bridge gateway**; bind the receiver to that private
-host interface only, never `0.0.0.0`. Inspect the network after initial startup:
+Run the receiver in a disposable container sharing Documenso's network
+namespace. This avoids container-to-host bridge/firewall restrictions; nothing
+is published. From the repository root, after the local stack is healthy:
 
 ```sh
-docker network inspect mcr-local_default --format '{{(index .IPAM.Config 0).Gateway}}'
-# Set this to the printed host bridge gateway, e.g. a private 172.x address:
-export SPIKE_CALLBACK_HOST=<host-bridge-gateway>
+# The callback hostname resolves to loopback INSIDE Documenso's namespace.
+export SPIKE_CALLBACK_HOST=127.0.0.1
 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml \
-  -f spikes/documenso/compose.callback.yml up -d --no-deps documenso
-timeout 300 pnpm --filter @mccarriviera/documenso-spike webhook
+  -f spikes/documenso/compose.callback.yml up -d --no-deps --wait documenso
+# Keep this running in a separate terminal while signing:
+timeout 180 docker pull node:22.21.1-bookworm-slim
+bash spikes/documenso/callback-container.sh
 ```
 
+Set the three external secret-file variables from the preceding section first.
+For this route, the DB URL file is required for the image-retrieval experiment
+and must contain the disposable `documenso` connection URL with host
+`127.0.0.1` and port `5432`. Create that mode-600 file with a private editor;
+do not print its credentials. The helper forwards only its namespace's
+`127.0.0.1:5432` to the existing Compose `postgres:5432` service. The API calls
+use `127.0.0.1:3000`, also inside that namespace. This does not change the DB
+URL used by Documenso itself or the app's database.
+
+The helper mounts this checkout (for code, installed pnpm dependencies and
+ignored output), the three individual external secret files read-only, and uses the
+pinned **node:22.21.1-bookworm-slim** runtime image. It runs as your host UID/GID;
+the signing service/image remain unmodified. It starts the loopback
+DB forward and receiver, bounds the session to five minutes and stops its own
+container on exit. Re-run the helper if manual signing takes longer. Stop it
+before recreating the signing container, since it shares that container's
+network namespace. `SPIKE_DOCUMENSO_CONTAINER` can override the default
+`mcr-local-documenso-1` when using another local Compose project name.
+
 In the team's webhook UI register `http://spike-callback.test:3210/webhook`,
-select only `DOCUMENT_COMPLETED`, and set the shared secret. Configure it before
-signing. The opt-in override uses v2.20.0's documented-in-source
-`NEXT_PRIVATE_WEBHOOK_SSRF_BYPASS_HOSTS` for **that one local host**, mapped by `extra_hosts` to the private bridge
-address. The registration form rejects literal private IPs even with the runtime
-bypass configured; the local `.test` hostname satisfies URL registration and
-resolves only inside this disposable container. The release otherwise rejects
-private callbacks. This changes configuration, not
-Documenso code or production routing. Stop the receiver/remove the local override
-after the run. Docker Desktop/WSL users may need host networking/forwarding to a
-private local interface; verify reachability before claiming webhook delivery.
-Check that the container can reach port 3210 on that host interface before
-signing (an unauthenticated POST must return 401). Registration success is not
-delivery success. This environment timed out on bridge-to-host connections;
-check your local Docker/firewall setup rather than treating a local replay as
-genuine delivery. Do not use a public tunnel. The loopback default is also suitable when Documenso
-runs directly on the host. Renew the bounded receiver session if manual signing
-takes longer than five minutes.
+select **document.completed** (`DOCUMENT_COMPLETED` on the wire), set the same
+shared secret and wait for the **Webhook created** notification. Confirm the
+saved row is enabled before signing. The local override maps that hostname to
+`127.0.0.1` in Documenso and configures the pinned release's
+`NEXT_PRIVATE_WEBHOOK_SSRF_BYPASS_HOSTS` for that exact hostname. Registration
+rejects literal private/loopback IP URLs even with the runtime allow-list.
+This is local configuration, not a public tunnel, firewall change or a patch.
+
+Before signing, probe from the signing container; an unauthenticated POST must
+return **401** (not timeout):
+
+```sh
+timeout 10 docker exec mcr-local-documenso-1 node -e '
+fetch("http://spike-callback.test:3210/webhook", {
+  method: "POST", signal: AbortSignal.timeout(5000)
+}).then(r => { console.log(r.status); if (r.status !== 401) process.exitCode = 1; })
+.catch(() => { console.error("Callback unreachable"); process.exitCode = 1; });'
+```
+
+After signing, Documenso's webhook-call history must show **SUCCESS / 200** and
+the ignored output folder must contain the sealed PDF, signature PNG and
+completion record. A local event replay alone does not verify genuine delivery.
+The network-namespace route passed this check in the tester run.
+
+### Optional receiver on the host
+
+When the Docker network permits container-to-host connections, the original
+host route is also available. Set `SPIKE_CALLBACK_HOST` to the existing
+`mcr-local_default` network's host bridge gateway, reapply the callback override,
+and run `timeout 300 pnpm --filter @mccarriviera/documenso-spike webhook` on the
+host, bound only to that private interface. Inspect the gateway with
+`docker network inspect mcr-local_default --format '{{(index .IPAM.Config 0).Gateway}}'`.
+Use the same hostname and 401 probe. This route timed out on this host, so use
+the tested namespace route above instead of changing firewall rules. A receiver
+on host loopback alone works when Documenso also runs directly on the host.
 
 ## Create, replace, sign, inspect
 
