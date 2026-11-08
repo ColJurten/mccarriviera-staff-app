@@ -1,8 +1,20 @@
 # US-009 part 1 — Documenso API and desktop browser experiment
 
 Ticket #5; ADR-0020, ADR-0010; consequence target: US-044.
-Date: **2026-11-05**. This is a partial technical investigation, not approval of
-US-009 or production signing. The iPhone half remains outstanding. Disposable
+Date: **2026-11-05**; human desktop run added **2026-11-08**. This is a partial
+technical investigation, not approval of US-009 or production signing. The
+iPhone half remains outstanding.
+
+> **Gate failed: one signature does not fill every page.** ADR-0020 (F-17)
+> requires that the client draws **once** and that the drawing fills every
+> signature field. In the 2026-11-08 human run, Documenso v2.20.0 asked the
+> signer to validate the signature on **every page** (11 fields, 11 separate
+> confirmations). This is exactly the limitation the project chose Documenso to
+> avoid: we need a technology that requests the signature once and then applies
+> it to every page itself. See [Human desktop run](#human-desktop-run-2026-11-08)
+> and [Decision needed](#decision-needed-before-us-044).
+
+Disposable
 tooling is in [`spikes/documenso`](../../spikes/documenso/README.md); the findings
 are the durable result. Story checkboxes and accepted ADRs are unchanged.
 
@@ -31,7 +43,7 @@ not assumed from the older document endpoints.
 | Question | Observed answer / evidence | Meaning for US-044 |
 |---|---|---|
 | Can the prototype produce unsigned multipage PDFs and coordinates? | **Yes, rendered locally.** `render.py --lang fr` produced 11 pages in 11.72 s; `--lang en` produced 10 pages in 7.36 s (photo generation/browser startup included). Both passed prototype overflow checks and per-page bounds/FR–EN box parity. DOM A4 blocks measured 793.6875 × 1122.515625 px. First French HTML page visually inspected in Chromium: blank departure/return boxes, synthetic identity, no clipping. | API fields use percentages from the top left of each explicit page. Keep the template/manifest hash binding. Warm rerender: 3.37 s FR / 2.72 s EN. This fixture has 12 synthetic photos; these are not production or 10/30-photo benchmarks. English terms remain pending; different page counts are expected. |
-| Does one drawing populate every field without more taps? | **Scripted desktop result: one drawing alone did not populate the fields.** In Chromium 141, drawing once and confirming the pad left 10 fields remaining; clicking each of 10 fields then allowed completion. Two synthetic browser runs completed this way. Human draw/tap confirmation remains **« to confirm by hand »**. | Do not assume no per-field taps. Record draw count and taps on each page and agree any fallback with the client before US-044. |
+| Does one drawing populate every field without more taps? | **No — confirmed by hand on 2026-11-08.** A person signing the 11-page French envelope had to validate the signature on every page: 11 `SIGNATURE` fields, each stored with its own `Signature` row. The earlier scripted Chromium 141 runs showed the same: one drawing left 10 fields remaining until each was clicked. | **ADR-0020's "one signature for every page" (F-17) is not met by Documenso v2.20.0.** Per-page confirmation is the behaviour the project wanted to avoid. Do not start US-044 on this basis; see [Decision needed](#decision-needed-before-us-044). |
 | Can request, reminder and completion e-mails be disabled? | **Yes in this local run: 0 new placeholder messages** after create, replacement, and two scripted completions. The same baseline was retained from 18:10 to 18:21 UTC (about 11 minutes); admin reset mail was excluded. Reminder scheduling itself was not waited through for days. The create payload sets `distributionMethod: NONE`, all nine email flags false, and both reminder periods disabled. See [email derivation](https://github.com/documenso/documenso/blob/v2.20.0/packages/lib/types/document-email.ts) and [reminder settings](https://github.com/documenso/documenso/blob/v2.20.0/packages/lib/constants/envelope-reminder.ts). `mail-check` snapshots recipient-filtered IDs before and after each stage. | Use both distribution and explicit email/reminder controls, then verify create/replace/completion and a stated background-job observation interval in Mailpit before relying on suppression. |
 | Is a no-mail placeholder accepted? | **Yes, accepted by the real v2 API and completed twice.** Fixture uses `spike@nomail.example.test`, a reserved test subdomain, not an actual client/domain. Creation fetched/verified the recipient and all field coordinates before returning its signing link; no production DNS claim follows. | Local API acceptance supports optional client email. Production no-mail subdomain/DNS provisioning remains separate. |
 | Can a waiting envelope be replaced on a language switch? | **Yes, real FR→EN delete/create passed.** French had 11 fields and English 10. The former signing URL returned HTTP 404; the replacement opened with 10 fields remaining. It reuses the synthetic external ID, refuses completed/partially signed envelopes, preserves the old ID and records partial failure after deletion. | Public check/delete is not atomic: prevent concurrent signing/language switching or settle the race before production. There is no rollback after deletion; reconcile partial failure explicitly. |
@@ -92,14 +104,58 @@ placeholder messages. Rework hashes:
 The plain iframe returned no visible content within the coder's harness
 observation; its cause was not established. Top-level signing worked.
 
+## Human desktop run (2026-11-08)
+
+Same pinned stack and runbook, with the receiver in Documenso's network
+namespace (`callback-container.sh`). A person signed in a desktop browser; no
+scripted drawing was used.
+
+- `run create -- --lang fr` created an 11-page envelope with 11 `SIGNATURE`
+  fields at 14:58:17 UTC. `mail-check` after create: **0** new placeholder
+  messages.
+- **Signing required a validation on every page.** One drawing did not fill
+  the other fields; the signer had to confirm the signature on each of the 11
+  pages before completion. The envelope reached `COMPLETED` at 14:59:33 UTC.
+- Genuine delivery: Documenso recorded `DOCUMENT_COMPLETED` **SUCCESS / 200** at
+  14:59:33 UTC. The receiver saved the sealed PDF (1,693,852 bytes, 12 pages:
+  11 contract + audit page, one `ByteRange`, `ETSI.CAdES.detached`) and a
+  920 × 400 signature PNG via `database-read-only`.
+  - Sealed PDF SHA-256: `5ceb86760da45666940053f3df22ec4152bd3400e60e1011a34ae70d6dab96c5`.
+  - Signature PNG SHA-256: `b93b76468b1708b984feab543b657b6dfcf064100a9c856de6afaee3df9fa2c4`.
+- **Not done in this run:** the FR→EN `replace` step and old-link check, the
+  post-completion `mail-check`, and the Adobe Reader seal check. Earlier runs
+  above cover replacement; the Adobe check is still outstanding.
+
+## Decision needed before US-044
+
+ADR-0020 rests on Documenso placing **one** drawing in every signature field
+(F-17). The human run shows it does not: the signer validates each page
+separately. That is the per-page signing experience the project explicitly
+wanted to avoid, and the reason a signing technology was chosen: it must
+request the signature **once** and then apply it to every page itself.
+
+ADR-0020 names "one tap per page after the first drawing" as a fallback to be
+agreed with the client. The project position is that this fallback is **not
+acceptable**. So this finding needs a decision before any signing work starts:
+
+- evaluate a technology (or a different Documenso set-up, such as a single
+  signature field with the image then applied to every page) that captures the
+  signature once and applies it to all pages, while keeping the sealed PDF,
+  certificate and evidence requirements of ADR-0020;
+- record the outcome in a superseding ADR following ADR-0001, after approval.
+  This findings document does not change ADR-0020.
+
 ## Remaining gates
 
 - The optional host-bridge route remains unreachable on this host; the documented
   network-namespace route closes the local callback delivery gate. Production
   callback routing still needs its own deployment verification in US-043/US-044.
-- One human drawing, per-field/page taps, tab/iframe behaviour and Adobe Reader:
-  **« to confirm by hand »**.
+- **One drawing for every page: failed** (human run, 2026-11-08). Blocks
+  US-044 until the [decision above](#decision-needed-before-us-044) is made.
+- Tab/iframe behaviour and Adobe Reader seal check (intact seal, untrusted
+  self-signed identity, modified copy detected): **« to confirm by hand »**.
 - The full story's 30-photo/amendment stress case, homelab and iPhone tests are
   outside ticket #5's server/browser tooling slice and remain incomplete.
-- A material failure requires a developer/client decision before US-044; this
-  experiment does not revise ADR-0020 or silently choose DocuSeal/per-page taps.
+- The one-signature failure above is such a material failure: it requires a
+  developer/client decision before US-044. This experiment does not revise
+  ADR-0020 or silently choose DocuSeal/per-page taps.
