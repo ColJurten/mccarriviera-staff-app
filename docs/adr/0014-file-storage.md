@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | Brief · B-04, B-09 · F-11 (answered) · defaults for R-15, L-03, L-07 |
+| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | Brief · B-04, B-09 · F-11 (answered) · defaults for R-15, L-03, L-07 |
 
 ## Context
 
@@ -17,16 +17,15 @@
 - **Private buckets only**, one set per environment (for example `mcr-prod-contract-pdfs`):
   - `condition-photos`: reference sets, extra departure photos, damage photos;
   - `client-documents`;
-  - `signatures`: the departure signature image read back from Documenso ([ADR-0020](0020-signatures-with-documenso.md));
+  - `signatures`: the client's drawings and their stroke points, including stored Retour signatures ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md));
   - `contract-pdfs`: sealed PDFs and other generated PDFs;
-  - `documenso`: Documenso's own files, reachable only with Documenso's key.
 - **Object keys use IDs, never names:**
   - `vehicles/{vehicle_id}/baselines/{baseline_id}/{photo_id}.jpg`
   - `damages/{damage_id}/{photo_id}.jpg`
   - `inspections/{inspection_id}/{photo_id}.jpg`
   - `clients/{client_id}/{document_id}.{ext}`
   - `contracts/{contract_id}/signatures/{signature_id}.png`
-  - `contracts/{contract_id}/pdfs/{revision}-{stage}-{lang}-{timestamp}.pdf`, where the stage is `departure`, `amendment` or `final`.
+  - `contracts/{contract_id}/pdfs/{revision}-{stage}-{lang}-{timestamp}.pdf`, where the stage is `preview`, `departure`, `final` or `authorisation`. Previews are kept, so the API stamps exactly the file the client saw ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)).
 
   The file name staff see when sharing is in [US-042](../stories/US-042-archive-and-share-pdfs.md).
 - **Access:**
@@ -44,7 +43,7 @@
 - **Retention:**
   - The app deletes nothing, except client documents uploaded by mistake.
   - Every generated PDF is archived, since the brief lists generated PDFs among the back end's data.
-  - Deletion and anonymisation follow the retention procedure ([US-094](../stories/US-094-retention-and-erasure.md)), which also covers Documenso's copies. Until L-03 and L-07 are answered, nothing is deleted (default for L-03 and L-07).
+  - Deletion and anonymisation follow the retention procedure ([US-094](../stories/US-094-retention-and-erasure.md)). Until L-03 and L-07 are answered, nothing is deleted (default for L-03 and L-07).
 
 ## Consequences
 
@@ -77,6 +76,7 @@ The volume grows enough for storage costs to matter, or the provider changes.
 
 - 2026-10-09: F-11 opened: the files could move to an S3-compatible bucket.
 - 2026-11-03: F-11 answered (option C): the files live in Scaleway Object Storage, behind the developer's API, with presigned links. Documenso's files get their own bucket.
+- 2026-11-10: Documenso is removed ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)): no Documenso bucket. `signatures` holds the drawings captured in the app; previews and the authorisation page of a stored signature are kept as PDFs.
 
 ## Implemented by
 
@@ -87,7 +87,7 @@ The volume grows enough for storage costs to matter, or the provider changes.
 - [US-026](../stories/US-026-guided-reference-photo-capture.md): Guided reference photo capture
 - [US-033](../stories/US-033-client-documents.md): Attach and view client documents
 - [US-042](../stories/US-042-archive-and-share-pdfs.md): Archive, download and share contract PDFs
-- [US-044](../stories/US-044-sign-in-documenso-from-the-app.md): Preview a contract PDF and have it signed in Documenso from the app
+- [US-044](../stories/US-044-client-signs-in-the-app.md): Preview a contract PDF and have the client sign it in the app
 - [US-053](../stories/US-053-confirm-departure-condition.md): Confirm the departure condition
 - [US-072](../stories/US-072-return-inspection.md): Inspect the vehicle: new damage or RAS
 - [US-094](../stories/US-094-retention-and-erasure.md): Apply retention and erasure rules

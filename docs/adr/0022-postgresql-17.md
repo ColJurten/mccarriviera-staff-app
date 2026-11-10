@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-11-05 | Developer | F-21 (answered) |
+| **Accepted** | 2026-11-05 (updated 2026-11-10) | Developer | F-21 (answered) |
 
 ## Context
 
@@ -10,7 +10,6 @@
 - Checked on 2026-11-05:
   - upstream support: PostgreSQL 16 until 9 November 2028, 17 until 8 November 2029, 18 until 14 November 2030. PostgreSQL 14 reaches its end of life on 12 November 2026. PostgreSQL 19 is a release candidate;
   - Scaleway's Managed Database documentation lists PostgreSQL 16 and 17. PostgreSQL 18 could not be confirmed there;
-  - Documenso needs PostgreSQL 14 or later ([ADR-0020](0020-signatures-with-documenso.md)).
 
 ## Decision
 
@@ -20,14 +19,14 @@
   - local: the same image in `deploy/compose.local.yml`;
   - CI: a throwaway PostgreSQL 17 for the database and API tests.
 - Container images are pinned to an exact minor version (`postgres:17.N`), never `latest` or a bare major. Minor versions are updated regularly in every environment without a new ADR (`RECOMMENDED`).
-- The `mcr` and `documenso` databases share the PostgreSQL 17 server of each environment, each with its own user (ADR-0019, ADR-0020).
+- The `mcr` database runs on the PostgreSQL 17 server of each environment (ADR-0019). Documenso, which also used it, was removed on 2026-11-10 ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)).
 
 ## Consequences
 
 **Positive**
 
 - One version to build and test against, everywhere.
-- Supported upstream until November 2029, and well above Documenso's minimum.
+- Supported upstream until November 2029.
 
 **Negative / risks**
 
@@ -50,6 +49,7 @@ Scaleway offers PostgreSQL 18 or later and an upgrade is worth it, or by early 2
 ## Changes
 
 - 2026-11-05: written, from the answer to F-21.
+- 2026-11-10: Documenso is removed ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)), so only the `mcr` database remains.
 
 ## Implemented by
 

@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-02) | Developer, with the client's answers | B-04, B-05, B-10 · F-06, F-09, R-02 (answered) · L-02, L-04, L-05 |
+| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | B-04, B-05, B-10 · F-06, F-09, R-02 (answered) · L-02, L-04, L-05 |
 
 ## Context
 
@@ -23,10 +23,11 @@
   - the deductible block, with the card brand (VISA / AMEX / AUTRE) as a simple choice;
   - the payment method (ESP / CC) as a simple choice;
   - the whole pricing block, from « Location » to « Solde »;
-  - since R-02 (2026-11-02), the model template's fields too, among them the security deposit amount and the services included. They are typed and printed only: the deposit itself is taken outside the app (B-10).
+  - since R-02 (2026-11-02), the model template's fields too, among them the security deposit amount. It is typed and printed only: the deposit itself is taken outside the app (B-10). « Services inclus » was dropped by F-22 (2026-11-10).
 - **Amounts:**
   - Staff type every price line (B-05).
   - Totals (Total HT, TVA, Total TTC, Total prépayé, Solde), costs and the number of rental days are typed by hand too. The app calculates none of them (F-06, answered 2026-10-09).
+  - One exception (F-24, 2026-11-10): the « Dommages » line of the final statement is the sum of the damage estimates staff marked as billed ([ADR-0024](0024-vehicle-condition-four-angles-estimates.md)). It is not a price calculated from rates, and the totals stay typed.
   - Amounts are in euros with 2 decimals. Only « Solde » may be negative, for a refund (`RECOMMENDED`).
 - **Kilometres** are computed (default for R-06), because they are measurements, not prices (meeting notes: « Km retour = km total »):
   - km driven = km in − km out;
@@ -69,6 +70,7 @@ The company wants the app to calculate prices, totals or invoices.
 - 2026-10-09: F-06 answered: totals, costs and the number of rental days are typed by staff.
 - 2026-10-09 (later): F-09 answered: the card fields stay, limited to the last four digits and the expiry date, with an empty CVV box (they were removed by default).
 - 2026-11-02: R-02 answered: the model template's deposit and services-included fields are added, as typed values only.
+- 2026-11-10: F-22 and F-24 answered (client meeting): « Services inclus » is dropped; the « Dommages » line adds up the billed damage estimates, the only sum the app makes.
 
 ## Implemented by
 

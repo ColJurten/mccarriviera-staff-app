@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-11-03 (updated 2026-11-03) | Developer, with the client's answers | B-06, B-07, B-08 · F-04, F-16, F-17, F-18, F-19 (answered) · F-08 (partly answered) · default for R-11 · L-01 |
+| **Superseded by ADR-0023** | 2026-11-03 (updated 2026-11-10) | Developer, with the client's answers | B-06, B-07, B-08 · F-04, F-16, F-17, F-18, F-19 (answered) · F-08 (partly answered) · default for R-11 · L-01 |
 
 ## Context
 
@@ -104,23 +104,8 @@ The spike US-009 fails on a point that matters, the lawyer's answer to L-01 requ
 
 - 2026-11-03: written. Supersedes ADR-0009, with the answers to F-16 and F-17.
 - 2026-11-03 (later): F-18 answered (a contract never signed is kept as « Annulé avant signature », with its number) and F-19 (signing from the web app). The public names are on the developer's domain (F-14).
+- 2026-11-10: **superseded by [ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)**. The spike US-009, part 1, showed that one drawing doesn't fill every field (10 taps for 10 pages). Signatures are now captured in the app and the API seals the PDF.
 
 ## Implemented by
 
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone
-- [US-040](../stories/US-040-contract-pdf-template.md): Contract PDF template in French and English, with the signature block at the bottom right
-- [US-042](../stories/US-042-archive-and-share-pdfs.md): Archive, download and share contract PDFs
-- [US-043](../stories/US-043-deploy-documenso.md): Deploy Documenso and connect it to the API
-- [US-044](../stories/US-044-sign-in-documenso-from-the-app.md): Preview a contract PDF and have it signed in Documenso from the app
-- [US-054](../stories/US-054-client-signs-the-depart.md): Client signs the Départ
-- [US-055](../stories/US-055-departure-pdf.md): Preview and deliver the departure PDF in French or English
-- [US-056](../stories/US-056-resume-or-discard-a-draft.md): Resume or discard a draft Départ
-- [US-057](../stories/US-057-sign-departure-server-function.md): API: sign a Départ in one database transaction
-- [US-061](../stories/US-061-extend-or-amend-a-rental.md): Extend a rental or amend allowed fields
-- [US-063](../stories/US-063-reopen-or-regenerate-a-pdf.md): Re-open, re-share or regenerate a contract PDF
-- [US-064](../stories/US-064-amendment-pages-in-the-pdf.md): Amendment pages in the PDF
-- [US-074](../stories/US-074-client-signs-the-retour.md): Client signs the Retour and the rental is closed
-- [US-075](../stories/US-075-final-pdf.md): Generate the final PDF in French or English
-- [US-092](../stories/US-092-legal-and-privacy-checklist.md): Send the legal and privacy questions, and close them before go-live
-- [US-093](../stories/US-093-operations-runbook.md): Write the operations runbook
-- [US-094](../stories/US-094-retention-and-erasure.md): Apply retention and erasure rules
+- Nothing: superseded by ADR-0023.

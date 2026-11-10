@@ -1,6 +1,6 @@
 # Open questions
 
-> **Status (2026-11-05):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). On 2026-11-03, F-11 was answered (option C: your own API, your own Postgres, files in S3), and you chose Documenso for signatures. That opened F-12 to F-20, all answered the same day, including a web app with the iPhone app's features (F-19): see [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) and [ADR-0020](../adr/0020-signatures-with-documenso.md) and [ADR-0021](../adr/0021-web-app.md). On 2026-11-05, F-21 was answered: PostgreSQL 17 in every environment ([ADR-0022](../adr/0022-postgresql-17.md)). Of the earlier follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
+> **Status (2026-11-10):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). On 2026-11-03, F-11 was answered (option C: your own API, your own Postgres, files in S3), and you chose Documenso for signatures. That opened F-12 to F-20, all answered the same day, including a web app with the iPhone app's features (F-19): see [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) and [ADR-0020](../adr/0020-signatures-with-documenso.md) and [ADR-0021](../adr/0021-web-app.md). On 2026-11-05, F-21 was answered: PostgreSQL 17 in every environment ([ADR-0022](../adr/0022-postgresql-17.md)). On 2026-11-10, after the spike showed that Documenso needs one tap per page and after a meeting with the client about the PDF, F-22 to F-28 were answered: signatures in the app, sealed by the API ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)), four required reference angles, damage found at the Départ and estimates on new damage ([ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)), and template v2 of the PDF. Of the earlier follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
 > **How to answer:** write under each **Answer** line, or reply with the IDs (for example "B-03: b").
 > Some questions show a **Suggested default**. This is a recommendation, not an assumption, and it is used only if you confirm it.
 > **Owners:** **You** (developer) · **Client** (MC Car Riviera) · **Lawyer** · **Accountant** · **Bank/PSP**.
@@ -15,34 +15,41 @@
 | **B-03** | Connectivity and offline behaviour | Client | Answered → [ADR-0005](../adr/0005-online-only.md) |
 | **B-04** | Contract only, or contract + invoice | Client + accountant | Answered → [ADR-0006](../adr/0006-contract-only-scope.md) |
 | **B-05** | How prices are filled in | Client | Answered → [ADR-0006](../adr/0006-contract-only-scope.md); totals answered in F-06 |
-| **B-06** | Which signatures, and where they appear | Client (+ lawyer) | Answered → [ADR-0020](../adr/0020-signatures-with-documenso.md) (was ADR-0009); position answered in F-08 |
-| **B-07** | Signing order: preview before signature | You + client | Answered; order changed by F-17: language chosen in the preview, then signature → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
-| **B-08** | Return without the client present | Client | Answered → [ADR-0020](../adr/0020-signatures-with-documenso.md); return signature made mandatory by F-04 |
-| **B-09** | Photos at departure | Client | Answered → [ADR-0008](../adr/0008-vehicle-condition-model.md); F-10 answered |
+| **B-06** | Which signatures, and where they appear | Client (+ lawyer) | Answered → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) (was ADR-0020, ADR-0009); position answered in F-08 |
+| **B-07** | Signing order: preview before signature | You + client | Answered; order changed by F-17: language chosen in the preview, then signature → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
+| **B-08** | Return without the client present | Client | Answered → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md); return signature made mandatory by F-04; stored signature for a client who can't wait (F-28) |
+| **B-09** | Photos at departure | Client | Answered → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) (was ADR-0008); F-10 and F-23 answered |
 | **B-10** | Payment-card data and the deposit | Client | Answered → [ADR-0006](../adr/0006-contract-only-scope.md); reading to confirm in F-09 |
 | **B-11** | Ownership, hosting, budget, maintenance | You + client | Answered → [ADR-0003](../adr/0003-ios-distribution-ad-hoc.md), [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) (was ADR-0004), [ADR-0015](../adr/0015-backups.md); follow-ups F-02, F-07, F-11 |
 | **F-01** | Staff phones: models and iOS versions | Client | Unknown; checked at registration (US-001), default applied |
 | **F-02** | Who holds the accounts (Apple, Expo, GitHub, hosting, backups, Sentry) | You + client | Answered: Apple → the company; the others → the developer |
 | **F-03** | Requirements on personal phones: Developer Mode, passcode, yearly reinstall | Client (staff) | Answered: likely yes; confirmed at registration |
-| **F-04** | Return signature | Client | Answered: mandatory → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
+| **F-04** | Return signature | Client | Answered: mandatory → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
 | **F-05** | A test iPhone for the developer | You | Answered: the partner's iPhone → [ADR-0018](../adr/0018-development-and-test-devices.md) |
 | **F-06** | Totals, costs and number of days | Client | Answered: typed by staff → [ADR-0006](../adr/0006-contract-only-scope.md) |
 | **F-07** | Hosting budget after the free plan | Client | Answered: covered by the developer's maintenance fee |
-| **F-08** | Where the signatures go | Client (+ lawyer) | Partly answered: bottom right of every page; amendment pages still a default |
+| **F-08** | Where the signatures go | Client (+ lawyer) | Answered: bottom right of every page; no amendment pages (F-22) |
 | **F-09** | Card fields on the contract | Client (+ lawyer) | Answered: kept (last four digits and expiry only; CVV box empty) |
-| **F-10** | Interior and dashboard photos | Client | Answered: optional → [ADR-0008](../adr/0008-vehicle-condition-model.md) |
+| **F-10** | Interior and dashboard photos | Client | Answered: optional → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) |
 | **F-11** | Where the files live: Supabase Storage or an S3-compatible bucket | You | Answered: option C, your own API and Postgres, files in S3 → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) |
 | **F-12** | API technology | You | Answered: TypeScript, Node.js, Fastify → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) |
 | **F-13** | Where the contract PDF is rendered | You | Answered: on the API server → [ADR-0010](../adr/0010-contract-pdf-generation.md) |
 | **F-14** | Hosting provider, staging and domain names | You | Answered: Scaleway, Paris; staging on your homelab; names on developerworkshop.online |
-| **F-15** | E-mail provider (Documenso needs one) | You | Answered: turboSMTP, EU server, free plan |
-| **F-16** | Client e-mail for Documenso | You + client | Answered: optional, placeholder address when missing → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
-| **F-17** | How signing works with Documenso | You + client | Answered: one signature for every page, language chosen in the preview, departure image repeated, self-signed certificate → [ADR-0020](../adr/0020-signatures-with-documenso.md) |
+| **F-15** | E-mail provider (Documenso needed one) | You | Answered: turboSMTP, EU server, free plan; kept for later e-mail since Documenso was dropped |
+| **F-16** | Client e-mail for Documenso | You + client | Answered: optional; the placeholder address is no longer needed since Documenso was dropped (F-27) |
+| **F-17** | How signing works with Documenso | You + client | Answered: one signature for every page, language chosen in the preview, departure image repeated, self-signed certificate → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) (Documenso couldn't do the first point) |
 | **F-18** | Contract number on the PDF the client signs | You + client | Answered: reserved at the preview; a contract never signed is kept as « Annulé avant signature » |
 | **F-19** | A web app | You + client | Answered: same features as the iPhone app, in the MVP, on staff laptops and the agency computer, password + second factor → [ADR-0021](../adr/0021-web-app.md) |
 | **F-20** | Local S3 store | You | Answered: no preference; Garage (`RECOMMENDED`) |
 | **F-21** | PostgreSQL major version | You | Answered: PostgreSQL 17 → [ADR-0022](../adr/0022-postgresql-17.md) |
-| R-01 | Layout of the new contract | Client | Q2 answered: thumbnails plus a full-size photo annex → [template v1](../contract-template/README.md); the rest is a default |
+| **F-22** | PDF layout after the client meeting | Client | Answered: page 1 with the pricing, no services or key-terms box, deposit in the pricing, no amendment pages → [template v2](../contract-template/README.md), [ADR-0010](../adr/0010-contract-pdf-generation.md) |
+| **F-23** | Mandatory photos | Client | Answered: 4 reference angles required (front, rear, left, right), the rest optional, extra photos only for damage → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) |
+| **F-24** | New damage at the Retour, and estimates | Client | Answered: new damage first or RAS, damage already present in an annex, estimate per damage (indicative or billed), warning above the deductible → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) |
+| **F-25** | Damage found at the Départ | You + client | Answered: a new open damage record → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) |
+| **F-26** | Changing a draft waiting for signature | Client | Answered: new photos and damage before signing, Départ and Retour → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
+| **F-27** | Signing technology after the spike | You | Answered: signature pad in the app, PDF stamped and sealed by the API; Documenso dropped → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
+| **F-28** | Stored Retour signature | Client + you | Answered: a switchable feature, on for MC Car Riviera; one Retour, authorisation signed first, no time limit, staff share the PDF → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
+| **R-01** | Layout of the new contract | Client | Answered: Q2 on 2026-11-02, the rest by F-22 → [template v2](../contract-template/README.md) |
 | **R-02** | Fields only the model template has | Client | Answered: all of them are kept → [template v1](../contract-template/field-map.md) |
 | R-03 | Client fields and additional drivers | Client | Open, default applied |
 | R-04 | Licence and age checks | Client | Open, default applied |
@@ -51,8 +58,8 @@
 | R-07 | Deductible, deposit and prepayment | Client | Open, default applied |
 | R-08 | Intermediary | Client | Open, default applied |
 | R-09 | Contract number | Client (+ accountant) | Open, default applied |
-| R-10 | Recording damage | Client | Open, default applied; Q5 added on 2026-10-09 (taking back a photo or damage entry before the client signs) |
-| R-11 | Extension and other changes after signature | Client | Open, default applied |
+| R-10 | Recording damage | Client | Q4 answered by F-24 (estimates); the rest open, default applied; Q5 (taking back a photo or damage entry before the client signs) open |
+| R-11 | Extension and other changes after signature | Client | Q4 answered by F-22 (no amendment pages); the rest open, default applied |
 | R-12 | Cancellation, vehicle swap, early return | Client | Open, default applied |
 | R-13 | Vehicle statuses and future bookings | Client | Open, default applied |
 | R-14 | Maintenance and the condition reset | Client | Open, default applied |
@@ -201,6 +208,8 @@ Which pages must carry it: the contract page, the condition page, every page of 
 > **Position (F-08, answered 2026-10-09):** the signature sits at the bottom right of every page.
 >
 > **One exception, still a default (F-08):** amendment pages, created after the Départ, carry their own signature there instead of the departure signature. This way the client's signature never appears next to values they didn't approve.
+>
+> **Updated by F-22 and F-27 (2026-11-10):** there are no amendment pages any more, and the client draws once in the app; the API stamps the drawing on every page. → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)
 
 ### B-07 · Signing order
 **Owner:** you + client · **Changes:** Départ and Retour flows, PDF pipeline (a preview is needed before signing).
@@ -216,6 +225,8 @@ In the brief, the client signs (step 4) before the contract language is chosen (
 > `RECOMMENDED` mitigation: before signing, a recap screen shows the key terms and lets the client read the general terms in French or English (US-054).
 >
 > **Changed by F-17 (2026-11-03):** with Documenso, the client signs one PDF in one language, so the order is now: recap → PDF preview, where the language is chosen and can still be switched → signature. → [ADR-0020](../adr/0020-signatures-with-documenso.md)
+>
+> **Kept by F-27 (2026-11-10):** the same order with the signature pad in the app. → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)
 
 ### B-08 · Return without the client present
 **Owner:** client · **Changes:** Retour flow, contract statuses, evidence recorded.
@@ -230,6 +241,8 @@ The completed sample has no return signature (S4). The terms (Art. 9) provide fo
 > **Answer (2026-10-07):** "that is a company problem not application"
 >
 > **Updated by F-04 (2026-10-09):** the return signature is mandatory. The app doesn't handle an absent client: the Retour stays « en attente de signature » until the client signs, and the company deals with the client outside the app. → [ADR-0009](../adr/0009-signatures.md), US-074
+>
+> **Updated by F-28 (2026-11-10):** a client who is there but can't wait for the end of the inspection can record their signature, which staff apply to the finished Retour. → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md), US-076
 
 ### B-09 · Photos at departure
 **Owner:** client · **Changes:** Départ flow and duration, storage volume, strength of evidence.
@@ -254,6 +267,7 @@ Also:
 > - **Question 1:** the list of angles uses a default (see § Defaults). It has no dashboard photo, because a reused dashboard photo would show an old odometer reading.
 > - **Question 2:** answered by the brief (Retour, step 4): at a Retour, photos are taken only for new damage, otherwise « RAS ».
 > - **Follow-up F-10:** an optional dashboard photo at each handover.
+> - **Question 1 answered by F-23 (2026-11-10):** four required angles, front, rear, left and right; the others are optional. → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)
 
 ### B-10 · Payment-card data and the deposit
 **Owner:** client (+ bank/PSP, L-05) · **Changes:** security scope, data model, printed contract fields.
@@ -428,7 +442,7 @@ Which does the client prefer? A rough number of rentals per month would also sho
 > **Updated by F-11 (2026-11-03):** the hosting is now about €25–30 a month at Scaleway, still covered by your maintenance fee → [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md).
 
 ### F-08 · Where the signatures go
-**Owner:** client (+ lawyer, L-01) · **Needed by:** US-040, US-064, US-073, US-075
+**Owner:** client (+ lawyer, L-01) · **Needed by:** US-040, US-073, US-075
 
 > **Answer (2026-10-09):** "always bottom right of the paperwork"
 >
@@ -441,6 +455,8 @@ Which does the client prefer? A rough number of rentals per month would also sho
 > - return values and final amounts go in the Retour section.
 >
 > This way the client's signature is never next to values they didn't approve. Say if page 1 should show the latest values instead.
+>
+> **Answered by F-22 (2026-11-10):** no amendment pages at all. Page 1 keeps the values signed at the Départ, return values and final amounts sit in the Retour column and the final statement, and changes during the rental show in the final statement.
 
 ### F-09 · Card fields on the contract (reading of B-10)
 **Owner:** client (+ lawyer, L-02) · **Needed by:** US-006, US-040, US-052
@@ -475,7 +491,7 @@ One knock-on: the acceptance text says the client authorises charges to « la ca
 
 > **Answer (2026-10-09):** "yes the inside of the car is optional"
 >
-> **Decision:** interior photos are optional, both in the reference set and at handovers, and so is the dashboard photo (km + fuel). The reference set has 8 required exterior angles. → [ADR-0008](../adr/0008-vehicle-condition-model.md)
+> **Decision:** interior photos are optional, both in the reference set and at handovers, and so is the dashboard photo (km + fuel). The reference set had 8 required exterior angles; since F-23 (2026-11-10), 4. → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)
 >
 > `INTERPRETATION`: « the inside of the car » covers both the interior angle and the dashboard photo.
 
@@ -578,6 +594,8 @@ Documenso needs an e-mail address for each signer, but the client's e-mail is op
 > **Answer (2026-11-03):** it stays optional; a placeholder address is used.
 >
 > **Decision:** the client's e-mail when known; otherwise a placeholder made from the contract number, on a subdomain with no mail server. Documenso's e-mails to signers are switched off; staff share the PDF from the app, as before. That Documenso accepts this is checked in the spike US-009. → [ADR-0020](../adr/0020-signatures-with-documenso.md)
+>
+> **No longer needed (2026-11-10):** Documenso was dropped (F-27). The client's e-mail stays optional, and nothing needs a placeholder.
 
 ### F-17 · How signing works with Documenso
 **Owner:** you + client · **Needed by:** US-009, US-044
@@ -596,6 +614,8 @@ Documenso needs an e-mail address for each signer, but the client's e-mail is op
 > - The language is chosen in the preview, and can be switched until the client signs (B-07's order changes).
 > - The final PDF shows the departure signature as an image, read back from Documenso. The sealed departure PDF remains the proof of that signature; the lawyer reviews this (L-01).
 > - The PDFs are sealed with a self-signed company certificate. Adobe Reader shows the seal as intact, but the company's identity as unverified. A trusted certificate or a qualified seal can follow (L-01).
+>
+> **Spike result (2026-11-05, confirmed by hand on 2026-11-10):** in Documenso, one drawing doesn't fill the fields; a 10-page contract needs 10 taps. The answers above are kept, with the signature captured in the app instead (F-27). → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)
 
 ### F-18 · The contract number on the PDF the client signs
 **Owner:** you + client · **Needed by:** US-044, US-056, US-057
@@ -652,6 +672,82 @@ The ADRs require local, CI and staging to run the same PostgreSQL major version 
 >
 > **Consequences:** supported upstream until November 2029. A major upgrade has to be planned before then, in every environment together.
 
+## Follow-ups from the 2026-11-10 client meeting
+
+The developer met the client about the PDF layout and reported the changes on 2026-11-10, with an annotated copy of the English specimen: on page 1, the services box and the key-terms box crossed out; the whole rates and payment page boxed, to move up; the amendment page crossed out. The spike US-009, part 1, had also shown that Documenso needs one tap per page. The open points were settled the same day through multiple-choice questions.
+
+### F-22 · PDF layout
+**Owner:** client · **Needed by:** US-040, US-055, US-061, US-073, US-075
+
+> **Answer (2026-11-10):** a first page with the most important details of the contract, as before, with the pricing on it too. The services and key-terms boxes are unwanted. The amendment page is crossed out: "no amendment pages at all". The deposit moves into the pricing block.
+>
+> **Decision:** template v2. Page 1: places and dates, renter, additional driver and pick-up agent, vehicle, rates, deductible and deposit, payment, the charges at the Départ next to the « Décompte final », the declaration and the acceptance text. No « Services inclus », no key-terms box, no amendment pages. Amendments are recorded in the app and show in the final statement. → [template v2](../contract-template/README.md), [ADR-0010](../adr/0010-contract-pdf-generation.md), [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)
+>
+> This also answers the rest of R-01, the default part of F-08 and R-11 Q4.
+>
+> `INTERPRETATION` to confirm: since amendments have no page, the client doesn't sign them in the app (this replaces the default for R-11 on the amendment signature). The final statement, signed at the Retour, reflects them.
+
+### F-23 · Mandatory photos
+**Owner:** client · **Needed by:** US-022, US-026, US-053, US-082
+
+> **Answer (2026-11-10):** "the default mandatory car photos are only 4: front, back, right side and left side. Everything else is optional, and only extra photos will be added for damage details." Then (multiple-choice answer): these four are the vehicle's reference set, still reused at each Départ.
+>
+> **Decision:** a reference set needs front, rear, left and right; front-left, rear-left, rear-right, front-right and interior are optional. → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)
+>
+> `INTERPRETATION` to confirm: there are no loose « photos supplémentaires » any more; a photo at a handover is the dashboard photo or the photo of a damage.
+
+### F-24 · New damage at the Retour, and estimates
+**Owner:** client · **Needed by:** US-072, US-073, US-075
+
+> **Answer (2026-11-10):** the Retour puts new damage in evidence, if there is any, otherwise « RAS — rien à signaler ». It still mentions the damage present at the Départ, but as an annex, and allows an estimate for each new damage. Then (multiple-choice answers): staff choose for each estimate whether it is indicative or billed; when billed damage exceeds the deductible, the app warns but doesn't block.
+>
+> **Decision:** → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md), [template v2](../contract-template/README.md)
+> - The final PDF's vehicle-condition page shows the new damage first, with photos and estimates, or « RAS ». The damage already present moves to its own annex page.
+> - Each new damage can get an amount, « indicative » (final cost after repair) or « facturée ».
+> - Billed estimates add up to a new « Dommages » line in the final statement, filled by the app; the totals stay typed (F-06).
+> - Above the at-fault accident deductible, a warning.
+>
+> This answers R-10 Q4. Whether billed damage carries VAT is for the accountant (L-04).
+
+### F-25 · Damage found at the Départ
+**Owner:** you + client · **Needed by:** US-053, US-058
+
+When the client points out damage the app doesn't know about, while a Départ waits for the signature: is it a damage record, or a photo with a comment on this contract only?
+
+> **Answer (2026-11-10):** a new open damage record.
+>
+> **Decision:** recorded with photos and a comment, « constaté au départ » of this contract, printed with the damage already present, shown at later Retours, listed for repair, never charged to this renter. → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)
+
+### F-26 · Changing a draft waiting for signature
+**Owner:** client · **Needed by:** US-058
+
+> **Answer (2026-11-10):** a draft waiting for the client's signature may need changes, for damage that wasn't mentioned or a client who disagrees, with new photos added to the draft before signing. This works for both the Retour and the Départ.
+>
+> **Decision:** staff reopen the contract waiting for signature, add photos and damage or correct values; the API renders a new preview with the same number, and the client signs only that one. → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md), [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md), US-058
+
+### F-27 · Signing technology after the spike
+**Owner:** you · **Needed by:** US-009, US-043, US-044
+
+The spike US-009, part 1, showed that Documenso asks for a tap on each page's signature field: "I require to sign once but manually validate each page the signature will be on, so that is not what we want, we need automation, one signature pasted on all pages instantly". What replaces it?
+
+> **Answer (2026-11-10):** a signature pad in the app, with the API stamping the drawing and sealing the PDF (rather than DocuSeal after its own spike, or a hosted French provider).
+>
+> **Decision:** the client draws once; the API stamps the drawing on every page of the stored preview, appends a signature certificate page, and seals the PDF with the company certificate and a timestamp. Documenso is dropped. The spike US-009, part 2, proves stamping and sealing first. → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)
+
+### F-28 · Stored Retour signature
+**Owner:** client + you · **Needed by:** US-076
+
+> **Answer (2026-11-10):** a new case in the user journey: the client has no time to review the Retour and the draft isn't ready to sign. They want to record a « draft » signature of the client and use it to sign the contract later.
+>
+> Asked about the legal risk (a signature must show consent to the content it is attached to), the developer answered: "make it a feature that can be switched on, since this is a high dispute risk; we only want to enable it for MC Car Riviera, and maybe future car rental companies if they agree". Then (multiple-choice answers): one Retour only, with an authorisation text signed first and reviewed by the lawyer; the switch in the company configuration file; no time limit; staff share the final PDF as today.
+>
+> **Decision:** → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md), US-076
+> - `signature.storedReturnSignature` in the company configuration, off by default, on for MC Car Riviera.
+> - The client signs the authorisation; the API seals it at once and keeps the drawing for this contract's Retour.
+> - Staff apply it once, to the finished Retour; the final PDF includes the authorisation page and says when the signature was recorded and applied.
+> - Cancelled if the client signs in person after all, or the contract is voided.
+> - The lawyer reviews the practice and the text before go-live (L-01).
+
 ---
 
 ## Defaults
@@ -664,10 +760,7 @@ While the F, R, T, N and L questions are open, the ADRs and stories use these de
 
 | Question | Default used | Where |
 |---|---|---|
-| B-09 Q1 | Reference set of 8 exterior photos from the in-app camera: front, front-left, left, rear-left, rear, rear-right, right, front-right. Interior photos optional (F-10) | ADR-0008, US-026 |
 | F-01 | Both staff phones are iPhones that can run the Expo SDK's minimum iOS version; checked when they are registered | ADR-0003, US-001 |
-| F-08 | Signatures at the bottom right of every page (answered). Default part: page 1 shows the contract as signed at the Départ; amendment pages carry the amendment's own signature there; return values and final amounts are in the Retour section | ADR-0020, ADR-0010, US-040, US-064, US-073, US-075 |
-| R-01 | PDF pages as in template v1: contract as signed at the Départ; financial conditions with the « Décompte final »; vehicle condition (Départ / Retour); general terms; amendments; photo annex (Q2 answered). Drawings dropped. Title as on the template | ADR-0010, US-040 |
 | R-03 | Mandatory before signing: name, home address, licence number, date of birth, ID number (the fields filled on the completed sample). A country field is added to the address. One additional driver, stored as a client record, with name, date of birth and licence number mandatory | US-031, US-051 |
 | R-04 | The app records only: it shows the age, with no warning and no blocking | US-031, US-051 |
 | R-05 | Departure and return date and time default to "now" and can be edited. Planned return: date required, time optional. Return place: free text | US-052, US-070 |
@@ -675,11 +768,11 @@ While the F, R, T, N and L questions are open, the ADRs and stories use these de
 | R-07 | Fields kept as printed; « Total prépayé » is typed like any other amount. Empty deductible amounts trigger a warning | US-052 |
 | R-08 | Intermediary is free text, defaulting to « MC CAR RIVIERA », with an optional phone | US-052 |
 | R-09 | Contract number `MCR-YYYY-NNNN` from a yearly counter (reserved at the preview, no gaps: F-18 answered) | ADR-0007, US-006, US-057 |
-| R-10 | A damage entry is at least one photo plus a comment. « RAS » is one tap. No damage costs | ADR-0008, US-072 |
-| R-11 | Amendable fields as listed in US-061. A reason is required. The client's signature is optional. The 48-hour rule is recorded, not enforced | ADR-0007, ADR-0020, US-061 |
+| R-10 | A damage entry is at least one photo plus a comment. « RAS » is one tap. Estimates per damage since F-24 | ADR-0024, US-072 |
+| R-11 | Amendable fields as listed in US-061. A reason is required. No amendment page and no client signature in the app (F-22, `INTERPRETATION`). The 48-hour rule is recorded, not enforced | ADR-0007, US-061 |
 | R-12 | Drafts can be discarded. A signed contract can be voided with a reason before its Retour. No vehicle swap: close the contract and open a new one | ADR-0007, US-056, US-062 |
 | R-13 | Statuses: available, rented, maintenance, archived. No future bookings | ADR-0007, US-006, US-025 |
-| R-14 | Maintenance kinds: routine, damage repair, other. Partial repairs allowed. Odometer optional. No costs | ADR-0008, US-006, US-080, US-082 |
+| R-14 | Maintenance kinds: routine, damage repair, other. Partial repairs allowed. Odometer optional. No costs | ADR-0024, US-006, US-080, US-082 |
 | R-15 | No document is required before a Départ. A document uploaded by mistake can be deleted | ADR-0014, US-033 |
 | R-16 | One staff role with full access. The developer does the admin tasks | ADR-0012 |
 | R-17 | English PDF blocked until an approved English text of the terms exists. A signed contract can be regenerated in the other language only if that language's terms existed at signature | ADR-0011, US-041, US-063 |
@@ -717,6 +810,8 @@ Confirm the following:
 > **Decision:** page 3 (« État du véhicule ») shows the photos as thumbnails, and a photo annex at the end shows every photo at full size, two per page. → [template v1](../contract-template/README.md), [ADR-0010](../adr/0010-contract-pdf-generation.md)
 >
 > The structure above became template v1, with the financial parts on their own page: contract, financial conditions, vehicle condition, general terms, one page per amendment, photo annex. Q1 follows the brief ("only photos"): the drawings are dropped. Q3: the title stays « CONTRAT / FACTURE LOCATION » (B-04).
+>
+> **Answered by F-22 and F-24 (2026-11-10):** template v2. The pricing moves to page 1, the amendment pages and the services and key-terms boxes are dropped, new damage comes first and the damage already present moves to an annex. → [template v2](../contract-template/README.md)
 
 ### R-02 · Fields only the model template has
 Add any of these?
@@ -825,7 +920,9 @@ The brief says "only photos" for the template, and also says "record damage, tak
 4. Are damage costs or charges recorded in the app? (Suggested for the MVP: no.)
 5. *(added 2026-10-09)* Before the client signs a Départ or a Retour, can staff take back a photo or a damage entry they added by mistake? Today every photo and damage entry is insert-only from the moment it is saved, so a mistake would be printed on the PDF the client signs. (Suggested: yes. Until the client signs, staff can withdraw it: it stays stored and in the audit trail, marked « retiré », and is left off the PDF. After the signature nothing can change. This changes the database rules in US-006 and US-007 and the screens in US-053 and US-072.)
 
-> **Answer:**
+> **Answer (2026-11-10), Q4:** yes, an optional estimate per new damage, indicative or billed (F-24). → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)
+>
+> Q1, Q2, Q3 and Q5 are still open; their defaults apply.
 
 ### R-11 · Extension and other changes after signature
 1. How do extensions usually happen: in person, by phone, by email or by message?
@@ -837,7 +934,9 @@ The brief says "only photos" for the template, and also says "record damage, tak
 
 **Suggested default:** signed data is never overwritten. Each change creates a new numbered revision recording who, when and why, and earlier signed revisions stay readable.
 
-> **Answer:**
+> **Answer (2026-11-10), Q4:** no amendment pages at all (F-22). Changes are recorded in the app and show in the final statement. Q3 reading to confirm: the client doesn't sign the change in the app.
+>
+> The other questions are still open; their defaults apply.
 
 ### R-12 · Cancellation, vehicle swap, early return
 1. Can a signed contract be cancelled (for example, the client changes their mind before leaving)? By whom? It would be marked void, never deleted.
@@ -985,9 +1084,9 @@ Which device models and iOS versions do staff use? Supporting only recent iOS ve
 ### L-01 · Electronic signature (lawyer)
 Is a signature drawn on the staff device, with an audit trail (who, when, which document version, which device), sufficient for these contracts? In EU eIDAS terms, that is a *simple* electronic signature. Or is an *advanced* or *qualified* signature through a trust service provider, or a company certificate seal on the PDF, required?
 
-Since 2026-11-03, the client signs in a self-hosted Documenso ([ADR-0020](../adr/0020-signatures-with-documenso.md)): a drawn signature on every page, an audit trail (times, IP address and browser of the signing device, document hashes) appended to the PDF, and a PAdES seal over the whole file with the company's self-signed certificate.
+Since 2026-11-10, the client draws once on a pad in the app ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)): the API stamps the drawing on every page, appends a signature certificate page (times, staff user, device, IP address, signing mode, hashes), and applies a PAdES seal with a timestamp over the whole file, with the company's self-signed certificate. (From 2026-11-03 to 2026-11-10 the plan was Documenso, ADR-0020.)
 
-The brief asked for three things to be kept apart (detailed in [ADR-0020](../adr/0020-signatures-with-documenso.md)):
+The brief asked for three things to be kept apart (detailed in [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)):
 
 1. **Signature image on several pages.** A drawn signature stamped onto pages is only a picture. On its own, it doesn't tie the client to the document's content.
 2. **Digitally signed PDF (PAdES).** The file is cryptographically locked, so any later change is detectable, and the certificate holder is identified. Here the holder would be the company, unless a trust provider issues a certificate to the client.
@@ -995,10 +1094,11 @@ The brief asked for three things to be kept apart (detailed in [ADR-0020](../adr
 
 Also ask:
 
-- Is it acceptable to show the departure signature on every page except amendment pages, with later values printed in their own signed sections (F-08)?
-- Is an amendment or a return without the client's signature acceptable (R-11, F-04)?
+- Is it acceptable to show the departure signature on every page, with later values printed in their own signed sections (F-08)?
+- Is it acceptable to record an amendment (an extension, for example) without the client's signature and without a page in the PDF, with its effect shown in the final statement signed at the Retour (F-22, R-11)?
+- **The stored Retour signature (F-28):** the client signs an authorisation at the drop-off, then staff apply the same drawing to the Retour finished in the client's absence, once, with no time limit. Does it hold up, especially for billed damage the client didn't see? Is the authorisation text right ([`i18n/fr.json`](../contract-template/i18n/fr.json), `authorisation.intro`)? Should the client be sent the final PDF, and within what time? May an unused stored signature be kept?
 - Is it acceptable to repeat the image of the departure signature in the final PDF and in later copies, while the sealed departure PDF remains the proof (F-17)?
-- Is a self-signed company certificate enough for the seal, or is a certificate from a recognised authority, or a qualified electronic seal, expected (F-17)? A qualified seal through a remote signing service would need Documenso's paid Enterprise edition.
+- Is a self-signed company certificate enough for the seal, or is a certificate from a recognised authority, a qualified timestamp, or a qualified electronic seal from a trust service provider, expected (F-17)?
 
 ### L-02 · General terms (lawyer)
 Update the terms before they are digitised and translated:
@@ -1018,7 +1118,7 @@ Update the terms before they are digitised and translated:
 - Whether keeping copies of ID cards and licences is necessary and proportionate.
 - Retention periods for contracts, document copies, signatures and photos.
 - Erasure requests versus the obligation to keep contracts: which wins, and when (applied by US-094).
-- A data processing agreement between MC Car Riviera (controller) and the developer (processor), since client data is hosted in his accounts (F-02). His sub-processors: Scaleway (server, database, files), turboSMTP (e-mail; which of its companies signs the agreement is to be checked), the backup storage provider, Expo and Sentry. Documenso is self-hosted, so it adds no processor; its database and files are part of the hosted data. The homelab staging holds synthetic data only.
+- A data processing agreement between MC Car Riviera (controller) and the developer (processor), since client data is hosted in his accounts (F-02). His sub-processors: Scaleway (server, database, files), turboSMTP (e-mail; which of its companies signs the agreement is to be checked), the backup storage provider, Expo and Sentry. The homelab staging holds synthetic data only.
 - The record of processing activities.
 - Staff using their personal phones (B-02), their personal laptops and the agency computer (F-19): a short written rule for client data on them. It should cover what may be shared and where, deleting PDFs (including downloads), signing out of the shared computer, and reporting a lost device.
 
@@ -1027,6 +1127,7 @@ Update the terms before they are digitised and translated:
 - Numbering rules.
 - E-invoicing and e-reporting obligations, and their dates, for this company.
 - The link with the accounting software.
+- Billed damage estimates (F-24): do they carry VAT, as a service charge, or are they compensation outside VAT? This decides where the « Dommages » line sits in the charges table.
 
 ### L-05 · Card payments (bank or payment provider)
 How to handle remote charges (v.a.d.) and deposit pre-authorisations without the app storing card data.

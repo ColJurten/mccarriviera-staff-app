@@ -1,6 +1,6 @@
-/* MC Car Riviera rental contract — template v1 (reference design for US-040).
+/* MC Car Riviera rental contract — template v2 (reference design for US-040).
    Every page is an explicit A4 block (ADR-0010). The signature block sits at the bottom right
-   of every page, in the same place in French and English (ADR-0009, F-08).
+   of every page, in the same place in French and English (F-08, ADR-0023).
    Palette: gold on black (R-18, placeholder until the brand assets arrive). */
 
 @page { size: A4 portrait; margin: 0; }
@@ -92,9 +92,6 @@ table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .box { border: 0.2mm solid var(--line); padding: 1.6mm 2mm; background: var(--panel-bg); }
 .box h3 { margin: 0 0 1mm; font-size: 7.2pt; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); }
 .box p { margin: 0; }
-.rules { margin: 0; padding-left: 3.4mm; font-size: 7.6pt; }
-.rules li { margin-bottom: 0.7mm; }
-.rules .ref { color: var(--faint); white-space: nowrap; }
 .flag { color: var(--faint); font-size: 6.3pt; margin-top: 1mm; }
 
 /* fuel gauge in eighths, with the percentage the model template uses */
@@ -116,12 +113,19 @@ table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .pricing tr.grand th, .pricing tr.grand td { background: var(--bar); color: var(--gold-soft); font-weight: 700; }
 .pricing tr.grand th { color: var(--gold); }
 
-/* the financial page has room: taller rows, easier to read */
-.fin .kv td, .fin .kv th { height: 7.4mm; padding-top: 1.6mm; }
-.fin .kv td { font-size: 9pt; }
-.fin .pricing td, .fin .pricing th { height: 7.1mm; font-size: 8.9pt; }
-.fin .pricing tbody th { font-size: 8pt; }
-.fin > div { gap: 3.2mm !important; }
+/* page 1 holds the contract and the pricing (client meeting, November 2026): denser rows */
+.pb-contract { gap: 2mm; }
+.pb-contract .kv td, .pb-contract .kv th { height: 5.2mm; padding: 0.75mm 1.6mm; }
+.pb-contract .kv td { font-size: 8.2pt; }
+.pb-contract .kv th { font-size: 6.6pt; }
+.pb-contract .bar { padding: 0.7mm 1.8mm; font-size: 6.6pt; }
+.pb-contract .note { font-size: 6.4pt; margin: -1mm 0 0; }
+.fin { align-items: start; }
+.fin .stack { display: flex; flex-direction: column; gap: 2mm; }
+.fin .pricing td, .fin .pricing th { height: 3.85mm; padding: 0.2mm 1.6mm; font-size: 7.3pt; line-height: 1.2; }
+.fin .pricing thead th { padding: 0.8mm 1.6mm; font-size: 6.2pt; }
+.fin .pricing tbody th { font-size: 6.6pt; }
+.kv td.blank { background: #fff; }
 
 /* inspection */
 .insp th.col { background: var(--bar); color: var(--gold); font-size: 6.8pt; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; }
@@ -142,16 +146,26 @@ table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .dmg img { width: 22mm; aspect-ratio: 4 / 3; object-fit: cover; border: 0.15mm solid var(--line-strong); }
 .dmg .txt { font-size: 7pt; }
 .dmg .txt .when { display: block; color: var(--faint); font-size: 6.2pt; }
+.dmg .txt .est { display: block; margin-top: 0.6mm; font-size: 6.8pt; color: var(--text); }
+.dmg .txt .est b { color: var(--ink); }
+.dmg.big { grid-template-columns: 34mm 1fr; gap: 2.4mm; }
+.dmg.big img { width: 34mm; }
+.dmg.big .txt { font-size: 8pt; }
+.dmg.big .txt .est { font-size: 7.6pt; }
+.dmg-list { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 3mm; }
+.panel.new { flex: none; border: 0.35mm solid var(--ink); background: #fff; }
+.panel.new h4 { color: var(--ink); font-size: 7.4pt; }
+.panel.new .ras { font-size: 11pt; }
+.prior { display: flex; flex-direction: column; gap: 3mm; margin-top: 1mm; }
+.prior .dmg.big { grid-template-columns: 52mm 1fr; border: 0.2mm solid var(--line); background: var(--panel-bg); padding: 2mm; }
+.prior .dmg.big img { width: 52mm; }
+.box.auth p { font-size: 8.6pt; line-height: 1.45; }
+.auth-sig { display: flex; justify-content: flex-end; }
+.auth-sig .sigbox { width: 92mm; height: 36mm; }
 .ras { font: 600 9pt "Lora", Georgia, serif; color: var(--ink); padding: 2mm 0; }
 .note { font-size: 7pt; color: var(--text); }
 .muted { color: var(--faint); }
 .tag { display: inline-block; border: 0.2mm solid var(--line-strong); border-radius: 0.6mm; padding: 0 0.8mm; font-size: 5.6pt; color: var(--muted); margin-left: 0.8mm; vertical-align: 0.2mm; }
-
-/* amendments */
-.amend td, .amend th { border: 0.2mm solid var(--line); padding: 1.1mm 1.8mm; font-size: 8pt; text-align: left; vertical-align: top; }
-.amend thead th { background: var(--bar); color: var(--gold); font-size: 6.6pt; letter-spacing: 0.12em; text-transform: uppercase; }
-.amend tbody th { background: var(--label-bg); font-weight: 600; font-size: 7.3pt; }
-.amend .old { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(0,0,0,0.35); }
 
 /* general terms, stored already split into pages (US-041) */
 .terms { column-count: 2; column-gap: 6mm; column-fill: auto; height: 100%; font-size: 7.5pt; line-height: 1.32; text-align: justify; hyphens: auto; }
@@ -179,6 +193,7 @@ table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .sigrow { flex: none; display: grid; grid-template-columns: 1fr 92mm; gap: 4mm; margin-top: 2.4mm; height: 33mm; align-items: end; }
 .sigtext { align-self: stretch; font-size: 6.9pt; line-height: 1.32; color: var(--text); display: flex; flex-direction: column; justify-content: flex-end; }
 .sigtext .acc { border-left: 0.6mm solid var(--gold); padding-left: 2mm; }
+.sigtext .acc + .acc { margin-top: 1.4mm; }
 .sigtext .acc b { display: block; font-size: 6.6pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin-bottom: 0.6mm; }
 .sigblock { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; height: 33mm; }
 .sigbox { border: 0.35mm solid var(--ink); display: flex; flex-direction: column; background: #fff; }

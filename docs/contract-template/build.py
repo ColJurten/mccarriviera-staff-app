@@ -6,14 +6,17 @@ Usage (from the repository root):
 
 Needs Python 3 with jinja2, markdown, Pillow and Playwright (Chromium), and the Inter and Lora fonts.
 It draws placeholder photos and signatures, fills template/contract.html.j2 with the synthetic data in
-samples/specimen.json, and prints four PDFs to samples/:
+samples/specimen.json, and prints five PDFs to samples/:
 
-    specimen-final-fr.pdf    Départ, one amendment and Retour, in French
-    specimen-final-en.pdf    the same in English (terms page: approved English text pending, R-17)
-    specimen-depart-fr.pdf   the PDF shared right after the Départ is signed
-    modele-vierge-fr.pdf     every page with empty fields, for the client's review
+    specimen-final-fr.pdf                       Départ, an extension, Retour with new damage, in French
+    specimen-final-en.pdf                       the same in English (terms page: approved English text pending, R-17)
+    specimen-final-signature-enregistree-fr.pdf the same Retour finished after the client left, with the
+                                                stored signature and its authorisation page (ADR-0023)
+    specimen-depart-fr.pdf                      the PDF shared right after the Départ is signed
+    modele-vierge-fr.pdf                        every page with empty fields, for the client's review
 
-The API renders the same pages with Chromium (ADR-0010), and Documenso places the signatures (ADR-0020); this script only shows what they look like.
+The API renders the same pages with Chromium (ADR-0010) and stamps the client's drawing in every signature
+box before sealing the file (ADR-0023); this script only shows what they look like.
 Never put real client data in samples/specimen.json.
 """
 import copy
@@ -57,6 +60,14 @@ class Fmt:
 
     def time(self, s):
         return self._parse(s).strftime("%H:%M") if s else ""
+
+    def date_short(self, s):
+        """Compact date for identity documents on page 1 (01/09/2006 in French)."""
+        if not s:
+            return ""
+        d = self._parse(s)
+        return self.f["date_short"].format(d=d.day, dd=f"{d.day:02d}", mm=f"{d.month:02d}",
+                                           month=self.f["months"][d.month - 1], y=d.year)
 
     def datetime(self, s):
         return self.f["datetime"].format(date=self.date(s), time=self.time(s)) if s else ""
@@ -302,8 +313,8 @@ def build_view(data, stage, t, f, pics):
               "id_doc_number", "id_doc_country", "licence_number", "additional_info"):
         v[k] = E(r.get(k, ""))
     v["id_doc_type"] = None if blank else r["id_doc_type"]
-    v["id_doc_dates"] = E(f"{f.date(r['id_doc_issued'])} – {f.date(r['id_doc_expires'])}")
-    v["licence_dates"] = E(f"{f.date(r['licence_issued'])} – {f.date(r['licence_expires'])}")
+    v["id_doc_dates"] = E(f"{f.date_short(r['id_doc_issued'])} – {f.date_short(r['id_doc_expires'])}")
+    v["licence_dates"] = E(f"{f.date_short(r['licence_issued'])} – {f.date_short(r['licence_expires'])}")
 
     v["driver_name"] = E(f'{t["civility"].get(ad["civility"], "")} {ad["first_name"]} {ad["last_name"]}'.strip())
     v["driver_birth_date"] = E(f.date(ad["birth_date"]))
@@ -322,7 +333,6 @@ def build_view(data, stage, t, f, pics):
     v["deductible_card"] = None if blank else c["deductible"]["card_brand"]
     v["deductible_theft"] = E(f.money(c["deductible"]["theft"]))
     v["deductible_accident"] = E(f.money(c["deductible"]["accident"]))
-    v["services_included"] = E(c["services_included"])
     v["deposit"] = E(f.money(c["deposit"]))
     pay = c["payment"]
     v["payment_method"] = None if blank else pay["method"]
@@ -333,7 +343,7 @@ def build_view(data, stage, t, f, pics):
     vat_label = fill(t["pricing"]["vat"], rate=data["_company"]["vat_rate"])
     lines = [("rental", ""), ("extra_days", ""), ("extra_km", ""), ("rental_total_ht", ""), ("under_25", ""),
              ("extra_driver", ""), ("delivery", ""), ("option_1", ""), ("option_2", ""), ("option_3", ""),
-             ("fuel", ""), ("misc", ""), ("total_ht", "total"), ("vat", "total"), ("total_ttc", "grand"),
+             ("fuel", ""), ("misc", ""), ("damage", ""), ("total_ht", "total"), ("vat", "total"), ("total_ttc", "grand"),
              ("total_prepaid", "total"), ("balance", "grand")]
     v["pricing_lines"] = [{"label": vat_label if k == "vat" else t["pricing"][k], "cls": cls,
                            "dep": E(f.money(pd.get(k))), "fin": E(f.money(pf.get(k)))} for k, cls in lines]
@@ -351,14 +361,19 @@ def build_view(data, stage, t, f, pics):
         {"thumb": pics[p["id"]]["thumb"], "caption": t["angles"][p["angle"]], "imported": False}
         for p in dep["reference_set"]["photos"]]
     more = []
-    if not blank:
+    if not blank and dep.get("dashboard_photo"):
         more.append({"thumb": pics[dep["dashboard_photo"]["id"]]["thumb"], "caption": t["inspection"]["dashboard"], "imported": False})
-        for p in dep["extra_photos"]:
-            more.append({"thumb": pics[p["id"]]["thumb"], "caption": p["comment"], "imported": p.get("imported", False)})
     v["dep_more_photos"] = more
+
+    def origin(dmg):
+        o = dmg["found_at"]
+        key = "origin_departure" if o["stage"] == "departure" else "origin_return"
+        return fill(t["prior_damage"]["found"], date=f.date(dmg["found_on"])) + " " + fill(t["prior_damage"][key], number=o["contract"])
+
     v["open_damages"] = [] if blank else [
-        {"thumb": pics[dmg["photos"][0]["id"]]["thumb"], "comment": dmg["comment"],
-         "when": f.date(dmg["found_on"]), "extra_photos": len(dmg["photos"]) - 1}
+        {"thumb": pics[dmg["photos"][0]["id"]]["thumb"], "comment": dmg["comment"], "when": origin(dmg),
+         "extra_photos": len(dmg["photos"]) - 1,
+         "tag": t["inspection"]["found_at_departure"] if dmg["found_at"]["contract"] == c["number"] else ""}
         for dmg in dep["open_damages"]]
     v["dep_comment"] = E(dep.get("comment", ""))
     v["none_text"] = "" if blank else t["inspection"]["none"]
@@ -375,13 +390,27 @@ def build_view(data, stage, t, f, pics):
         v["fuel_in"], v["fuel_in_text"] = ret["fuel"], f.fuel(ret["fuel"])
         v["ret_check"] = {k: ret[k] for k in chk}
         v["ras"] = ret["ras"]
+        modes = {"indicative": t["inspection"]["estimate_indicative"], "billed": t["inspection"]["estimate_billed"]}
         v["new_damages"] = [
             {"thumb": pics[dmg["photos"][0]["id"]]["thumb"], "comment": dmg["comment"],
-             "when": f.datetime(dmg["photos"][0]["taken_at"]), "extra_photos": len(dmg["photos"]) - 1}
+             "when": f.datetime(dmg["photos"][0]["taken_at"]), "extra_photos": len(dmg["photos"]) - 1,
+             "estimate": f.money(dmg["estimate"]["amount"]) if dmg.get("estimate") else "",
+             "estimate_mode": modes[dmg["estimate"]["mode"]] if dmg.get("estimate") else ""}
             for dmg in ret["new_damages"]]
         v["ret_more_photos"] = [{"thumb": pics[ret["dashboard_photo"]["id"]]["thumb"],
                                  "caption": t["inspection"]["dashboard"], "imported": False}]
         v["ret_comment"] = ret.get("comment", "")
+        sig = ret["signature"]
+        if sig.get("mode") == "stored":
+            co = data["_company"]
+            v["auth"] = {
+                "intro": fill(t["authorisation"]["intro"], name=v["renter_name"], number=c["number"],
+                              vehicle=f'{veh["make_model"]} {veh["plate"]}', company=co["name"]),
+                "captured_at": f.datetime(sig["captured_at"]), "captured_by": sig["captured_by"],
+                "place": c["return_place"], "km": f.km(sig.get("km_at_capture")),
+                "fuel": f.fuel(sig.get("fuel_at_capture")), "image": "sig-return.png",
+                "signed_on": fill(t["sig"]["signed_on"], date=f.datetime(sig["captured_at"])),
+                "applied_at": f.datetime(sig["applied_at"]), "applied_by": sig["applied_by"]}
     else:
         v.update({"km_in": "", "km_driven": "", "km_included_eff": "", "km_billed": "", "fuel_in": None,
                   "fuel_in_text": "", "ret_check": {k: None for k in chk}, "ras": False, "new_damages": [],
@@ -391,25 +420,26 @@ def build_view(data, stage, t, f, pics):
 
 
 def annex_figures(data, stage, t, f, pics):
+    """Every photo at full size. In the final PDF the new damage comes first (client meeting, November 2026)."""
     if stage == "blank":
         return []
     dep, figs = data["departure"], []
     sd, sr = t["annex"]["stage_departure"], t["annex"]["stage_return"]
     kinds = t["photo_kinds"]
-    for p in dep["reference_set"]["photos"]:
-        figs.append((p["id"], f'{sd} · {kinds["reference"]} · {t["angles"][p["angle"]]}', "", dep["reference_set"]["taken_at"], False))
-    figs.append((dep["dashboard_photo"]["id"], f'{sd} · {kinds["dashboard"]}', "", dep["dashboard_photo"]["taken_at"], False))
-    for p in dep["extra_photos"]:
-        figs.append((p["id"], f'{sd} · {kinds["extra"]}', p["comment"], p["taken_at"], p.get("imported", False)))
-    for dmg in dep["open_damages"]:
-        for p in dmg["photos"]:
-            figs.append((p["id"], f'{sd} · {kinds["damage"]}', dmg["comment"], p["taken_at"], p.get("imported", False)))
     ret = data.get("return") if stage == "final" else None
     if ret:
         for dmg in ret["new_damages"]:
             for p in dmg["photos"]:
                 figs.append((p["id"], f'{sr} · {kinds["damage"]}', dmg["comment"], p["taken_at"], p.get("imported", False)))
-        figs.append((ret["dashboard_photo"]["id"], f'{sr} · {kinds["dashboard"]}', "", ret["dashboard_photo"]["taken_at"], False))
+        if ret.get("dashboard_photo"):
+            figs.append((ret["dashboard_photo"]["id"], f'{sr} · {kinds["dashboard"]}', "", ret["dashboard_photo"]["taken_at"], False))
+    for p in dep["reference_set"]["photos"]:
+        figs.append((p["id"], f'{sd} · {kinds["reference"]} · {t["angles"][p["angle"]]}', "", dep["reference_set"]["taken_at"], False))
+    if dep.get("dashboard_photo"):
+        figs.append((dep["dashboard_photo"]["id"], f'{sd} · {kinds["dashboard"]}', "", dep["dashboard_photo"]["taken_at"], False))
+    for dmg in dep["open_damages"]:
+        for p in dmg["photos"]:
+            figs.append((p["id"], f'{sd} · {kinds["damage"]}', dmg["comment"], p["taken_at"], p.get("imported", False)))
     total = len(figs)
     out = []
     for i, (pid, title, comment, taken, imported) in enumerate(figs, start=1):
@@ -430,17 +460,20 @@ def make_pictures(data, folder):
         thumb = draw_photo(full, label, kind, seed=seed, **kw)
         pics[pid] = {"full": full.name, "thumb": thumb.name}
 
+    def add_damage(dmg):
+        for p in dmg["photos"]:
+            if dmg.get("look") == "wheel":
+                add(p["id"], "wheel", "extra")
+            else:
+                add(p["id"], "damage " + dmg.get("look", "scratch"), "damage")
+
     for p in dep["reference_set"]["photos"]:
         add(p["id"], p["angle"].replace("_", " "), "reference", angle=p["angle"])
     add(dep["dashboard_photo"]["id"], "dashboard", "dashboard", km=dep["km"], fuel=dep["fuel"])
-    for p in dep["extra_photos"]:
-        add(p["id"], "extra photo", "extra")
     for dmg in dep["open_damages"]:
-        for p in dmg["photos"]:
-            add(p["id"], "damage", "damage")
+        add_damage(dmg)
     for dmg in ret["new_damages"]:
-        for p in dmg["photos"]:
-            add(p["id"], "damage glass", "damage")
+        add_damage(dmg)
     add(ret["dashboard_photo"]["id"], "dashboard", "dashboard", km=ret["km"], fuel=ret["fuel"])
     draw_signature(folder / "sig-departure.png", 3)
     draw_signature(folder / "sig-return.png", 11)
@@ -459,47 +492,46 @@ def build_pages(data, stage, t, f, pics):
 
     dep_box = box(t["sig"]["departure"]) if stage == "blank" else box(
         t["sig"]["departure"], "sig-departure.png", "", fill(t["sig"]["signed_on"], date=f.datetime(dep_sig["signed_at"])))
-    ret_box = box(t["sig"]["return"]) if not ret else box(
-        t["sig"]["return"], "sig-return.png", "", fill(t["sig"]["signed_on"], date=f.datetime(ret["signature"]["signed_at"])))
+    if not ret:
+        ret_box = box(t["sig"]["return"])
+    elif ret["signature"].get("mode") == "stored":
+        rs = ret["signature"]
+        ret_box = box(t["sig"]["return"], "sig-return.png", "",
+                      fill(t["sig"]["stored"], captured=f.datetime(rs["captured_at"]), applied=f.datetime(rs["applied_at"])))
+    else:
+        ret_box = box(t["sig"]["return"], "sig-return.png", "",
+                      fill(t["sig"]["signed_on"], date=f.datetime(ret["signature"]["signed_at"])))
 
+    def texts(*pairs):
+        return [{"title": a, "text": b} for a, b in pairs if b]
+
+    # Page 1: contract and pricing (client meeting, November 2026), so both texts sit next to the signature.
     pages = [
         {"kind": "contract", "title": t["titles"]["contract"],
-         "sigtext_title": t["contract_declaration"]["title"], "sigtext": t["contract_declaration"]["text"]},
-        {"kind": "financial", "title": t["titles"]["financial"],
-         "sigtext_title": t["acceptance"]["title"], "sigtext": t["acceptance"]["text"]},
+         "sigtexts": texts((t["contract_declaration"]["title"], t["contract_declaration"]["text"]),
+                           (t["acceptance"]["title"], t["acceptance"]["text"]))},
         {"kind": "inspection", "title": t["titles"]["inspection"],
-         "sigtext_title": t["inspection"]["declaration_title"], "sigtext": t["inspection"]["declaration"]},
+         "sigtexts": texts((t["inspection"]["declaration_title"], t["inspection"]["declaration"]))},
     ]
+    if ret and v["open_damages"]:
+        pages.append({"kind": "prior_damage", "title": t["titles"]["prior_damage"], "sigtexts": []})
+    if ret and v.get("auth"):
+        pages.append({"kind": "authorisation", "title": t["titles"]["authorisation"], "sigtexts": []})
     terms_pages = load_terms(t["lang"]) or [None]
     for html in terms_pages:
-        pages.append({"kind": "terms", "title": t["titles"]["terms"], "html": html, "sigtext_title": "",
-                      "sigtext": fill(t["terms"]["version"], v=data["terms_versions"].get(t["lang"])) if html else ""})
-    for p in pages:
-        p["sig_left"], p["sig_right"] = dep_box, ret_box
-    if stage == "final":
-        labels = t["amendment"]["fields"]
-        for a in data.get("amendments", []):
-            def show(field, val):
-                if field == "planned_return":
-                    return f.datetime(val)
-                if field == "km_included":
-                    return f.km(val)
-                return str(val)
-            av = {"at": f.datetime(a["at"]), "revision": a["revision"], "agent": a["agent"], "reason": a["reason"],
-                  "changes": [{"label": labels.get(ch["field"], ch["field"]), "before": show(ch["field"], ch["before"]),
-                               "after": show(ch["field"], ch["after"])} for ch in a["changes"]]}
-            left = box(fill(t["sig"]["amendment"], n=a["n"]), "sig-amendment.png" if a["client_signed"] else None,
-                       "" if a["client_signed"] else t["sig"]["no_client_signature"], f.datetime(a["at"]))
-            pages.append({"kind": "amendment", "title": fill(t["titles"]["amendment"], n=a["n"]), "a": av,
-                          "sigtext": "", "sig_left": left, "sig_right": ret_box})
+        pages.append({"kind": "terms", "title": t["titles"]["terms"], "html": html,
+                      "sigtexts": texts(("", fill(t["terms"]["version"], v=data["terms_versions"].get(t["lang"])) if html else ""))})
     figs = annex_figures(data, stage, t, f, pics)
     for i in range(0, len(figs), 2):
-        pages.append({"kind": "photos", "title": t["titles"]["photos"], "figures": figs[i:i + 2], "sigtext": "",
-                      "sig_left": dep_box, "sig_right": ret_box})
+        pages.append({"kind": "photos", "title": t["titles"]["photos"], "figures": figs[i:i + 2], "sigtexts": []})
+    for p in pages:
+        p["sig_left"], p["sig_right"] = dep_box, ret_box
     total = len(pages)
     for n, p in enumerate(pages, start=1):
         p["no"] = n
         p["page_label"] = fill(t["footer"]["page"], n=n, total=total)
+        if p["kind"] == "prior_damage":
+            v["prior_damage_note"] = fill(t["inspection"]["prior_damage_see_annex"], n=len(v["open_damages"]), page=n)
     return pages, v
 
 
@@ -522,12 +554,13 @@ def render(data, stage, lang, out_pdf, workdir, pics, browser):
     f = Fmt(t)
     co = data["_company"]
     pages, v = build_pages(data, stage, t, f, pics)
-    revision = "" if stage == "blank" else (max([1] + [a["revision"] for a in data.get("amendments", [])]) if stage == "final" else 1)
     stage_label = t["meta"][{"blank": "stage_blank", "departure": "stage_departure", "final": "stage_final"}[stage]]
     issued = data["generated_at"] if stage == "final" else data["departure"]["signature"]["signed_at"]
+    if stage == "final" and data["return"]["signature"].get("mode") == "stored":
+        issued = data["return"]["signature"]["applied_at"]
     terms_v = data["terms_versions"].get(lang)
     terms_label = terms_v if terms_v and load_terms(lang) else t["footer"]["terms_none"]
-    doc = {"number": "" if stage == "blank" else data["contract"]["number"], "revision": revision,
+    doc = {"number": "" if stage == "blank" else data["contract"]["number"],
            "stage_label": stage_label, "specimen": True,
            "generated": "" if stage == "blank" else fill(t["footer"]["generated"], date=f.datetime(issued),
                                                           tpl=data["template_version"], terms=terms_label)}
@@ -556,12 +589,17 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
         pics = make_pictures(data, work)
-        jobs = [("final", "fr", "specimen-final-fr.pdf"), ("final", "en", "specimen-final-en.pdf"),
-                ("departure", "fr", "specimen-depart-fr.pdf"), ("blank", "fr", "modele-vierge-fr.pdf")]
+        jobs = [("final", "fr", "specimen-final-fr.pdf", None), ("final", "en", "specimen-final-en.pdf", None),
+                ("final", "fr", "specimen-final-signature-enregistree-fr.pdf", "stored_signature"),
+                ("departure", "fr", "specimen-depart-fr.pdf", None), ("blank", "fr", "modele-vierge-fr.pdf", None)]
         with sync_playwright() as p:
             browser = p.chromium.launch()
-            for stage, lang, name in jobs:
-                n = render(copy.deepcopy(data), stage, lang, SAMPLES / name, work, pics, browser)
+            for stage, lang, name, variant in jobs:
+                case = copy.deepcopy(data)
+                if variant:
+                    # The same rental, finished after the client left: the Retour signature is the stored one.
+                    case["return"]["signature"] = case.pop("variants")[variant]
+                n = render(case, stage, lang, SAMPLES / name, work, pics, browser)
                 print(f"{name}: {n} pages")
             browser.close()
         if keep_html:

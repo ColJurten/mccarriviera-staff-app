@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-02) | Developer, with the client's answers | B-09 · brief (Retour, maintenance) · F-10, R-02 (answered) · defaults for B-09 Q1, R-10, R-14 |
+| **Superseded by ADR-0024** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | B-09 · brief (Retour, maintenance) · F-10, R-02 (answered) · defaults for B-09 Q1, R-10, R-14 |
 
 ## Context
 
@@ -69,16 +69,8 @@ A damage dispute shows the reference photos are not enough evidence.
 
 - 2026-10-09: F-10 answered: interior and dashboard photos are optional, and the reference set has 8 required exterior angles. `INTERPRETATION`: « the inside of the car » covers both the interior angle and the dashboard photo.
 - 2026-11-02: R-02 answered (all model-template fields kept): the car papers / clean inside / clean outside / GPS checklist is recorded at each handover.
+- 2026-11-10: **superseded by [ADR-0024](0024-vehicle-condition-four-angles-estimates.md)** after the client meeting: four required reference angles (F-23), damage recorded at the Départ (F-25), estimates on new damage (F-24).
 
 ## Implemented by
 
-- [US-006](../stories/US-006-core-database-schema-and-storage.md): Create the core database schema, access rules and storage
-- [US-022](../stories/US-022-add-a-vehicle.md): Add a vehicle with its reference photos
-- [US-023](../stories/US-023-vehicle-detail.md): Vehicle detail
-- [US-026](../stories/US-026-guided-reference-photo-capture.md): Guided reference photo capture
-- [US-050](../stories/US-050-start-a-depart.md): Start a Départ by choosing an available vehicle
-- [US-053](../stories/US-053-confirm-departure-condition.md): Confirm the departure condition
-- [US-072](../stories/US-072-return-inspection.md): Inspect the vehicle: new damage or RAS
-- [US-080](../stories/US-080-put-a-vehicle-into-maintenance.md): Put a vehicle into maintenance
-- [US-081](../stories/US-081-finish-routine-maintenance.md): Finish a routine maintenance
-- [US-082](../stories/US-082-finish-a-damage-repair.md): Finish a damage repair and refresh the reference photos
+- Nothing: superseded by ADR-0024.

@@ -1,5 +1,5 @@
 @startuml 11-sequence-depart
-' UML sequence diagram: a Départ, from choosing the car to sharing the sealed PDF (US-050 to US-057, US-044).
+' UML sequence diagram: a Départ, from choosing the car to sharing the sealed PDF (US-050 to US-058, US-044).
 !include style.iuml
 hide footbox
 autonumber "<b>0."
@@ -9,46 +9,45 @@ actor "Client" as client
 participant "App\n(iPhone)" as app
 participant "API +\nPostgreSQL" as api
 participant "Storage" as st
-participant "Documenso" as doc
 
 == Vehicle, client, details · US-050 to US-052 ==
-staff -> app : « Départ », car, renter (+ driver), dates, rates,\ndeductible, card (brand, last 4, expiry), typed amounts
+staff -> app : « Départ », car, renter (+ driver), dates, rates,\ndeductible, deposit, card (brand, last 4, expiry), typed amounts
 app -> api : draft saved as it is typed
 api --> app : car data, reference set, open damage, photo links (≤ 5 min)
 
 == Departure condition · US-053 ==
 staff -> app : km out, fuel out (pre-filled, adjustable)
-opt extra or dashboard photos
+opt dashboard photo, or damage found at the Départ (F-25)
   app -> api : ask for upload links
   app -> st : upload (new keys, insert-only)
+  app -> api : damage record « constaté au départ »
 end
 
 == Preview · US-044, US-055 ==
 staff -> app : recap complete, choose FR or EN
 app -> api : preview
 api -> api : check the car is free · contract « En attente de signature »\nreserve MCR-YYYY-NNNN (F-18) · render the PDF (Chromium)
-api -> doc : create the envelope: client, a field\nin « Signature départ » on every page, no e-mails
+api -> st : store the preview, SHA-256
 api --> app : preview PDF
-opt language switched (until the client signs)
-  app -> api : preview in the other language
-  api -> doc : delete the waiting envelope, create a new one
+opt language switched, or the client disagrees (F-26, US-058)
+  staff -> app : other language, new damage or photos, corrected values
+  app -> api : new preview
+  api -> st : store the new preview (same number); the old one is never signed
 end
 
 == Signature · US-054, US-057 ==
-app -> client : Documenso's signing page, in a private web view
-client -> doc : reads, draws once: every page signed (F-17)
-doc -> doc : append the audit page · seal the whole PDF\nwith the company certificate
-doc -> api : webhook: document completed (shared secret)
+app -> client : full-screen signature pad
+client -> app : draws once (F-17)
+app -> api : drawing (PNG + strokes) · preview ID + SHA-256
 activate api #F6EFDC
-api -> doc : download the sealed PDF · read back the signature image
-api -> st : store the sealed PDF and the image, with SHA-256
+api -> api : check it is the current preview\nstamp the drawing in « Signature départ » on every page\nappend the signature certificate page\nPAdES seal, company certificate + timestamp
+api -> st : store the sealed PDF and the drawing, with SHA-256
 api -> api : one transaction (sign_departure):\nrevision 1 frozen + snapshot SHA-256 · inspection\nsignature evidence · contract active · car rented · audit
-deactivate api
-app -> api : status?
 api --> app : signed · contract number
+deactivate api
 
 == Delivery · US-042 ==
 app -> st : download the sealed PDF (presigned link)
 app -> staff : iOS share sheet
-note over app, doc : No webhook yet? The status check makes the API ask Documenso.\nRepeated webhooks and retries are idempotent: never two contracts.
+note over app, st : Retries are idempotent: the same drawing for the same preview\nreturns the first result, never two contracts.
 @enduml

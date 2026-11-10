@@ -5,7 +5,7 @@
 | E8 · Maintenance | Must | P5 | S | To do |
 
 - **Depends on:** [US-023](US-023-vehicle-detail.md) · [US-074](US-074-client-signs-the-retour.md)
-- **Decisions:** [ADR-0008](../adr/0008-vehicle-condition-model.md) · [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)
+- **Decisions:** [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) · [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)
 - **Open points:** R-14 (see [open questions](../discovery/open-questions.md))
 
 ## Story

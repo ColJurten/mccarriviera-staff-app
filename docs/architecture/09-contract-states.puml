@@ -15,22 +15,22 @@ Draft --> [*] : discarded (no number yet)\n/ draft deleted, audited
 state "Awaiting signature" as Awaiting
 Awaiting : « En attente de signature »
 Awaiting : number reserved · vehicle held
-Awaiting : values or language can change
+Awaiting : values, photos, damage or language\ncan change: new preview, same number (F-26)
 Draft --> Awaiting : preview created\n/ number MCR-YYYY-NNNN reserved (F-18)
-Awaiting --> Active : client signs in Documenso\n/ revision 1 frozen\n/ vehicle → rented
+Awaiting --> Active : client draws once in the app\n/ PDF stamped and sealed\n/ revision 1 frozen\n/ vehicle → rented
 Awaiting --> Void : never signed\n« Annulé avant signature »\n/ number kept, vehicle free
 
 state Active {
   state "On rental" as OnRental
   state "Retour in progress" as ReturnInProgress
   [*] --> OnRental
-  OnRental --> OnRental : amendment\n/ new revision, own signature\nor « sans signature du client »
+  OnRental --> OnRental : amendment\n/ new revision, recorded in the app,\nnot printed (F-22)
   OnRental --> ReturnInProgress : Retour started
   ReturnInProgress : saved as it is typed
-  ReturnInProgress : client absent → « en attente de signature »
+  ReturnInProgress : client absent → « en attente de signature »\n  ReturnInProgress : can change before the signature (F-26)\n  ReturnInProgress : stored signature waiting, if switched on (F-28)
 }
 
-ReturnInProgress --> Closed : client signs the Retour\n(mandatory, F-04)\n/ vehicle → available
+ReturnInProgress --> Closed : client signs the Retour (mandatory, F-04)\nor staff apply the stored signature (F-28)\n/ vehicle → available
 OnRental --> Void : voided before any Retour,\nwith a reason\n/ vehicle → available
 
 state Closed

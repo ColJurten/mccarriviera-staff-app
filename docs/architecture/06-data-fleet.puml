@@ -40,8 +40,9 @@ class ConditionBaseline <<table: condition_baselines>> {
 class Photo <<table: photos>> {
   id : uuid
   baseline_id | damage_id | inspection_id : uuid {exactly one}
-  kind : reference | damage | extra | dashboard
-  angle : 8 exterior angles | interior [0..1]
+  kind : reference | damage | dashboard
+  angle : front | rear | left | right (required)
+    | 4 corners | interior (optional) [0..1]
   storage_path, sha256 : text
   size_bytes : integer
   imported : boolean {« importée »: picked from the library}
@@ -56,8 +57,14 @@ class Damage <<table: damages>> {
   vehicle_id : uuid
   comment : text {at least one photo}
   status : open | repaired {SQL functions only}
+  found_stage : departure | return | vehicle_file
   found_in_inspection_id : uuid [0..1]
+  {field} estimate_amount : numeric(10,2) [0..1] {Retour only}
+  estimate_mode : indicative | billed [0..1]
   repaired_in_maintenance_id : uuid [0..1]
+  --
+  {estimate editable only while its Retour
+  waits for the signature (F-24, F-26)}
   repaired_on : date [0..1]
 }
 
@@ -73,7 +80,7 @@ class MaintenanceRecord <<table: maintenance_records>> {
 
 Vehicle "1" *-- "0..*" ConditionBaseline : history
 Vehicle "0..*" --> "0..1" ConditionBaseline : current
-ConditionBaseline "1" *-- "8..9" Photo : 8 exterior angles\n+ optional interior
+ConditionBaseline "1" *-- "4..9" Photo : 4 required angles\n+ optional corners, interior
 Vehicle "1" *-- "0..*" Damage
 Damage "1" *-- "1..*" Photo
 Vehicle "1" *-- "0..*" MaintenanceRecord

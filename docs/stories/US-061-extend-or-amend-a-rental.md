@@ -5,8 +5,8 @@
 | E6 · Active rentals | Must | P4 | M | To do |
 
 - **Depends on:** [US-060](US-060-active-rentals.md) · [US-007](US-007-audit-trail-and-immutability.md)
-- **Decisions:** [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0020](../adr/0020-signatures-with-documenso.md)
-- **Open points:** R-11 (see [open questions](../discovery/open-questions.md))
+- **Decisions:** [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)
+- **Open points:** R-11, F-22 (see [open questions](../discovery/open-questions.md))
 
 ## Story
 
@@ -18,10 +18,9 @@ As a staff member, I want to extend a rental or correct the terms that may chang
 - [ ] Fields that can change (default for R-11): planned return date and time, return place, additional driver, km included, « Conditions & tarifs », pricing lines, intermediary.
 - [ ] Fields that stay locked: renter, vehicle, departure date and time, and the departure km, fuel and condition.
 - [ ] A reason is required, for example « Prolongation demandée par téléphone le … ».
-- [ ] If the client is present, they sign the amendment PDF in Documenso ([US-044](US-044-sign-in-documenso-from-the-app.md)). If not, staff confirm « sans signature du client » (default for R-11).
 - [ ] Earlier revisions stay readable. The contract screen shows the revision history: who, when, why, and what changed.
 - [ ] One SQL function, called by the API, saves the amendment. It accepts it only for an active contract whose latest revision number matches what the staff member was editing, so two people can't overwrite each other.
-- [ ] After saving, the amendment PDF is generated ([US-064](US-064-amendment-pages-in-the-pdf.md)).
+- [ ] No amendment PDF is generated, and the client doesn't sign the change in the app (F-22, `INTERPRETATION`). The change shows in the final statement at the Retour ([US-073](US-073-return-pricing-lines.md)).
 
 ## Notes
 

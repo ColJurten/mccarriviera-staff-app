@@ -18,7 +18,7 @@ As a staff member, I want to complete the rental terms with sensible defaults, s
   - the departure date and time default to now and can be edited;
   - the planned return date is required, and its time is optional;
   - the pick-up place and the return place are optional free text (the pick-up place comes from the model template, R-02).
-- [ ] From the model template (R-02), all optional: the number of days (typed, F-06), flight or train, services included (free text), the security deposit amount and additional information.
+- [ ] From the model template (R-02), all optional: the number of days (typed, F-06), flight or train, the security deposit amount and additional information. « Services inclus » was dropped by F-22.
 - [ ] Intermediary: free text, defaulting to « MC CAR RIVIERA », with an optional phone (default for R-08).
 - [ ] « Conditions & tarifs », all optional and typed by staff: daily rate for 1–3 days, daily rate for 4–7 days, extra day, km included, package price with its number of days, a second extra day (the form has two « Jours sup » rows, B-05), price per extra km.
 - [ ] Deductible: card brand (VISA, AMEX, AUTRE), theft amount and at-fault accident amount. All are optional, with a warning if empty, since CGV Art. 5-4 refers to them (default for R-07).

@@ -1,7 +1,10 @@
 {
   "_comment": "Synthetic specimen data: invented people, invented numbers, placeholder photos and signatures drawn by build.py. Never put real client data here. Phone numbers use the ranges reserved for fiction; e-mails use example.com.",
-  "template_version": "v1",
-  "terms_versions": {"fr": "FR v1", "en": null},
+  "template_version": "v2",
+  "terms_versions": {
+    "fr": "FR v1",
+    "en": null
+  },
   "contract": {
     "number": "MCR-2026-0042",
     "pickup_place": "Agence MC Car Riviera, Juan-les-Pins",
@@ -12,91 +15,259 @@
     "flight_train": "AF 7712",
     "intermediary": "MC CAR RIVIERA",
     "intermediary_phone": "+33 6 39 98 10 20",
-    "services_included": "Assurance tous risques avec la franchise ci-dessous · assistance 24 h/24",
     "deposit": 5000,
     "rates": {
-      "rate_1_3": 450, "rate_4_7": 400, "extra_day_1": 400, "km_included": 800,
-      "package_price": 1600, "package_days": 4, "extra_day_2": 400, "extra_km": 2.5
+      "rate_1_3": 450,
+      "rate_4_7": 400,
+      "extra_day_1": 400,
+      "km_included": 800,
+      "package_price": 1600,
+      "package_days": 4,
+      "extra_day_2": 400,
+      "extra_km": 2.5
     },
-    "deductible": { "card_brand": "visa", "theft": 8000, "accident": 5000 },
-    "payment": { "method": "card", "card_brand": "visa", "last4": "4242", "expiry": "08/28" },
+    "deductible": {
+      "card_brand": "visa",
+      "theft": 8000,
+      "accident": 5000
+    },
+    "payment": {
+      "method": "card",
+      "card_brand": "visa",
+      "last4": "4242",
+      "expiry": "08/28"
+    },
     "pricing_departure": {
-      "rental": 1600, "rental_total_ht": 1333.33,
-      "total_ht": 1333.33, "vat": 266.67, "total_ttc": 1600, "total_prepaid": 1600, "balance": 0
+      "rental": 1600,
+      "rental_total_ht": 1333.33,
+      "total_ht": 1333.33,
+      "vat": 266.67,
+      "total_ttc": 1600,
+      "total_prepaid": 1600,
+      "balance": 0
     },
     "pricing_final": {
-      "rental": 1600, "extra_days": 800, "extra_km": 80, "rental_total_ht": 2066.67,
-      "fuel": 45, "total_ht": 2104.17, "vat": 420.83, "total_ttc": 2525, "total_prepaid": 1600, "balance": 925
+      "rental": 1600,
+      "extra_days": 800,
+      "extra_km": 80,
+      "rental_total_ht": 2066.67,
+      "fuel": 45,
+      "damage": 180,
+      "total_ht": 2254.17,
+      "vat": 450.83,
+      "total_ttc": 2705,
+      "total_prepaid": 1600,
+      "balance": 1105
     }
   },
   "renter": {
-    "civility": "m", "first_name": "Julien", "last_name": "MARCHETTI",
-    "birth_date": "1986-04-17", "birth_place": "Lyon (France)",
-    "email": "julien.marchetti@example.com", "phone": "+33 6 39 98 12 34",
-    "street": "14 rue de l'Exemple, 2e étage", "postcode": "69002", "city": "Lyon", "state": "", "country": "France",
-    "local_address": "Résidence Les Pins, 3 avenue du Spécimen, 06160 Juan-les-Pins", "local_phone": "+33 1 99 00 12 34",
-    "id_doc_type": "id_card", "id_doc_number": "XZ0012345", "id_doc_country": "France",
-    "id_doc_issued": "2019-03-10", "id_doc_expires": "2029-03-10",
-    "licence_number": "12AB34567", "licence_issued": "2006-09-01", "licence_expires": "2033-01-19",
+    "civility": "m",
+    "first_name": "Julien",
+    "last_name": "MARCHETTI",
+    "birth_date": "1986-04-17",
+    "birth_place": "Lyon (France)",
+    "email": "julien.marchetti@example.com",
+    "phone": "+33 6 39 98 12 34",
+    "street": "14 rue de l'Exemple, 2e étage",
+    "postcode": "69002",
+    "city": "Lyon",
+    "state": "",
+    "country": "France",
+    "local_address": "Résidence Les Pins, 3 avenue du Spécimen, 06160 Juan-les-Pins",
+    "local_phone": "+33 1 99 00 12 34",
+    "id_doc_type": "id_card",
+    "id_doc_number": "XZ0012345",
+    "id_doc_country": "France",
+    "id_doc_issued": "2019-03-10",
+    "id_doc_expires": "2029-03-10",
+    "licence_number": "12AB34567",
+    "licence_issued": "2006-09-01",
+    "licence_expires": "2033-01-19",
     "additional_info": "Arrivée en train, livraison du véhicule à l'agence"
   },
   "additional_driver": {
-    "civility": "mme", "first_name": "Claire", "last_name": "MARCHETTI",
-    "birth_date": "1988-11-02", "licence_number": "15CD98765"
+    "civility": "mme",
+    "first_name": "Claire",
+    "last_name": "MARCHETTI",
+    "birth_date": "1988-11-02",
+    "licence_number": "15CD98765"
   },
   "vehicle": {
-    "make_model": "Porsche 911 Carrera S", "plate": "AA-123-AA", "colour": "Noir", "fuel_type": "unleaded_98"
+    "make_model": "Porsche 911 Carrera S",
+    "plate": "AA-123-AA",
+    "colour": "Noir",
+    "fuel_type": "unleaded_98"
   },
   "departure": {
-    "at": "2026-11-02T10:42", "agent": "Sofia R.",
-    "km": 12480, "fuel": 8,
-    "car_papers": true, "clean_inside": true, "clean_outside": true, "gps": true,
+    "at": "2026-11-02T10:42",
+    "agent": "Sofia R.",
+    "km": 12480,
+    "fuel": 8,
+    "car_papers": true,
+    "clean_inside": true,
+    "clean_outside": true,
+    "gps": true,
     "reference_set": {
       "taken_at": "2026-10-20T09:15",
       "photos": [
-        { "id": "ref-front", "angle": "front" }, { "id": "ref-front_left", "angle": "front_left" },
-        { "id": "ref-left", "angle": "left" }, { "id": "ref-rear_left", "angle": "rear_left" },
-        { "id": "ref-rear", "angle": "rear" }, { "id": "ref-rear_right", "angle": "rear_right" },
-        { "id": "ref-right", "angle": "right" }, { "id": "ref-front_right", "angle": "front_right" },
-        { "id": "ref-interior", "angle": "interior" }
+        {
+          "id": "ref-front",
+          "angle": "front"
+        },
+        {
+          "id": "ref-rear",
+          "angle": "rear"
+        },
+        {
+          "id": "ref-left",
+          "angle": "left"
+        },
+        {
+          "id": "ref-right",
+          "angle": "right"
+        },
+        {
+          "id": "ref-interior",
+          "angle": "interior",
+          "optional": true
+        }
       ]
     },
-    "dashboard_photo": { "id": "dash-dep", "taken_at": "2026-11-02T10:36" },
-    "extra_photos": [
-      { "id": "extra-1", "taken_at": "2026-11-02T10:38", "imported": false,
-        "comment": "Jante avant droite : légère trace de frottement, déjà présente" }
-    ],
+    "dashboard_photo": {
+      "id": "dash-dep",
+      "taken_at": "2026-11-02T10:36"
+    },
     "open_damages": [
-      { "id": "dmg-old-1", "found_on": "2026-10-14", "comment": "Rayure de 3 cm sur le pare-chocs arrière gauche",
-        "photos": [ { "id": "dmg-old-1-a", "taken_at": "2026-10-14T17:05" } ] }
+      {
+        "id": "dmg-old-1",
+        "found_on": "2026-10-14",
+        "found_at": {
+          "stage": "return",
+          "contract": "MCR-2026-0031"
+        },
+        "comment": "Rayure de 3 cm sur le pare-chocs arrière gauche",
+        "look": "scratch",
+        "photos": [
+          {
+            "id": "dmg-old-1-a",
+            "taken_at": "2026-10-14T17:05"
+          }
+        ]
+      },
+      {
+        "id": "dmg-dep-1",
+        "found_on": "2026-11-02",
+        "found_at": {
+          "stage": "departure",
+          "contract": "MCR-2026-0042"
+        },
+        "comment": "Jante avant droite : légère trace de frottement, signalée par le client avant la signature",
+        "look": "wheel",
+        "photos": [
+          {
+            "id": "dmg-dep-1-a",
+            "taken_at": "2026-11-02T10:38"
+          }
+        ]
+      }
     ],
     "comment": "",
-    "signature": { "id": "sig-departure", "signed_at": "2026-11-02T10:44" }
+    "signature": {
+      "id": "sig-departure",
+      "signed_at": "2026-11-02T10:44"
+    }
   },
   "amendments": [
     {
-      "n": 1, "revision": 2, "at": "2026-11-05T14:10", "agent": "Sofia R.",
+      "n": 1,
+      "revision": 2,
+      "at": "2026-11-05T14:10",
+      "agent": "Sofia R.",
       "reason": "Prolongation demandée par le client par téléphone",
       "changes": [
-        { "field": "planned_return", "before": "2026-11-06T18:00", "after": "2026-11-08T18:00" },
-        { "field": "rental_days", "before": 4, "after": 6 }
+        {
+          "field": "planned_return",
+          "before": "2026-11-06T18:00",
+          "after": "2026-11-08T18:00"
+        },
+        {
+          "field": "rental_days",
+          "before": 4,
+          "after": 6
+        }
       ],
-      "client_signed": false
+      "_comment": "Recorded in the app as revision 2; not printed as a page (client meeting, November 2026). Its effect shows in the final statement."
     }
   ],
   "return": {
-    "at": "2026-11-08T17:40", "agent": "Marc D.",
-    "km": 13312, "fuel": 6,
-    "car_papers": true, "clean_inside": false, "clean_outside": true, "gps": true,
+    "at": "2026-11-08T17:40",
+    "agent": "Marc D.",
+    "km": 13312,
+    "fuel": 6,
+    "car_papers": true,
+    "clean_inside": false,
+    "clean_outside": true,
+    "gps": true,
     "ras": false,
     "new_damages": [
-      { "id": "dmg-new-1", "comment": "Éclat sur le pare-brise, côté passager",
-        "photos": [ { "id": "dmg-new-1-a", "taken_at": "2026-11-08T17:46" },
-                    { "id": "dmg-new-1-b", "taken_at": "2026-11-08T17:47", "imported": true } ] }
+      {
+        "id": "dmg-new-1",
+        "comment": "Éclat sur le pare-brise, côté passager",
+        "look": "glass",
+        "estimate": {
+          "amount": 350,
+          "mode": "indicative"
+        },
+        "photos": [
+          {
+            "id": "dmg-new-1-a",
+            "taken_at": "2026-11-08T17:46"
+          },
+          {
+            "id": "dmg-new-1-b",
+            "taken_at": "2026-11-08T17:47",
+            "imported": true
+          }
+        ]
+      },
+      {
+        "id": "dmg-new-2",
+        "comment": "Jante arrière droite : rayure de 6 cm",
+        "look": "wheel",
+        "estimate": {
+          "amount": 180,
+          "mode": "billed"
+        },
+        "photos": [
+          {
+            "id": "dmg-new-2-a",
+            "taken_at": "2026-11-08T17:49"
+          }
+        ]
+      }
     ],
-    "dashboard_photo": { "id": "dash-ret", "taken_at": "2026-11-08T17:43" },
+    "dashboard_photo": {
+      "id": "dash-ret",
+      "taken_at": "2026-11-08T17:43"
+    },
     "comment": "Sable dans l'habitacle.",
-    "signature": { "id": "sig-return", "signed_at": "2026-11-08T17:58" }
+    "signature": {
+      "id": "sig-return",
+      "mode": "in_person",
+      "signed_at": "2026-11-08T17:58"
+    }
   },
-  "generated_at": "2026-11-08T18:05"
+  "generated_at": "2026-11-08T18:05",
+  "variants": {
+    "stored_signature": {
+      "id": "sig-return",
+      "mode": "stored",
+      "captured_at": "2026-11-08T17:44",
+      "captured_by": "Marc D.",
+      "km_at_capture": 13312,
+      "fuel_at_capture": 6,
+      "applied_at": "2026-11-09T09:20",
+      "applied_by": "Marc D."
+    }
+  }
 }

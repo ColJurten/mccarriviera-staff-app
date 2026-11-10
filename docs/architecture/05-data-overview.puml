@@ -1,5 +1,5 @@
 @startuml 05-data-overview
-' UML class diagram, overview: the 17 tables and how they relate. Fields, and the links of a departure
+' UML class diagram, overview: the 18 tables and how they relate. Fields, and the links of a departure
 ' inspection to the reference set and the open damage, are on the detail diagrams (06 to 08).
 ' Working names from US-006; the migrations are the reference once they exist.
 !include style.iuml
@@ -27,11 +27,12 @@ package "Contracts and evidence" #FBFAF6 {
   class ContractDriver as "Contract driver"
   class Inspection
   class Signature
+  class StoredSignature as "Stored Retour signature\n(F-28, when switched on)"
   class ContractDocument as "Contract document\n(generated PDF)"
 }
 
 package "Shared" #F8F9FB {
-  class TermsVersion as "Terms version\n(general terms FR / EN)"
+  class TermsVersion as "Terms version\n(general terms and the\nRetour authorisation, FR / EN)"
   class StaffProfile as "Staff profile"
   class AuditEvent as "Audit event"
   class ContractNumberCounter as "Contract number counter"
@@ -39,7 +40,7 @@ package "Shared" #F8F9FB {
 
 Vehicle "1" *-- "0..*" ConditionBaseline
 Vehicle "0..*" --> "0..1" ConditionBaseline : current >
-ConditionBaseline "1" *-- "8..9" Photo
+ConditionBaseline "1" *-- "4..9" Photo
 Vehicle "1" *-- "0..*" Damage
 Damage "1" *-- "1..*" Photo
 Vehicle "1" *-- "0..*" MaintenanceRecord
@@ -52,9 +53,11 @@ Contract "1" *-- "1..*" ContractRevision
 Contract "1" *-- "1..2" ContractDriver
 ContractDriver "0..*" --> "1" Client
 Contract "1" *-- "0..2" Inspection
-Inspection "0..1" -- "0..*" Damage : finds >
+Inspection "0..1" -- "0..*" Damage : finds (Départ or Retour) >
 Inspection "1" *-- "0..*" Photo
 Contract "1" *-- "0..*" Signature
+Contract "1" *-- "0..1" StoredSignature
+Signature "0..1" --> "0..1" StoredSignature : applies >
 Contract "1" *-- "0..*" ContractDocument
 ContractRevision "0..*" --> "1..2" TermsVersion : printed with >
 Contract ..> ContractNumberCounter : number from >

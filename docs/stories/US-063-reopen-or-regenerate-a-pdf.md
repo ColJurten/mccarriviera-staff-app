@@ -5,7 +5,7 @@
 | E6 · Active rentals | Should | P4 | S | To do |
 
 - **Depends on:** [US-042](US-042-archive-and-share-pdfs.md) · [US-055](US-055-departure-pdf.md)
-- **Decisions:** [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0011](../adr/0011-localisation.md) · [ADR-0020](../adr/0020-signatures-with-documenso.md)
+- **Decisions:** [ADR-0010](../adr/0010-contract-pdf-generation.md) · [ADR-0011](../adr/0011-localisation.md) · [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)
 - **Open points:** R-17, L-01 (see [open questions](../discovery/open-questions.md))
 
 ## Story

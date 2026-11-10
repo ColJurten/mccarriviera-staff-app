@@ -5,7 +5,7 @@
 | E5 · Départ | Must | P3 | M | To do |
 
 - **Depends on:** [US-007](US-007-audit-trail-and-immutability.md) · [US-041](US-041-general-terms-per-language.md)
-- **Decisions:** [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0020](../adr/0020-signatures-with-documenso.md) · [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)
+- **Decisions:** [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) · [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)
 - **Open points:** R-09 (see [open questions](../discovery/open-questions.md))
 
 ## Story
@@ -14,18 +14,18 @@ As the company, I want signing a Départ to happen in one server-side transactio
 
 ## Acceptance criteria
 
-- [ ] When the sealed departure PDF is stored ([US-044](US-044-sign-in-documenso-from-the-app.md)), the API calls one SQL function that does everything in a single transaction:
+- [ ] When the sealed departure PDF is stored ([US-044](US-044-client-signs-in-the-app.md)), the API calls one SQL function that does everything in a single transaction:
   - checks the draft is complete and the vehicle is available;
   - confirms the contract number `MCR-YYYY-NNNN` reserved at the preview (default for R-09, F-18);
   - freezes revision 1, with the full snapshot of client and vehicle values, the IDs of the terms versions in force, and the SHA-256 of the snapshot;
   - stores the departure inspection;
-  - stores the signature evidence record (Documenso's envelope and signer IDs, the sealed PDF's path and SHA-256, server time, staff user, device model, iOS and app versions);
+  - stores the signature evidence record (the drawing's path and SHA-256, the preview's and the sealed PDF's SHA-256, server time, staff user, device model, operating-system and app versions, IP address, signing mode);
   - sets the contract to `active` and the vehicle to `rented`;
   - writes the audit events.
 - [ ] If the vehicle is no longer available, or the sealed PDF isn't stored, the function fails and nothing changes.
-- [ ] Calling it again for the same envelope returns the first result, instead of signing twice.
-- [ ] Database tests cover: success; two signings at once on the same vehicle (one wins); a repeated webhook; a missing sealed PDF.
+- [ ] Calling it again for the same preview returns the first result, instead of signing twice.
+- [ ] Database tests cover: success; two signings at once on the same vehicle (one wins); a repeated signing request; a missing sealed PDF.
 
 ## Notes
 
-- The PDF the client signs must already carry the contract number, since a sealed PDF can't change. The API therefore reserves the number when it creates the envelope, and this function confirms it. A language switch keeps the same number. A contract never signed keeps its number as « Annulé avant signature », so the numbering has no gaps (F-18, answered 2026-11-03).
+- The PDF the client signs must already carry the contract number, since a sealed PDF can't change. The API therefore reserves the number when it stores the first preview, and this function confirms it. A change before the signature (F-26) also keeps the same number. A language switch keeps the same number. A contract never signed keeps its number as « Annulé avant signature », so the numbering has no gaps (F-18, answered 2026-11-03).

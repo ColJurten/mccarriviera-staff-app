@@ -72,7 +72,9 @@ private storage access without real credentials or customer data.
 With the PDF story, render synthetic FR/EN contract cases using the server's
 Chromium renderer and pinned fonts/version. Check explicit A4 pages, overflow,
 long fields, accents, photo annexes and signature placement. Compare snapshots
-for departure, return and amendment pages; review intentional visual changes.
+for the departure and final PDFs, with and without a stored Retour signature;
+review intentional visual changes. Render page 1 with every field at its
+maximum length.
 Verify the repeated departure signature never appears beside values it does not
 cover. Keep the existing documentation template assets intact until their
 implementation story. See [ADR-0010](adr/0010-contract-pdf-generation.md).
@@ -102,8 +104,9 @@ As the features become available, verify:
 - Camera, photo capture, document selection and uploads with permissions both
   granted and denied; no unnecessary local copies remain.
 - PDF preview in FR/EN, zoom, page layout and photo annexes on the small screen.
-- Documenso opens correctly, one drawn signature fills the required pages,
-  mandatory departure/return signing completes, and cancellation resumes safely.
+- The signature pad works in portrait and landscape, one drawing fills every
+  page, mandatory departure/return signing completes, and cancellation resumes
+  safely. A change before signing produces a new preview, and only it can be signed.
 - Sealed PDF retrieval and the native share sheet, including cancel and retry.
 - Network loss, recovery and duplicate taps without duplicate state changes;
   the app explains its online-only requirement.

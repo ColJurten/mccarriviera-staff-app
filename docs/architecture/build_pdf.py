@@ -20,7 +20,7 @@ import tempfile
 HERE = pathlib.Path(__file__).resolve().parent
 SVG_DIR = HERE / "svg"
 OUT = HERE / "architecture.pdf"
-VERSION = "Version 1.3 · 3 November 2026"
+VERSION = "Version 1.4 · 10 November 2026"
 DOC = "MC Car Riviera staff app · planned architecture"
 
 # ---------------------------------------------------------------- page content
@@ -49,12 +49,12 @@ PAGES = [
         "legend": ACCOUNTS_NO_OPTION,
         "notes": [
             "The same app runs on the iPhones and, as a web app, on the staff laptops and the agency computer (F-19). No local database and no offline mode; only PDFs to share sit in the iPhone's cache, for 7 days at most.",
-            "Every call goes over HTTPS to the developer's own API at Scaleway, in Paris, at mcr.developerworkshop.online. The app holds only its session (Keychain on the iPhone, a protected cookie on the web), never a database password, a storage key or Documenso's token.",
-            "The client signs on Documenso's page, opened in a private web view. Documenso seals the PDF and tells the API, which stores it and closes the step in one transaction.",
+            "Every call goes over HTTPS to the developer's own API at Scaleway, in Paris, at mcr.developerworkshop.online. The app holds only its session (Keychain on the iPhone, a protected cookie on the web), never a database password, a storage key or the signing certificate.",
+            "The client draws once on a pad in the app. The API stamps the drawing on every page, seals the PDF with the company certificate and a timestamp, stores it, and closes the step in one transaction (ADR-0023).",
             "Files are private. The app reaches them through presigned links, issued by the API, that expire within 5 minutes.",
-            "A nightly job on the server copies both databases and the new files, encrypted, to a second EU provider. Its key can't delete anything there.",
+            "A nightly job on the server copies the database and the new files, encrypted, to a second EU provider. Its key can't delete anything there.",
         ],
-        "refs": "ADR-0005 · ADR-0012 · ADR-0013 · ADR-0014 · ADR-0015 · ADR-0017 · ADR-0019 · ADR-0020",
+        "refs": "ADR-0005 · ADR-0012 · ADR-0013 · ADR-0014 · ADR-0015 · ADR-0017 · ADR-0019 · ADR-0023",
     },
     {
         "uml": "deployment",
@@ -80,38 +80,38 @@ PAGES = [
         "notes": [
             "One codebase for the iPhone and the web (F-19). Screens are in French, built with translation keys so English can be added later.",
             "Server data is kept in memory only (TanStack Query, no persister). Forms are checked with zod before anything is sent.",
-            "The app renders no PDF and has no signature pad: it shows the API's preview, with a French / English switch, then opens Documenso's signing page in a private web view.",
+            "The app renders no PDF: it shows the API's preview, with a French / English switch, then a full-screen signature pad. The drawing goes to the API with the preview's hash and isn't kept on the device.",
             "Photos are resized and stripped of their location before upload. The session token is in the Keychain. Crash reports carry no personal data.",
         ],
-        "refs": "ADR-0002 · ADR-0010 · ADR-0011 · ADR-0012 · ADR-0013 · ADR-0017 · ADR-0020",
+        "refs": "ADR-0002 · ADR-0010 · ADR-0011 · ADR-0012 · ADR-0013 · ADR-0017 · ADR-0023",
     },
     {
         "uml": "component",
-        "title": "Back end: the developer's API and Documenso",
+        "title": "Back end: the developer's API",
         "subtitle": "UML component diagram · Scaleway, Paris; the API checks every request, the database enforces the rules",
         "diagrams": ["04-backend-components"],
         "layout": "below",
         "notes": [
             "Every route needs an active staff session (better-auth), denied by default; a test lists every route. Revoking a session works at once.",
             "Every status change (sign, close, amend, void, maintenance) is one SQL function running in one transaction, so two phones can't rent the same car. Status columns are read-only for the API's role, evidence tables accept inserts only, and audit triggers record every write.",
-            "Documenso runs unmodified next to the API. The API creates the envelopes, receives the webhook, and stores the sealed PDF before the contract changes state.",
-            "The API's storage key can't delete evidence. Database credentials, storage keys, Documenso's token and the signing certificate live only on the server and in protected CI environments.",
+            "The API stores each preview, stamps the client's drawing on every page, appends a signature certificate page and seals the file with a timestamp; it stores the sealed PDF before the contract changes state. A stored Retour signature, when the company switches it on, is applied the same way (F-28).",
+            "The API's storage key can't delete evidence. Database credentials, storage keys and the signing certificate live only on the server and in protected CI environments.",
         ],
-        "refs": "ADR-0007 · ADR-0012 · ADR-0014 · ADR-0015 · ADR-0016 · ADR-0019 · ADR-0020 · US-004 · US-006 · US-043",
+        "refs": "ADR-0007 · ADR-0012 · ADR-0014 · ADR-0015 · ADR-0016 · ADR-0019 · ADR-0023 · US-004 · US-006 · US-043",
     },
     {
         "uml": "class",
-        "title": "Database: the 17 tables",
+        "title": "Database: the 18 tables",
         "subtitle": "UML class diagram · overview; the fields are on the next three pages",
         "diagrams": ["05-data-overview"],
         "layout": "below",
         "notation": True,
         "notes": [
             "Working table names from US-006. Once the migrations exist they are the reference, and these diagrams follow them.",
-            "A contract is a header plus numbered revisions. Revision 1 is the Départ as signed; each amendment adds a revision with a full snapshot.",
+            "A contract is a header plus numbered revisions. Revision 1 is the Départ as signed; each amendment adds a revision with a full snapshot, recorded in the app and not printed (F-22).",
             "Condition evidence is reused: a Départ's inspection points to the vehicle's current reference photo set and to the damage open at that moment (drawn on « What each handover records »).",
         ],
-        "refs": "ADR-0007 · ADR-0008 · US-006",
+        "refs": "ADR-0007 · ADR-0023 · ADR-0024 · US-006",
     },
     {
         "uml": "class",
@@ -121,12 +121,13 @@ PAGES = [
         "layout": "side",
         "notation": True,
         "notes": [
-            "A reference set has the 8 exterior angles, all required, plus an optional interior photo. It is taken with the in-app camera.",
+            "A reference set needs front, rear, left and right (F-23); the four corners and the interior are optional. It is taken with the in-app camera.",
+            "A damage can be found at a Départ (never charged to that renter, F-25) or at a Retour, where it can get an estimate, indicative or billed (F-24).",
             "The optional dashboard photo (km and fuel) belongs to a handover's inspection, not to the reference set: reused later, it would show an old odometer reading.",
-            "Finishing a damage repair closes the repaired damage. The car can be rented again only once a new complete reference set exists.",
+            "Finishing a damage repair closes the repaired damage. The car can be rented again only once a new reference set exists.",
             "Photos and reference sets are insert-only. Statuses change only through SQL functions.",
         ],
-        "refs": "ADR-0008 · F-10 · US-022 · US-026 · US-080 – US-082",
+        "refs": "ADR-0024 · F-10 · F-23 · F-24 · F-25 · US-022 · US-026 · US-080 – US-082",
     },
     {
         "uml": "class",
@@ -138,7 +139,7 @@ PAGES = [
         "notes": [
             "Signing freezes revision 1: the client and vehicle values are copied as printed, so later edits to a client or a vehicle never change a signed contract.",
             "Card: brand, last four digits and expiry only. No column can hold a full card number or a CVV (F-09, PCI DSS).",
-            "Every amount is typed by staff (F-06). The app computes only km driven and extra km.",
+            "Every amount is typed by staff (F-06), except the « Dommages » line, the sum of the billed estimates (F-24). The app also computes km driven and extra km.",
             "Each revision records the French and English terms versions in force when it was signed.",
         ],
         "refs": "ADR-0006 · ADR-0007 · ADR-0011 · US-031 · US-051 · US-052 · US-061",
@@ -146,16 +147,17 @@ PAGES = [
     {
         "uml": "class",
         "title": "Database detail: what each handover records",
-        "subtitle": "UML class diagram · inspections, signatures, contract_documents (grey: drawn in full on earlier pages)",
+        "subtitle": "UML class diagram · inspections, signatures, stored_signatures, contract_documents (grey: drawn in full on earlier pages)",
         "diagrams": ["08-data-evidence"],
         "layout": "below",
         "notation": True,
         "notes": [
-            "Each signature has an evidence record: Documenso's envelope and signer IDs, the sealed PDF it is in, server time, staff member, device, iOS and app versions, and the hash of the data that was signed. The departure image is read back for the final PDF (F-17).",
+            "Each signature has an evidence record: the drawing, the preview it signed and the sealed PDF it is in, with their hashes, server time, staff member, device, versions, IP address, signing mode, and the hash of the data that was signed. The departure drawing is reused on the final PDF (F-17).",
+            "A stored Retour signature (F-28) is pending until staff apply it once to that Retour, or cancelled; its status changes only through SQL functions.",
             "Every PDF is archived with its SHA-256, its template version and its terms version. Copies (US-063) point to the sealed original.",
             "Completed inspections, signatures and PDF records are insert-only. Until the client signs, the Retour's km, fuel, amounts and comments can still be corrected; whether a photo or a damage entry can be taken back is open (R-10 Q5).",
         ],
-        "refs": "ADR-0007 · ADR-0010 · ADR-0014 · ADR-0020 · US-044 · US-053 · US-057 · US-072 · US-074",
+        "refs": "ADR-0007 · ADR-0010 · ADR-0014 · ADR-0023 · US-044 · US-053 · US-057 · US-072 · US-074 · US-076",
     },
     {
         "uml": "state",
@@ -166,10 +168,10 @@ PAGES = [
         "notes": [
             "A draft never changes the vehicle's status. Before the preview it can be discarded; once the preview reserves a number, it can only be cancelled, and is kept as « Annulé avant signature » (F-18).",
             "Signing the Départ confirms the number, freezes revision 1 and marks the car rented, in one transaction.",
-            "An amendment adds a revision, signed by the client or recorded « sans signature du client » (default for R-11).",
+            "An amendment adds a revision, recorded in the app; it has no page in the PDF and isn't signed in the app (F-22). Until the client signs, a Départ or a Retour can take new photos and damage (F-26).",
             "A contract can be voided, with a reason, only before its Retour. The app never deletes a signed contract.",
         ],
-        "refs": "ADR-0007 · ADR-0020 · US-056 · US-057 · US-061 · US-062 · US-074",
+        "refs": "ADR-0007 · ADR-0023 · US-056 · US-057 · US-058 · US-061 · US-062 · US-074 · US-076",
     },
     {
         "uml": "state",
@@ -183,33 +185,33 @@ PAGES = [
             "Only an available car, or one in maintenance, can be archived. « Restaurer » brings it back; nothing is deleted.",
             "Statuses change only through SQL functions, in the same transaction as the contract or maintenance change.",
         ],
-        "refs": "ADR-0007 · ADR-0008 · US-022 · US-025 · US-080 – US-082",
+        "refs": "ADR-0007 · ADR-0024 · US-022 · US-025 · US-080 – US-082",
     },
     {
         "uml": "sequence",
         "title": "Départ: from choosing the car to the sealed PDF",
-        "subtitle": "UML sequence diagram · US-050 to US-057, US-044",
+        "subtitle": "UML sequence diagram · US-050 to US-058, US-044",
         "diagrams": ["11-sequence-depart"],
         "layout": "portrait",
         "notes": [
             "The language is chosen in the preview, and can be switched until the client signs (F-17). The PDF carries its contract number already, so the number is reserved at the preview (F-18).",
-            "The client draws once in Documenso, and the drawing fills the signature box of every page. Documenso seals the PDF with the company's certificate.",
+            "The client draws once on the pad; the API stamps the drawing in the signature box of every page of the preview they saw, and seals the PDF with the company's certificate and a timestamp. A change before the signature makes a new preview (F-26).",
             "The contract becomes active only once the sealed PDF is stored, in one transaction. If the car was taken meanwhile, nothing is signed in the app.",
         ],
-        "refs": "ADR-0005 · ADR-0007 · ADR-0010 · ADR-0020",
+        "refs": "ADR-0005 · ADR-0007 · ADR-0010 · ADR-0023",
     },
     {
         "uml": "sequence",
         "title": "Retour: check-in, mandatory signature, final PDF",
-        "subtitle": "UML sequence diagram · US-070 to US-075, US-044",
+        "subtitle": "UML sequence diagram · US-070 to US-076, US-044",
         "diagrams": ["12-sequence-retour"],
         "layout": "portrait",
         "notes": [
             "The return signature is mandatory (F-04). Without the client, the Retour waits « en attente de signature » and the car stays « En cours ».",
             "Km driven and extra km are the only values the app computes. The final amounts are typed (F-06).",
-            "In the final PDF the client signs the « Signature retour » box of every page in Documenso. The « Signature départ » boxes show the departure image read back from Documenso, except on amendment pages (F-08, F-17).",
+            "In the final PDF the client's drawing fills the « Signature retour » box of every page, or the stored signature does when the company switched it on and the client recorded it at the drop-off (F-28). The « Signature départ » boxes show the departure drawing (F-17). New damage comes first (F-24).",
         ],
-        "refs": "ADR-0005 · ADR-0007 · ADR-0010 · ADR-0020 · B-08",
+        "refs": "ADR-0005 · ADR-0007 · ADR-0010 · ADR-0023 · ADR-0024 · B-08",
     },
     {"kind": "why", "diagrams": ["13-hosting-options"]},
     {"kind": "options"},
@@ -322,12 +324,12 @@ def cover_page(total):
     glance = [
         ("Front end", "One iOS app in Expo · React Native · TypeScript, built in the cloud with EAS (no Mac needed). Installed on the two staff iPhones by Ad Hoc distribution. Online only: no business data is kept on the phones."),
         ("Back end", "The developer's own API (TypeScript, Fastify) at Scaleway, Paris: logins, a check on every request, 5-minute links to private files, PDF rendering. Staging on his homelab."),
-        ("Database", "Managed PostgreSQL, 17 tables. Status changes through SQL functions only; signed data insert-only; every write audited."),
-        ("Signatures", "Self-hosted Documenso: the client draws once, it fills every page, and the PDF is sealed with the company's certificate."),
+        ("Database", "Managed PostgreSQL, 18 tables. Status changes through SQL functions only; signed data insert-only; every write audited."),
+        ("Signatures", "A pad in the app: the client draws once, the API stamps it on every page and seals the PDF with the company's certificate and a timestamp. Optional stored Retour signature (F-28)."),
         ("Contract PDF", "Rendered by the API with Chromium, in the language chosen in the preview. Archived with its SHA-256."),
         ("Operations", "Nightly encrypted backup to a second EU provider, Sentry EU without personal data, deployments by CI."),
         ("Accounts", "Apple: the company. Expo, GitHub, Scaleway, backups, Sentry: the developer (F-02), who pays the hosting (F-07)."),
-        ("Still open", f"F-14 Q3, F-15, F-18; the Documenso spike (US-009); legal checks L-01 to L-07. F-11 decided: C (pages {why})."),
+        ("Still open", f"The spike on stamping and sealing (US-009, part 2); legal checks L-01 to L-07. F-11 decided: C (pages {why})."),
     ]
     rows = "".join(f"<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>" for k, v in glance)
     contents = []
@@ -347,7 +349,7 @@ def cover_page(total):
     <h1 class="title">Planned architecture</h1>
     <p class="lead">UML diagrams of the iOS app, the back end and the database, and the hosting
     options compared for F-11 (option C chosen). Drawn from the decisions (ADRs) and stories in <code>docs/</code>.</p>
-    <p class="meta">{esc(VERSION)} · own API, Postgres and S3 at Scaleway; signatures with Documenso · kept up to date by US-004, US-006, US-050 and US-070</p>
+    <p class="meta">{esc(VERSION)} · own API, Postgres and S3 at Scaleway; signatures in the app, sealed by the API · kept up to date by US-004, US-006, US-050 and US-070</p>
   </div>
   <div class="cover-grid">
     <div>
@@ -457,13 +459,13 @@ def options_page(p, page_no, total):
     <h3>Decision (3 November): C</h3>
     <p>Your own API server in TypeScript with Fastify ({esc("F-12")}), a managed Postgres and S3 storage,
     at Scaleway in Paris ({esc("F-14")}), with staging on your homelab. Signatures with a self-hosted
-    Documenso next to the API. Recorded in {esc("ADR-0019")} and {esc("ADR-0020")}; Supabase ({esc("ADR-0004")}) is superseded.</p>
+    Documenso next to the API, replaced on 10 November by signing in the app, sealed by the API ({esc("ADR-0023")}). Recorded in {esc("ADR-0019")}; Supabase ({esc("ADR-0004")}) is superseded.</p>
   </div>
   <div>
     <h3>What C adds since 9 October</h3>
     <ul>
-      <li>A server with at least 4 GB of RAM, since Documenso needs 2 GB on its own: about €25–30 a month in all.</li>
-      <li>An e-mail provider, which Documenso needs even with its e-mails to clients switched off ({esc("F-15")}).</li>
+      <li>A server with 4 GB of RAM to start, checked after the spike: about €25–30 a month in all.</li>
+      <li>An e-mail provider ({esc("F-15")}), first chosen for Documenso, kept for later e-mail.</li>
       <li>PDF rendering on the server with Chromium ({esc("F-13")}), and the nightly backup run from the server.</li>
     </ul>
   </div>

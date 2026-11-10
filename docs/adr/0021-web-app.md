@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-11-03 | Developer, with the client's answers | F-19 (answered) · B-01, B-02 · L-03 |
+| **Accepted** | 2026-11-03 (updated 2026-11-10) | Developer, with the client's answers | F-19 (answered) · B-01, B-02 · L-03 |
 
 ## Context
 
@@ -26,8 +26,8 @@
   - PDFs open in the browser's viewer. A PDF that staff download lands in the computer's downloads, outside the app's control: the written device rule (L-03) covers laptops and the agency computer;
   - on the shared agency computer, each person signs in with their own account and signs out at the end; the browser must not save the passwords.
 - **Handovers on the web:**
-  - photos come from the computer's camera or from files. Files are flagged « importée », as for the iPhone's photo library ([ADR-0008](0008-vehicle-condition-model.md));
-  - the client signs on Documenso's page, embedded in the web app or opened in a new tab, and the API learns of the signature the same way as on the iPhone ([ADR-0020](0020-signatures-with-documenso.md)). Which of the two works is checked in the spike [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md);
+  - photos come from the computer's camera or from files. Files are flagged « importée », as for the iPhone's photo library ([ADR-0024](0024-vehicle-condition-four-angles-estimates.md));
+  - the client signs on a canvas in the web app, with a mouse, a trackpad or a touch screen, and the API stamps and seals the PDF as for the iPhone ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). The spike [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md) checks it in a browser;
   - the PDF is downloaded, or shared through the browser's share function where it exists, instead of the iOS share sheet.
 - **Errors:** the web app reports to the same Sentry organisation, with the same rules: no personal data, no request bodies, no session replay ([ADR-0017](0017-crash-reporting.md)).
 - **Supported browsers:** the current versions of Chrome, Edge, Firefox and Safari. Every story with a screen is checked in a browser as well as on the iPhone.
@@ -64,13 +64,14 @@ The analytics or administration pages are wanted (after the MVP), or staff stop 
 ## Changes
 
 - 2026-11-03: written, from the answers to F-19.
+- 2026-11-10: the client signs on a canvas in the web app instead of Documenso's page ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)); vehicle condition now follows ADR-0024.
 
 ## Implemented by
 
 - [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for iOS and the web
 - [US-004](../stories/US-004-api-server-and-environments.md): Create the API server and its environments: local, homelab staging, Scaleway production
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove in-app signing, stamping and sealing, and server-rendered PDFs, in a browser and on a real iPhone
 - [US-010](../stories/US-010-sign-in-and-sign-out.md): Sign in and sign out
 - [US-015](../stories/US-015-web-sign-in-second-factor.md): Sign in to the web app with a second factor, and sign out when idle
 - [US-016](../stories/US-016-client-data-in-the-browser.md): Keep client data out of the browser on laptops and the agency computer
-- [US-044](../stories/US-044-sign-in-documenso-from-the-app.md): Preview a contract PDF and have it signed in Documenso from the app
+- [US-044](../stories/US-044-client-signs-in-the-app.md): Preview a contract PDF and have the client sign it in the app

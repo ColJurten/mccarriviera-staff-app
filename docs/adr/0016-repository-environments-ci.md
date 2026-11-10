@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | F-02, F-12, F-14 (answered) · defaults for T-04, N-06 |
+| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | F-02, F-12, F-14 (answered) · defaults for T-04, N-06 |
 
 ## Context
 
@@ -19,16 +19,16 @@
   - `api/`: the Fastify API;
   - `packages/shared/`: zod schemas and types shared by the app and the API, the contract template and its catalogues;
   - `db/`: SQL migrations, seed with synthetic data, database tests;
-  - `deploy/`: Docker Compose files, the Caddy configuration and Documenso's settings, without secrets;
+  - `deploy/`: Docker Compose files and the Caddy configuration, without secrets;
   - `docs/`: this documentation;
   - `scripts/`: backup, admin, import, erasure.
 - **Agent guidance:** a root `AGENTS.md`, with `CLAUDE.md` pointing to it, tells coding agents to start from `docs/README.md` (default for N-06).
 - **Git host:** a private GitHub repository on the developer's account (F-02; default for T-04). It runs CI and the delivery pipeline. Container images go to a private registry (GitHub Container Registry).
 - **Environments:**
-  - **local:** Docker Compose on WSL2: Postgres (same major version as production), Garage as the S3 store, Mailpit to catch e-mails, Documenso and the API, for development and tests (F-20, `RECOMMENDED`). The web app runs in a browser against it. The Metro bundler also runs in WSL2. The phone reaches it through WSL mirrored networking (Windows 11) or `expo start --tunnel`.
+  - **local:** Docker Compose on WSL2: Postgres (same major version as production), Garage as the S3 store, Mailpit to catch e-mails, and the API, for development and tests (F-20, `RECOMMENDED`). The web app runs in a browser against it. The Metro bundler also runs in WSL2. The phone reaches it through WSL mirrored networking (Windows 11) or `expo start --tunnel`.
   - **development builds on the phone:** use **staging**, because the phone can't reach services inside WSL2.
   - **Android emulator on Windows:** runs an Android development build of the same app for day-to-day UI work, also against staging ([ADR-0018](0018-development-and-test-devices.md)).
-  - **staging:** a dedicated VM on the homelab Proxmox (F-14), running the same Compose stack with its own Postgres, its own Documenso and its own buckets, with **synthetic data only**. The phones and browsers reach it over HTTPS at `stg.developerworkshop.online` and `sign.stg.developerworkshop.online` (F-14), through a tunnel or the homelab's reverse proxy (`RECOMMENDED`). Its buckets are at Scaleway, so that their policies behave as in production (`RECOMMENDED`). EAS `preview` profile and channel.
+  - **staging:** a dedicated VM on the homelab Proxmox (F-14), running the same Compose stack with its own Postgres and its own buckets, with **synthetic data only**. The phones and browsers reach it over HTTPS at `stg.developerworkshop.online` (F-14), through a tunnel or the homelab's reverse proxy (`RECOMMENDED`). Its buckets are at Scaleway, so that their policies behave as in production (`RECOMMENDED`). EAS `preview` profile and channel.
   - **production:** Scaleway ([ADR-0019](0019-backend-own-api-postgres-s3.md)), plus the EAS `production` profile and channel.
 - **CI on every pull request:**
   - typecheck, lint, unit tests and the translation-key check;
@@ -37,7 +37,7 @@
   - contract PDF tests: synthetic cases rendered with Chromium, with the overflow check and snapshots ([ADR-0010](0010-contract-pdf-generation.md));
   - the web build, and end-to-end tests of the main flows in a headless browser against a throwaway stack ([ADR-0021](0021-web-app.md));
   - a check that the generated database types are up to date.
-- **Releases of the API, the database and Documenso:**
+- **Releases of the API and the database:**
   - images, including the web app's static files, are built by CI and tagged with the commit;
   - on a merge to `main`, staging is deployed and its migrations applied, by a GitHub Actions runner on the staging VM;
   - on a release tag, production is deployed after manual approval: migrations with dbmate, then `docker compose pull` and `up` on the server, over SSH from a protected environment.
@@ -47,7 +47,7 @@
   - a runtime-version policy keeps an update from reaching an incompatible build.
 - **Secrets:**
   - the app only gets the API's address for each environment, through EAS environment variables;
-  - database credentials, storage keys, the Documenso API token and webhook secret, the signing certificate and its passphrase, and the e-mail credentials live only on the servers, in protected CI environments and in the developer's password manager.
+  - database credentials, storage keys, the signing certificate and its passphrase, the timestamping authority's credentials if it has any, and the e-mail credentials live only on the servers, in protected CI environments and in the developer's password manager.
 - **Working style:** short-lived branches, pull requests that cite story and ADR IDs, and a protected main branch.
 - **Docs written alongside the stories:** `testing.md` (US-002), `screens.md` (US-003) and `runbook.md` (US-093). The UML diagrams in `architecture/` are kept up to date by US-004, US-006, US-050 and US-070.
 
@@ -84,6 +84,7 @@ A second developer joins, the free build quota becomes a bottleneck, or the home
 - 2026-10-09 (later): F-02 answered: the repository is on the developer's account. The UML diagrams in `architecture/` replace the planned `architecture.md`, `data-model.md` and `user-flows.md`.
 - 2026-11-03: rewritten for the developer's own back end (ADR-0019): `api/`, `packages/shared/`, `db/` and `deploy/` folders, staging on the homelab (F-14), production at Scaleway, PDF tests with Chromium in CI.
 - 2026-11-03 (later): Garage and Mailpit in the local stack (F-20), staging names on the developer's domain (F-14), and the web app built, tested and deployed with the API (F-19).
+- 2026-11-10: Documenso is removed from every environment ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). The local stack still runs it until the follow-up ticket removes it.
 
 ## Implemented by
 

@@ -5,7 +5,7 @@
 | E0 · Foundations | Must | P0 | L | To do |
 
 - **Depends on:** [US-004](US-004-api-server-and-environments.md)
-- **Decisions:** [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) · [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0008](../adr/0008-vehicle-condition-model.md) · [ADR-0011](../adr/0011-localisation.md) · [ADR-0012](../adr/0012-authentication-and-authorisation.md) · [ADR-0014](../adr/0014-file-storage.md)
+- **Decisions:** [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) · [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) · [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) · [ADR-0011](../adr/0011-localisation.md) · [ADR-0012](../adr/0012-authentication-and-authorisation.md) · [ADR-0014](../adr/0014-file-storage.md)
 - **Open points:** R-03, R-09, R-13, R-14 (see [open questions](../discovery/open-questions.md))
 
 ## Story
@@ -20,10 +20,10 @@ As the developer, I want the tables, constraints, access rules and storage bucke
 - [ ] Free-text fields have maximum lengths, so the contract pages never overflow ([ADR-0010](../adr/0010-contract-pdf-generation.md)). For example, 80 characters for names and address lines, and 500 for comments.
 - [ ] A partial unique index allows at most one `active` contract per vehicle. Check constraints keep km ≥ 0 and fuel between 0 and 8.
 - [ ] The API connects with its own database role. Row-level security isn't used, since the API is the only client and checks every request ([ADR-0012](../adr/0012-authentication-and-authorisation.md)).
-- [ ] Status columns (`contracts.status`, `vehicles.status`, `damages.status`) can't be updated by the API's database role (column-level grants). They change only through SQL functions called by the API ([ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)).
-- [ ] These tables accept INSERT only: signed revisions, completed inspections, `signatures`, `condition_baselines`, `photos`, `contract_documents`, `audit_events`. Unsigned draft revisions can be updated. Damage descriptions and photos can't be changed; only the repair fields change, through the maintenance function.
-- [ ] Private buckets exist in Scaleway Object Storage (F-11, answered 2026-11-03): `condition-photos`, `client-documents`, `signatures`, `contract-pdfs`, plus `documenso` for Documenso. The API's storage key can write and read but not delete in `condition-photos`, `signatures` and `contract-pdfs`; it can also delete in `client-documents`. No bucket is public. Files are reached only through presigned links of 5 minutes or less, issued by the API after its checks ([ADR-0014](../adr/0014-file-storage.md)).
-- [ ] Generated PDFs record their stage as `departure`, `amendment` or `final`.
+- [ ] Status columns (`contracts.status`, `vehicles.status`, `damages.status`, `stored_signatures.status`) can't be updated by the API's database role (column-level grants). They change only through SQL functions called by the API ([ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)).
+- [ ] These tables accept INSERT only: signed revisions, completed inspections, `signatures`, `condition_baselines`, `photos`, `contract_documents` (previews included), `audit_events`. Unsigned draft revisions can be updated. Damage descriptions and photos can't be changed; only the repair fields change, through the maintenance function, and an estimate can change only while its Retour waits for the signature (F-26). In `stored_signatures`, only the status and its application or cancellation fields change, through SQL functions (F-28).
+- [ ] Private buckets exist in Scaleway Object Storage (F-11, answered 2026-11-03): `condition-photos`, `client-documents`, `signatures`, `contract-pdfs`. The API's storage key can write and read but not delete in `condition-photos`, `signatures` and `contract-pdfs`; it can also delete in `client-documents`. No bucket is public. Files are reached only through presigned links of 5 minutes or less, issued by the API after its checks ([ADR-0014](../adr/0014-file-storage.md)).
+- [ ] Generated PDFs record their stage as `preview`, `departure`, `final` or `authorisation` ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)).
 - [ ] A seed script loads synthetic vehicles and clients only. No real data.
 - [ ] Database tests (migrations applied with dbmate to a throwaway Postgres) prove that:
   - a second active contract on the same vehicle is rejected;
@@ -35,10 +35,16 @@ As the developer, I want the tables, constraints, access rules and storage bucke
 
 ## Notes
 
-- Tables (working names): `staff_profiles`, `vehicles`, `condition_baselines`, `photos`, `damages`, `maintenance_records`, `clients`, `client_documents`, `contracts`, `contract_revisions`, `contract_drivers`, `inspections` (stage = departure | return), `signatures`, `contract_documents` (generated PDFs), `terms_versions`, `audit_events`, `contract_number_counters`.
+- Tables (working names): `staff_profiles`, `vehicles`, `condition_baselines`, `photos`, `damages`, `maintenance_records`, `clients`, `client_documents`, `contracts`, `contract_revisions`, `contract_drivers`, `inspections` (stage = departure | return), `signatures`, `stored_signatures`, `contract_documents` (generated PDFs, previews included), `terms_versions` (kind = general_terms | return_authorisation), `audit_events`, `contract_number_counters`: 18 tables.
 - Vehicle statuses: `available`, `rented`, `maintenance`, `archived` (default for R-13). Contract statuses: `draft`, `awaiting_signature`, `active`, `closed`, `void` (F-18) ([ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)).
 - Contract numbers: `MCR-YYYY-NNNN` (default for R-09), reserved when the preview to sign is created; a contract never signed keeps its number as `void` « Annulé avant signature » (F-18).
 - Client fields are listed in US-031 (default for R-03). Maintenance fields are in US-080 (default for R-14).
-- Columns added for the model template's fields (R-02): in `clients`, `title`, `first_name` and `last_name` (instead of `full_name`), `email`, `state_region`, and the issue and expiry dates of the ID document and the licence; in the contract terms, the pick-up place, flight or train, number of days, deposit, services included, additional information and a second « Jours sup » rate; in `inspections`, car papers, clean inside, clean outside and GPS (yes/no); in `staff_profiles`, `display_name`, printed on the contract (R-19).
-- Contract documents and signatures also record Documenso's envelope and signer IDs ([ADR-0020](../adr/0020-signatures-with-documenso.md)).
+- Columns added for the model template's fields (R-02): in `clients`, `title`, `first_name` and `last_name` (instead of `full_name`), `email`, `state_region`, and the issue and expiry dates of the ID document and the licence; in the contract terms, the pick-up place, flight or train, number of days, deposit, additional information and a second « Jours sup » rate (« Services inclus » was dropped by F-22); in `inspections`, car papers, clean inside, clean outside and GPS (yes/no); in `staff_profiles`, `display_name`, printed on the contract (R-19).
+- Columns added after the client meeting of November 2026 ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md), [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)):
+  - in `damages`: where it was found (`found_stage` departure | return | vehicle file, and the contract), and for damage found at a Retour, `estimate_amount` (`numeric(10,2)`) and `estimate_mode` (indicative | billed) (F-24, F-25);
+  - in the final pricing: a `damage` line, the sum of the billed estimates (F-24);
+  - in `photos`: the kinds are reference, dashboard and damage; there is no loose extra photo (F-23). A reference set needs the 4 required angles;
+  - in `signatures`: stage departure | return, mode in_person | stored, the drawing's path, stroke points and SHA-256, the preview's and the sealed PDF's SHA-256, the IP address, and the stored signature it came from;
+  - `stored_signatures`: contract, drawing, stroke points and SHA-256, authorisation text version, sealed authorisation PDF, captured at and by, km and fuel at capture, status pending | applied | cancelled, applied at and by, cancellation reason (F-28);
+  - in `contract_revisions`: no `client_signed` column, since amendments aren't signed in the app (F-22).
 - This can be delivered as two pull requests: tables and grants first, then storage and the upload and download routes.
