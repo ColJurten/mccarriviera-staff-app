@@ -5,7 +5,7 @@
 | E8 · Maintenance | Must | P5 | S | To do |
 
 - **Depends on:** [US-080](US-080-put-a-vehicle-into-maintenance.md)
-- **Decisions:** [ADR-0008](../adr/0008-vehicle-condition-model.md)
+- **Decisions:** [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)
 - **Open points:** — (see [open questions](../discovery/open-questions.md))
 
 ## Story

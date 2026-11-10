@@ -7,7 +7,7 @@ skinparam ranksep 55
 
 node "Developer PC\nWindows 11 + WSL2" <<device>> as pc {
   component "Code + Metro bundler" as metro
-  component "Local stack · Docker Compose\nPostgres · Garage (S3) · Mailpit\nAPI · Documenso · web app" as local
+  component "Local stack · Docker Compose\nPostgres · Garage (S3) · Mailpit\nAPI · web app" as local
   component "Android emulator\nday-to-day UI work" as emu
 }
 
@@ -26,7 +26,7 @@ cloud "Apple Developer Program" <<company account>> as apple $COMPANY {
 }
 
 node "Homelab · Proxmox VM" <<developer's>> as lab $DEVELOPER {
-  component "Staging stack · stg.developerworkshop.online\nAPI · web app · Documenso · Postgres\nsynthetic data only" as stg
+  component "Staging stack · stg.developerworkshop.online\nAPI · web app · Postgres\nsynthetic data only" as stg
   component "GitHub runner\ndeploys staging" as runner
 }
 

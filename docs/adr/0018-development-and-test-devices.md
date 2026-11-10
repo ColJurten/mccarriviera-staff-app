@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-09 (updated 2026-11-03) | Developer, with the client's answers | F-05 (answered) · B-01 |
+| **Accepted** | 2026-10-09 (updated 2026-11-10) | Developer, with the client's answers | F-05 (answered) · B-01 |
 
 ## Context
 
@@ -55,9 +55,10 @@ EAS Simulator becomes generally available, or a dedicated test iPhone is bought.
 ## Changes
 
 - 2026-11-03: the web app is a product target and the quickest development loop (ADR-0021).
+- 2026-11-10: the spike US-009 now proves in-app signing instead of Documenso ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)).
 
 ## Implemented by
 
 - [US-001](../stories/US-001-apple-developer-account-and-devices.md): Open the Apple developer account and register the iPhones
 - [US-005](../stories/US-005-eas-builds-and-internal-distribution.md): Set up EAS builds, internal distribution and over-the-air updates
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove in-app signing, stamping and sealing, and server-rendered PDFs, in a browser and on a real iPhone

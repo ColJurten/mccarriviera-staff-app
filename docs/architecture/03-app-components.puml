@@ -12,9 +12,9 @@ package "MC Car Riviera app · Expo · React Native · TypeScript · iOS and web
     component "Home\n<size:9><color:#5A6B86>US-020</color></size>" as sHome
     component "Vehicles\n<size:9><color:#5A6B86>US-021 – 026</color></size>" as sVeh
     component "Clients\n<size:9><color:#5A6B86>US-030 – 034</color></size>" as sCli
-    component "Départ flow\n<size:9><color:#5A6B86>US-050 – 056</color></size>" as sDep
-    component "Active rentals\n<size:9><color:#5A6B86>US-060 – 064</color></size>" as sCon
-    component "Retour flow\n<size:9><color:#5A6B86>US-070 – 075</color></size>" as sRet
+    component "Départ flow\n<size:9><color:#5A6B86>US-050 – 058</color></size>" as sDep
+    component "Active rentals\n<size:9><color:#5A6B86>US-060 – 063</color></size>" as sCon
+    component "Retour flow\n<size:9><color:#5A6B86>US-070 – 076</color></size>" as sRet
     component "Maintenance\n<size:9><color:#5A6B86>US-080 – 083</color></size>" as sMai
     sSign -[hidden]right- sHome
     sHome -[hidden]right- sVeh
@@ -34,7 +34,7 @@ package "MC Car Riviera app · Expo · React Native · TypeScript · iOS and web
 
   package "Contract document · US-042 – 044" as doc {
     component "PDF preview\nFR / EN switch" as prev
-    component "Signing web view\nDocumenso's page\nprivate session" as wv
+    component "Signature pad\none drawing, sent to the API\nnot kept on the device" as wv
   }
 
   package "Device services · Expo modules" as dev {
@@ -56,7 +56,6 @@ package "MC Car Riviera app · Expo · React Native · TypeScript · iOS and web
 
 interface "API · HTTPS\nsession token" as iApi
 interface "Object storage\npresigned links" as iSto
-interface "Documenso\nsigning page" as iDoc
 interface "EAS Update" as iUpd
 
 screens --> data : read and write
@@ -66,6 +65,6 @@ hooks --> client
 client --> iApi
 client --> iSto
 prev --> iApi : PDF rendered\nby the API
-wv --> iDoc
+wv --> iApi : drawing + preview hash
 appPkg ..> iUpd : JavaScript updates
 @enduml

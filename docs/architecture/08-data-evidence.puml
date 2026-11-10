@@ -48,42 +48,68 @@ class Signature <<table: signatures>> {
   id : uuid
   contract_id : uuid
   revision_no : integer
-  stage : departure | amendment | return
-  documenso_envelope_id, documenso_signer_id : text
-  sealed_pdf_id : uuid {the sealed PDF it is in}
-  image_path, image_sha256 : text [0..1] {departure image, read back}
+  stage : departure | return
+  mode : in_person | stored
+  stored_signature_id : uuid [0..1]
+  image_path, image_sha256 : text {the drawing}
+  strokes_path : text
+  preview_id : uuid
+  preview_sha256, sealed_pdf_sha256 : text
+  sealed_pdf_id : uuid
   signed_at : timestamptz {server time}
   staff_id : uuid
-  device_model, ios_version, app_version : text
+  device_model, os_version, app_version : text
+  ip_address : inet
   snapshot_sha256 : text
   terms_version_ids : uuid[]
   --
   {insert-only}
 }
 
+class StoredSignature <<table: stored_signatures>> {
+  id : uuid
+  contract_id : uuid {one Retour, F-28}
+  image_path, image_sha256, strokes_path : text
+  authorisation_version_id : uuid
+  authorisation_pdf_id : uuid {sealed at capture}
+  captured_at : timestamptz
+  captured_by : uuid
+  km_at_capture : integer [0..1]
+  {field} fuel_at_capture : integer 0–8 [0..1]
+  status : pending | applied | cancelled {SQL functions only}
+  applied_at : timestamptz [0..1]
+  applied_by : uuid [0..1]
+  cancel_reason : text [0..1]
+  --
+  {only when the company switches it on;
+  no time limit; used once}
+}
+
 class ContractDocument <<table: contract_documents>> {
   id : uuid
   contract_id : uuid
   revision_no : integer
-  stage : departure | amendment | final
+  stage : preview | departure | final | authorisation
   language : fr | en
   template_version : text
   terms_version_id : uuid
   storage_path, sha256 : text
-  documenso_envelope_id : text [0..1] {sealed PDFs}
   copy_of_id : uuid [0..1] {copies, US-063}
   --
-  {insert-only}
+  {insert-only; previews kept, never shared}
 }
 
 Contract "1" *-- "0..2" Inspection : departure, return
 Contract "1" *-- "0..*" Signature
+Contract "1" *-- "0..1" StoredSignature
+Signature "0..1" --> "0..1" StoredSignature : applies
 Contract "1" *-- "0..*" ContractDocument
 Inspection "0..*" --> "0..1" ConditionBaseline : departure reference set
 Inspection "0..*" --> "0..*" Damage : open at departure
-Inspection "0..1" -- "0..*" Damage : found at Retour
-Inspection "1" *-- "0..*" Photo : extra and\ndashboard photos
+Inspection "0..1" -- "0..*" Damage : found at this\nDépart or Retour
+Inspection "1" *-- "0..1" Photo : dashboard photo
 Inspection ..> PricingLines : final amounts
 Signature "0..*" --> "1" ContractRevision : covers
+Signature "0..*" --> "1" ContractDocument : signs the preview
 ContractDocument "0..*" --> "1" TermsVersion : printed with
 @enduml

@@ -1,12 +1,11 @@
 {
-  "_comment": "Contract labels and fixed texts in English (ADR-0011). Same keys as fr.json. The fixed legal sentences (acceptance, declaration, terms summary) are draft translations awaiting approval (R-17, L-02).",
+  "_comment": "Contract labels and fixed texts, in English (ADR-0011). Same keys as fr.json. Draft wording until the approved English terms exist (R-17); declarations and acceptance await the lawyer (L-02), the signature authorisation too (L-01).",
   "lang": "en",
   "doc_title": "Rental contract / invoice",
   "specimen": "Specimen",
   "logo_note": "logo to be supplied",
   "meta": {
     "contract_no": "Contract no.",
-    "revision": "Revision",
     "issued": "Issued on",
     "stage_departure": "Pick-up PDF",
     "stage_final": "Final PDF",
@@ -14,12 +13,12 @@
   },
   "titles": {
     "contract": "Rental agreement",
-    "financial": "Rates and payment",
     "inspection": "Vehicle inspection",
     "inspection_cont": "Vehicle inspection (continued)",
     "terms": "General terms and conditions",
-    "amendment": "Amendment no. {n}",
-    "photos": "Photo annex"
+    "photos": "Photo annex",
+    "prior_damage": "Annex · Damage already present at pick-up",
+    "authorisation": "Signature authorisation"
   },
   "trip": {
     "bar": "Pick-up and drop-off",
@@ -83,18 +82,6 @@
     "unleaded_98": "Unleaded 98",
     "diesel": "Diesel"
   },
-  "rules": {
-    "bar": "Key points of the general terms",
-    "flag": "Summary of the general terms; draft wording to be approved (L-02, R-17).",
-    "items": [
-      "Fuel: the vehicle is supplied with a full tank; if it is not returned full, refuelling is invoiced (art. 6).",
-      "Keys: if they are lost, a flat fee of €350 is charged (art. 2).",
-      "Driving area: mainland France and Monaco only (art. 2).",
-      "Extension: to be requested at least 48 hours in advance (art. 8).",
-      "Return: vehicle, keys and documents at the agreed place and date, during opening hours (art. 9).",
-      "Fines: payable by the renter and the approved driver, plus a €25 administrative fee per fine (art. 10)."
-    ]
-  },
   "agent": {
     "departure": "Pick-up agent",
     "return": "Drop-off agent"
@@ -110,19 +97,16 @@
     "extra_km": "Extra km"
   },
   "deductible": {
-    "bar": "Minimum deductible",
+    "bar": "Deductible and security deposit",
     "card_brand": "Card",
     "theft": "Excess theft",
-    "accident": "Excess at-fault accident"
+    "accident": "Excess at-fault accident",
+    "deposit": "Security deposit"
   },
   "card_brands": {
     "visa": "VISA",
     "amex": "AMEX",
     "other": "OTHER"
-  },
-  "services": {
-    "bar": "Services included",
-    "deposit": "Security deposit"
   },
   "payment": {
     "bar": "Payment method",
@@ -148,6 +132,7 @@
     "option_3": "Option III",
     "fuel": "Fuel",
     "misc": "Miscellaneous",
+    "damage": "Damage (billed estimates)",
     "total_ht": "Total excl. VAT",
     "vat": "VAT {rate}%",
     "total_ttc": "Total incl. VAT",
@@ -181,7 +166,6 @@
     "reference_set": "Reference photos",
     "reference_set_of": "set of {date}",
     "dashboard": "Dashboard",
-    "extra_photos": "Extra photos",
     "open_damage": "Damage already present at pick-up",
     "new_damage": "New damage",
     "ras": "Nothing to report",
@@ -191,7 +175,14 @@
     "pending_return": "Completed at drop-off",
     "more_photos": "All photos at full size: photo annex.",
     "declaration_title": "Declaration",
-    "declaration": "I declare that I have inspected the vehicle at pick-up and/or drop-off and accept its condition."
+    "declaration": "I declare that I have inspected the vehicle at pick-up and/or drop-off and accept its condition.",
+    "found_at_departure": "found at this pick-up",
+    "estimate": "Estimate",
+    "estimate_indicative": "indicative, final cost invoiced after repair",
+    "estimate_billed": "billed in the final statement",
+    "prior_damage_see_annex": "Damage already present at pick-up: {n}, see the annex on page {page}.",
+    "prior_damage_none": "Damage already present at pick-up: none.",
+    "optional": "optional"
   },
   "angles": {
     "front": "Front",
@@ -207,25 +198,7 @@
   "photo_kinds": {
     "reference": "Reference",
     "damage": "Damage",
-    "extra": "Extra photo",
     "dashboard": "Dashboard"
-  },
-  "amendment": {
-    "intro": "Change to the contract after the pick-up signature. All other conditions are unchanged.",
-    "date": "Date of the amendment",
-    "revision": "Contract revision",
-    "agent": "Agent",
-    "reason": "Reason",
-    "field": "Changed item",
-    "before": "Before",
-    "after": "After",
-    "fields": {
-      "planned_return": "Planned return",
-      "return_place": "Drop-off location",
-      "km_included": "Kms allowed",
-      "rental_days": "Number of days",
-      "additional_driver": "Additional driver"
-    }
   },
   "terms": {
     "version": "General terms, version {v}",
@@ -241,10 +214,9 @@
   "sig": {
     "departure": "Pick-up signature",
     "return": "Drop-off signature",
-    "amendment": "Amendment no. {n} signature",
-    "no_client_signature": "Without the client's signature",
     "signed_on": "Signed on {date}",
-    "pending": "Awaiting signature"
+    "pending": "Awaiting signature",
+    "stored": "Recorded {captured} · applied {applied}"
   },
   "footer": {
     "siret": "SIRET",
@@ -271,6 +243,7 @@
       "Dec"
     ],
     "date": "{d} {month} {y}",
+    "date_short": "{d} {month} {y}",
     "datetime": "{date} · {time}",
     "decimal": ".",
     "thousands": ",",
@@ -283,5 +256,27 @@
     "title": "Declaration",
     "text": "I declare that I have read and understood this contract and that I accept the general terms and conditions."
   },
-  "signed_terms_note": "Conditions as signed at pick-up (revision 1). Later changes are in the amendments."
+  "signed_terms_note": "Conditions as signed at pick-up. Changes agreed during the rental (extension, etc.) are billed in the final statement.",
+  "prior_damage": {
+    "intro": "Damage present at the start of this rental, shown in the pick-up photos and accepted when the pick-up was signed. It is not part of the new damage found at drop-off.",
+    "found": "Found on {date}",
+    "origin_departure": "at the pick-up of contract {number}",
+    "origin_return": "at the drop-off of contract {number}",
+    "photos": "{n} photo(s) in the annex"
+  },
+  "authorisation": {
+    "intro": "I, the undersigned {name}, renter under contract {number}, return the vehicle {vehicle} without attending the end of the drop-off inspection. I authorise {company} to apply the signature below, once only, to the drop-off inspection and final statement of this contract, completed after I leave and in my absence. This signature may not be used for any other document.",
+    "bar": "Drop-off without the client",
+    "captured_at": "Signature recorded on",
+    "place": "Place",
+    "agent": "Agent",
+    "km": "Kms in",
+    "fuel": "Fuel at drop-off",
+    "applied_bar": "Signature applied",
+    "applied_at": "Applied on",
+    "applied_by": "By",
+    "on_what": "To",
+    "on_what_value": "Drop-off inspection and final statement in this PDF",
+    "box": "Client's signature"
+  }
 }

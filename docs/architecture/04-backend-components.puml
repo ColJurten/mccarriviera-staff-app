@@ -1,5 +1,5 @@
 @startuml 04-backend-components
-' UML component diagram of the back end: the developer's API and Documenso at Scaleway, plus the jobs that touch them.
+' UML component diagram of the back end: the developer's API at Scaleway, plus the jobs that touch it.
 !include style.iuml
 skinparam nodesep 22
 skinparam ranksep 34
@@ -9,19 +9,18 @@ note right of app
   The app holds only the API's address
   and the staff member's session token.
   Never a database credential, a storage
-  key or Documenso's API token.
+  key or the signing certificate.
 end note
 
 package "Production server · Scaleway Paris · Docker Compose" as srv {
-  component "Caddy\nTLS · api. and sign." as caddy
+  component "Caddy\nTLS" as caddy
   package "API · Fastify · TypeScript" as api {
     component "Routes + zod validation\ndenied without an active\nstaff session" as routes
     component "better-auth\ninvite-only · sessions in Postgres\nrevocable at once" as auth
     component "File links\npresigned S3, ≤ 5 min\nnew keys only" as links
-    component "PDF renderer\nChromium · template v1\nFR / EN" as pdf
-    component "Signing\nDocumenso envelopes\nwebhook · sealed PDF" as sign
+    component "PDF renderer\nChromium · template v2\nFR / EN · stored previews" as pdf
+    component "Signing\nstamps the drawing on every page\ncertificate page · PAdES seal\ncompany .p12 · stored Retour signature" as sign
   }
-  component "Documenso\nCommunity Edition, unmodified\nseals with the company's .p12" as doc
   component "Nightly backup\nread-only keys" as bk
   routes -[hidden]right- auth
   auth -[hidden]right- links
@@ -31,34 +30,29 @@ package "Production server · Scaleway Paris · Docker Compose" as srv {
 
 package "Managed PostgreSQL · Scaleway" as pg {
   component "mcr database\ntables · column grants\ninsert-only evidence\naudit triggers" as tables
-  component "SQL functions · one transaction each\nsign_departure · complete_return\namend_contract · void_contract\ndiscard_draft · complete_baseline\nstart / finish_maintenance" as fns
-  component "documenso database" as ddb
+  component "SQL functions · one transaction each\nsign_departure · complete_return\namend_contract · void_contract\ndiscard_draft · complete_baseline\nstore / apply / cancel_stored_signature\nstart / finish_maintenance" as fns
 }
 
 package "Object Storage · private buckets" as sto {
-  component "condition-photos · signatures\ncontract-pdfs: write + read, no delete\nclient-documents: + delete\ndocumenso: Documenso only" as buckets
+  component "condition-photos · signatures\ncontract-pdfs: write + read, no delete\nclient-documents: + delete" as buckets
 }
 
-component "Transactional Email\nSMTP for Documenso" as smtp
+cloud "Timestamping authority\nRFC 3161" as tsa
 cloud "Backup storage\nEU · other provider" <<developer's account>> as bkp $DEVELOPER
 component "GitHub Actions\nmigrations (dbmate) · deploy" as gha
 
 app --> caddy : HTTPS
 caddy --> routes
-caddy --> doc : signing pages
 routes --> fns : state changes
 routes --> tables : reads, inserts
 links ..> buckets
 pdf ..> buckets : photos
-sign --> doc : API v2
-doc ..> sign : webhook
-sign ..> buckets : sealed PDF
-doc --> ddb
-doc ..> smtp
+sign ..> buckets : previews · drawings · sealed PDF
+sign ..> tsa : timestamp
+sign --> fns : sign / close / stored signature
 fns --> tables
 gha --> pg : SQL migrations
 bk --> tables : nightly dump
-bk --> ddb : nightly dump
 bk --> buckets : copy new files
 bk --> bkp : encrypted
 @enduml

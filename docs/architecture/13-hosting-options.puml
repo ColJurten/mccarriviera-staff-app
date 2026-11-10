@@ -36,7 +36,7 @@ rectangle "<b>B · Supabase + S3 for the files</b>\n<size:10>recommended on 2026
 
 rectangle "<b>C · Managed Postgres + S3 + own API</b>\n<size:10><b>chosen on 2026-11-03</b> · Scaleway, Paris</size>" as C #F6EFDC;line:A97E22;line.bold {
   rectangle "iOS app" as c0
-  rectangle "API server you build and host\nFastify · better-auth · checks\nfile links · PDFs · TLS\n+ Documenso next to it" as c1 $YOU
+  rectangle "API server you build and host\nFastify · better-auth · checks\nfile links · PDFs · TLS\n+ signing (ADR-0023)" as c1 $YOU
   database "Managed PostgreSQL\n(cloud provider)" as c2 $MANAGED
   rectangle "S3 bucket · EU\nprivate" as c3 $FILES
   c0 --> c1

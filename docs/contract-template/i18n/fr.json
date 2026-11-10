@@ -1,12 +1,11 @@
 {
-  "_comment": "Libellés et textes fixes du contrat, en français (ADR-0011). Mêmes clés que en.json. Les textes marqués L-02 attendent la relecture de l'avocat.",
+  "_comment": "Libellés et textes fixes du contrat, en français (ADR-0011). Mêmes clés que en.json. Les textes marqués L-02 (déclarations, acceptation) et L-01 (autorisation de signature) attendent la relecture de l'avocat.",
   "lang": "fr",
   "doc_title": "Contrat / facture location",
   "specimen": "Spécimen",
   "logo_note": "logo à fournir",
   "meta": {
     "contract_no": "N° de contrat",
-    "revision": "Révision",
     "issued": "Édité le",
     "stage_departure": "PDF du départ",
     "stage_final": "PDF final",
@@ -14,12 +13,12 @@
   },
   "titles": {
     "contract": "Contrat de location",
-    "financial": "Conditions financières",
     "inspection": "État du véhicule",
     "inspection_cont": "État du véhicule (suite)",
     "terms": "Conditions générales de location",
-    "amendment": "Avenant n° {n}",
-    "photos": "Annexe photos"
+    "photos": "Annexe photos",
+    "prior_damage": "Annexe · Dommages déjà présents au départ",
+    "authorisation": "Autorisation de signature"
   },
   "trip": {
     "bar": "Départ et retour",
@@ -83,18 +82,6 @@
     "unleaded_98": "Sans plomb 98",
     "diesel": "Gazole"
   },
-  "rules": {
-    "bar": "Rappel des conditions générales",
-    "flag": "Extrait des conditions générales ; texte à valider (L-02).",
-    "items": [
-      "Carburant : le véhicule est remis avec le plein ; s'il n'est pas restitué avec le plein, le remplissage est facturé (art. 6).",
-      "Clés : en cas de perte, une somme forfaitaire de 350 € est facturée (art. 2).",
-      "Circulation : uniquement en France métropolitaine et à Monaco (art. 2).",
-      "Prolongation : à demander au moins 48 heures à l'avance (art. 8).",
-      "Restitution : véhicule, clés et documents au lieu et à la date convenus, pendant les heures d'ouverture (art. 9).",
-      "Amendes : à la charge du locataire et du conducteur agréé, plus 25 € de frais de dossier par intervention (art. 10)."
-    ]
-  },
   "agent": {
     "departure": "Agent au départ",
     "return": "Agent au retour"
@@ -110,19 +97,16 @@
     "extra_km": "Km sup."
   },
   "deductible": {
-    "bar": "Franchise minimum",
+    "bar": "Franchise et dépôt de garantie",
     "card_brand": "Carte",
     "theft": "Vol",
-    "accident": "Accident responsable"
+    "accident": "Accident responsable",
+    "deposit": "Dépôt de garantie"
   },
   "card_brands": {
     "visa": "VISA",
     "amex": "AMEX",
     "other": "AUTRE"
-  },
-  "services": {
-    "bar": "Services inclus",
-    "deposit": "Dépôt de garantie"
   },
   "payment": {
     "bar": "Mode de paiement",
@@ -148,6 +132,7 @@
     "option_3": "Option III",
     "fuel": "Carburant",
     "misc": "Divers",
+    "damage": "Dommages (estimations facturées)",
     "total_ht": "Total H.T.",
     "vat": "TVA {rate} %",
     "total_ttc": "Total TTC",
@@ -181,7 +166,6 @@
     "reference_set": "Photos de référence",
     "reference_set_of": "jeu du {date}",
     "dashboard": "Tableau de bord",
-    "extra_photos": "Photos supplémentaires",
     "open_damage": "Dommages existants au départ",
     "new_damage": "Nouveaux dommages",
     "ras": "RAS — Rien à signaler",
@@ -191,7 +175,14 @@
     "pending_return": "À compléter au retour",
     "more_photos": "Toutes les photos en taille réelle : annexe photos.",
     "declaration_title": "Déclaration",
-    "declaration": "Je déclare avoir inspecté le véhicule au départ et/ou au retour et en accepter l'état."
+    "declaration": "Je déclare avoir inspecté le véhicule au départ et/ou au retour et en accepter l'état.",
+    "found_at_departure": "constaté à ce départ",
+    "estimate": "Estimation",
+    "estimate_indicative": "indicative, coût définitif facturé après réparation",
+    "estimate_billed": "facturée au décompte final",
+    "prior_damage_see_annex": "Dommages déjà présents au départ : {n}, voir l'annexe page {page}.",
+    "prior_damage_none": "Dommages déjà présents au départ : aucun.",
+    "optional": "facultative"
   },
   "angles": {
     "front": "Avant",
@@ -207,25 +198,7 @@
   "photo_kinds": {
     "reference": "Référence",
     "damage": "Dommage",
-    "extra": "Photo supplémentaire",
     "dashboard": "Tableau de bord"
-  },
-  "amendment": {
-    "intro": "Modification du contrat après la signature du départ. Les autres conditions restent inchangées.",
-    "date": "Date de l'avenant",
-    "revision": "Révision du contrat",
-    "agent": "Agent",
-    "reason": "Motif",
-    "field": "Élément modifié",
-    "before": "Avant",
-    "after": "Après",
-    "fields": {
-      "planned_return": "Retour prévu",
-      "return_place": "Lieu de retour",
-      "km_included": "Kms inclus",
-      "rental_days": "Nombre de jours",
-      "additional_driver": "Conducteur additionnel"
-    }
   },
   "terms": {
     "version": "Conditions générales, version {v}",
@@ -241,10 +214,9 @@
   "sig": {
     "departure": "Signature départ",
     "return": "Signature retour",
-    "amendment": "Signature avenant n° {n}",
-    "no_client_signature": "Sans signature du client",
     "signed_on": "Signé le {date}",
-    "pending": "En attente de signature"
+    "pending": "En attente de signature",
+    "stored": "Enregistrée le {captured} · apposée le {applied}"
   },
   "footer": {
     "siret": "SIRET",
@@ -271,6 +243,7 @@
       "décembre"
     ],
     "date": "{d} {month} {y}",
+    "date_short": "{dd}/{mm}/{y}",
     "datetime": "{date} · {time}",
     "decimal": ",",
     "thousands": " ",
@@ -283,5 +256,27 @@
     "title": "Déclaration",
     "text": "Je déclare avoir lu et compris le présent contrat et accepter les conditions générales de location."
   },
-  "signed_terms_note": "Conditions signées au départ (révision 1). Les modifications ultérieures figurent dans les avenants."
+  "signed_terms_note": "Conditions signées au départ. Les modifications convenues pendant la location (prolongation, etc.) sont reprises au décompte final.",
+  "prior_damage": {
+    "intro": "Dommages présents au départ de cette location, figurant sur les photos du départ et acceptés à la signature du départ. Ils ne font pas partie des nouveaux dommages constatés au retour.",
+    "found": "Constaté le {date}",
+    "origin_departure": "au départ du contrat {number}",
+    "origin_return": "au retour du contrat {number}",
+    "photos": "{n} photo(s) en annexe"
+  },
+  "authorisation": {
+    "intro": "Je soussigné(e) {name}, locataire du contrat {number}, restitue le véhicule {vehicle} sans assister à la fin de l'état des lieux de retour. J'autorise {company} à apposer la signature ci-dessous, une seule fois, sur l'état du véhicule au retour et le décompte final de ce contrat, établis après mon départ et hors de ma présence. Cette signature ne peut servir à aucun autre document.",
+    "bar": "Restitution sans le client",
+    "captured_at": "Signature enregistrée le",
+    "place": "Lieu",
+    "agent": "Agent",
+    "km": "Kms au retour",
+    "fuel": "Jauge au retour",
+    "applied_bar": "Signature apposée",
+    "applied_at": "Apposée le",
+    "applied_by": "Par",
+    "on_what": "Sur",
+    "on_what_value": "État du véhicule au retour et décompte final de ce PDF",
+    "box": "Signature du client"
+  }
 }

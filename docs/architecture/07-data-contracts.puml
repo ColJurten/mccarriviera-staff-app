@@ -63,9 +63,8 @@ class ContractRevision <<table: contract_revisions>> {
   terms : ContractTerms {full snapshot}
   terms_version_fr_id, terms_version_en_id : uuid [0..1]
   snapshot_sha256 : text
-  reason : text [0..1] {amendments}
-  client_signed : boolean
-  signed_at : timestamptz [0..1]
+  reason : text [0..1] {amendments, not printed}
+  signed_at : timestamptz [0..1] {departure}
   --
   {editable while unsigned, then insert-only}
 }
@@ -85,7 +84,6 @@ class ContractTerms <<datatype>> {
   card_last4 : exactly 4 digits [0..1]
   card_expiry : MM/YY [0..1]
   {field} deposit : numeric(10,2) [0..1]
-  services_included : text [0..1]
   departure_agent : staff display name
   pricing : PricingLines
   --
@@ -96,14 +94,16 @@ class PricingLines <<datatype>> {
   {field} rental, extra_days, extra_km, rental_total_ht : numeric(10,2) [0..1]
   {field} under_25_insurance, extra_driver, delivery : numeric(10,2) [0..1]
   {field} option_1, option_2, option_3, fuel, misc : numeric(10,2) [0..1]
+  {field} damage : numeric(10,2) [0..1] {sum of billed estimates}
   {field} total_ht, vat_20, total_ttc, total_prepaid : numeric(10,2) [0..1]
   {field} balance : numeric(10,2) [0..1] {may be negative}
   --
-  {all typed by staff, nothing calculated (F-06)}
+  {typed by staff (F-06), except damage (F-24)}
 }
 
 class TermsVersion <<table: terms_versions>> {
   id : uuid
+  kind : general_terms | return_authorisation
   language : fr | en
   version_label : text
   effective_from : date

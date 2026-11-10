@@ -5,7 +5,7 @@
 | E5 · Départ | Must | P3 | M | To do |
 
 - **Depends on:** [US-020](US-020-home-screen.md) · [US-022](US-022-add-a-vehicle.md) · [US-006](US-006-core-database-schema-and-storage.md)
-- **Decisions:** [ADR-0008](../adr/0008-vehicle-condition-model.md) · [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0005](../adr/0005-online-only.md)
+- **Decisions:** [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) · [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md) · [ADR-0005](../adr/0005-online-only.md)
 - **Open points:** — (see [open questions](../discovery/open-questions.md))
 
 ## Story

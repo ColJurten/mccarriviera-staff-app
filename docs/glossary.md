@@ -12,9 +12,12 @@ labels below.
 | Retour | Check-in / return / drop-off | End of a rental: return km, fuel and condition recorded |
 | Restitution | Return (of the vehicle) | CGV Art. 9: returning car, keys and papers ends the rental |
 | Prolongation | Extension | CGV Art. 8: extending the rental period |
-| Avenant | Amendment | A change to a signed contract, stored as a new revision and printed on its own page (ADR-0007, F-08) |
-| Photos de référence | Reference photo set | The vehicle's current set of condition photos, reused at each Départ. Database table `condition_baselines` (ADR-0008) |
-| Décompte final | Final statement | The pricing lines as completed at the Retour, printed in the Retour section (F-08) |
+| Avenant | Amendment | A change to a signed contract, stored as a new revision in the app. It is not printed as a page; its effect shows in the final statement (ADR-0007, F-22) |
+| Photos de référence | Reference photo set | The vehicle's current set of condition photos, reused at each Départ: front, rear, left and right required, the others optional. Database table `condition_baselines` (ADR-0024, F-23) |
+| Dommage constaté au départ | Damage found at pick-up | Damage the client or staff spot at a Départ that wasn't on record: a damage record, never charged to that renter (ADR-0024, F-25) |
+| Dommages déjà présents au départ | Damage already present at pick-up | Damage open when a rental starts. In the final PDF it moves to its own annex, after the new damage (F-24) |
+| Estimation (indicative · facturée) | Estimate (indicative · billed) | An optional amount on a new damage found at the Retour. Indicative: printed as an estimate, the final cost invoiced after the repair. Billed: added to the « Dommages » line of the final statement (ADR-0024, F-24) |
+| Décompte final | Final statement | The pricing lines as completed at the Retour, printed next to the departure charges on page 1 (F-22) |
 | Importée | Imported | A photo picked from the phone's library rather than taken in the app (ADR-0014) |
 | État des lieux | Condition inspection | Inspection at départ or retour |
 | Descriptif véhicule | Vehicle condition description | The condition boxes on the current form |
@@ -24,6 +27,8 @@ labels below.
 | Retour en attente de signature | Check-in awaiting signature | Return data entered, but the client hasn't signed yet. The car stays « En cours » (F-04) |
 | En attente de signature (contrat) | Awaiting signature | The Départ's preview exists and the contract number is reserved; the client hasn't signed yet (F-18) |
 | Annulé avant signature | Cancelled before signature | A contract that was never signed, kept with its number, never deleted (F-18) |
+| Signature enregistrée | Stored signature | A client's drawing recorded at the drop-off, after they sign an authorisation, and applied by staff to the finished Retour. One Retour only, used once; a feature switched on per company (ADR-0023, F-28) |
+| Autorisation de signature | Signature authorisation | The text the client signs before their signature is stored; printed as a page of the final PDF (F-28, L-01) |
 | Reset (du statut / de l'état) | Status / baseline reset | Brief: new reference condition photos after a damage repair, only when appropriate. Meeting notes: « Reset status ou pas » next to Maintenance |
 
 ## Vehicle statuses (meeting notes, plus « Archivé »)
@@ -113,10 +118,13 @@ labels below.
 
 | Term | Meaning in this project |
 |---|---|
-| API (server) | The developer's own back end, in TypeScript with Fastify: logins, permission checks, file links, PDF rendering and the link to Documenso ([ADR-0019](adr/0019-backend-own-api-postgres-s3.md)) |
-| Documenso | The open-source signing application, hosted next to the API. The client signs in it, on the staff phone ([ADR-0020](adr/0020-signatures-with-documenso.md)) |
-| Envelope | Documenso's word for a document sent for signature, with its signers and signature fields |
-| Sealed PDF · Cachet PAdES | The signed PDF that Documenso returns, with a digital seal over the whole file: any later change is detectable. Sealed with the company's certificate |
+| API (server) | The developer's own back end, in TypeScript with Fastify: logins, permission checks, file links, PDF rendering, stamping and sealing ([ADR-0019](adr/0019-backend-own-api-postgres-s3.md)) |
+| Signature pad · Pavé de signature | The full-screen area where the client draws their signature once, in the app or the web app ([ADR-0023](adr/0023-signatures-in-the-app-sealed-by-the-api.md)) |
+| Preview · Aperçu | The PDF the API renders before signing, stored with its SHA-256. The client signs exactly that file; a change or a language switch makes a new one ([ADR-0023](adr/0023-signatures-in-the-app-sealed-by-the-api.md)) |
+| Sealed PDF · Cachet PAdES | The signed PDF, with the drawing stamped on every page and a digital seal over the whole file: any later change is detectable. Sealed by the API with the company's certificate |
+| Timestamp · Horodatage | A time certified by a timestamping authority (RFC 3161), embedded in the seal ([ADR-0023](adr/0023-signatures-in-the-app-sealed-by-the-api.md)) |
+| Signature certificate page | The page the API appends after the contract's numbered pages: who signed, when, on which device, in which mode, and the files' hashes |
+| Documenso | The open-source signing application chosen on 2026-11-03 and dropped on 2026-11-10, after the spike showed one tap per page (ADR-0020, superseded) |
 | Self-signed certificate | The company's own sealing certificate, not issued by a recognised authority: the seal is intact, but Adobe Reader shows the company's identity as unverified (F-17, L-01) |
 | Presigned link | A temporary link (5 minutes at most) to one private file, issued by the API after its checks ([ADR-0014](adr/0014-file-storage.md)) |
 | Staging | The test environment, on the developer's homelab, with invented data only (F-14) |

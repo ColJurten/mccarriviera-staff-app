@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | B-01, B-02, B-11 · F-05, F-12, F-13 (answered) · F-01 |
+| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | B-01, B-02, B-11 · F-05, F-12, F-13 (answered) · F-01 |
 
 ## Context
 
@@ -28,9 +28,9 @@
     - expo-camera and expo-image-picker (photos), expo-image-manipulator (resize, strip metadata);
     - expo-image, with a memory-only cache for personal data ([ADR-0013](0013-personal-device-data-protection.md));
     - expo-document-picker (files), expo-sharing (share sheet), expo-file-system, and a PDF viewer for the preview;
-    - react-native-webview, for Documenso's signing page ([ADR-0020](0020-signatures-with-documenso.md));
+    - a signature pad component, chosen in the spike US-009 ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md));
     - expo-secure-store (Keychain), expo-local-authentication (Face ID), expo-localization.
-  - **No signature pad and no PDF engine in the app:** the client signs on Documenso's page, and the API renders the PDFs ([ADR-0010](0010-contract-pdf-generation.md)). The spike [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md) proves both on an iPhone.
+  - **A signature pad, but no PDF engine, in the app:** the client draws once on a full-screen pad, and the API renders, stamps and seals the PDFs ([ADR-0010](0010-contract-pdf-generation.md), [ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). The spike [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md) proves both on an iPhone.
 
 ## Consequences
 
@@ -66,9 +66,10 @@ A Mac becomes available and a native-only capability becomes necessary, or Expo'
 - 2026-10-09: F-05 answered (the test iPhone is the developer's partner's); the development and test setup moved to ADR-0018.
 - 2026-11-03: the app talks to the developer's own API (ADR-0019); the signature pad and expo-print are dropped, since signing moves to Documenso (ADR-0020) and PDF rendering to the API (F-13).
 - 2026-11-03 (later): the same code also builds a web app (F-19, ADR-0021).
+- 2026-11-10: Documenso is replaced: the app has a signature pad again, and the API stamps and seals the PDF ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). No web view is needed for signing.
 
 ## Implemented by
 
 - [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for iOS and the web
 - [US-005](../stories/US-005-eas-builds-and-internal-distribution.md): Set up EAS builds, internal distribution and over-the-air updates
-- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove Documenso signing and server-rendered PDFs, in a browser and on a real iPhone
+- [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove in-app signing, stamping and sealing, and server-rendered PDFs, in a browser and on a real iPhone

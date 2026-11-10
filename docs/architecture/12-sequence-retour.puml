@@ -1,5 +1,5 @@
 @startuml 12-sequence-retour
-' UML sequence diagram: a Retour, with the mandatory client signature (US-070 to US-075, US-044).
+' UML sequence diagram: a Retour, with the mandatory client signature or the stored one (US-070 to US-076, US-044).
 !include style.iuml
 hide footbox
 autonumber "<b>0."
@@ -9,44 +9,58 @@ actor "Client" as client
 participant "App\n(iPhone)" as app
 participant "API +\nPostgreSQL" as api
 participant "Storage" as st
-participant "Documenso" as doc
 
 == Open the rental · US-070 ==
 staff -> app : « Retour », choose the active rental
 app -> api : load the contract as last amended, departure data, open damage
 api --> app : data + photo links (≤ 5 min)
 
+opt client can't wait, stored signature switched on (F-28, US-076)
+  app -> client : authorisation text (contract language) + signature pad
+  client -> app : draws once
+  app -> api : drawing
+  api -> api : authorisation page stamped and sealed\nstored signature « pending », this Retour only
+  api -> st : store the drawing and the sealed authorisation
+end
+
 == Check-in · US-071 to US-073 ==
 staff -> app : return time, km in, fuel in
 app -> app : km driven, extra km
 alt new damage
   loop each new damage
-    staff -> app : at least one photo + a comment
+    staff -> app : at least one photo + a comment\n+ optional estimate, indicative or billed (F-24)
     app -> st : upload the photos (insert-only, presigned)
     app -> api : save as open damage, linked to this Retour
   end
 else nothing new
   staff -> app : « RAS »
 end
-staff -> app : final pricing lines, typed by hand
+staff -> app : final pricing lines, typed by hand\n(« Dommages » = billed estimates; warning above the deductible)
 app -> api : Retour saved as it is typed (in progress)
 
-== Signature, mandatory · US-074, US-075 ==
-alt client present
-  app -> api : preview of the final PDF, FR or EN (switchable)
-  api -> api : render: departure image in « Signature départ »,\nexcept amendment pages
-  api -> doc : envelope: a field in « Signature retour » on every page
-  app -> client : Documenso's signing page, private web view
-  client -> doc : signs once (F-17)
-  doc -> api : webhook: document completed
-  activate api #F6EFDC
-  api -> st : store the sealed final PDF, SHA-256
-  api -> api : one transaction (complete_return):\ninspection · final amounts · signature evidence\ncar km and fuel · contract closed · car available · audit
-  deactivate api
-  app -> st : download the sealed PDF
-  app -> staff : iOS share sheet
-else client absent
-  app -> staff : « Retour en attente de signature »
-  note right of app : The envelope waits. The contract stays active\nand the car « En cours ». The company contacts\nthe client (B-08); the Retour ends when they sign.
+== Signature, mandatory · US-074 to US-076 ==
+app -> api : preview of the final PDF, FR or EN (switchable)
+api -> api : render: new damage first, damage already present in an annex,\ndeparture drawing in « Signature départ »
+opt the client disagrees (F-26, US-058)
+  staff -> app : new damage, photos or estimate
+  app -> api : new preview
 end
+alt client present
+  app -> client : signature pad
+  client -> app : draws once (F-17)
+  app -> api : drawing · preview ID + SHA-256
+else stored signature pending
+  staff -> app : « Apposer la signature enregistrée »
+  app -> api : apply the stored signature · preview ID + SHA-256
+else client absent, nothing stored
+  app -> staff : « Retour en attente de signature »
+  note right of app : The contract stays active and the car « En cours ».\nThe company contacts the client (B-08);\nthe Retour ends when they sign.
+end
+activate api #F6EFDC
+api -> api : stamp « Signature retour » on every page\n(+ authorisation page if stored) · certificate page · PAdES seal + timestamp
+api -> st : store the sealed final PDF, SHA-256
+api -> api : one transaction (complete_return):\ninspection · final amounts · signature evidence\n(stored signature → applied) · car km and fuel\ncontract closed · car available · audit
+deactivate api
+app -> st : download the sealed PDF
+app -> staff : iOS share sheet
 @enduml

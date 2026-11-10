@@ -9,7 +9,7 @@ actor "Client\n(renter)" as client
 
 node "Staff iPhone ×2" <<personal phone · Ad Hoc install>> as phone $DEVICE {
   artifact "MC Car Riviera app\nExpo · React Native · TypeScript" as app
-  artifact "Signing web view\nDocumenso's page\nprivate session" as wv
+  artifact "Signature pad\none drawing\nnot kept on the phone" as wv
   database "Keychain\nsession token" as kc
   folder "App cache\nPDFs only\ndeleted after 7 days" as cache
 }
@@ -19,16 +19,15 @@ node "Staff laptop · agency computer" <<browser>> as pc $DEVICE {
 }
 
 cloud "Scaleway · Paris · production" <<developer's account>> as scw $DEVELOPER {
-  node "Server · ≥ 4 GB RAM · Docker Compose" as srv {
-    component "Caddy · Let's Encrypt\nmcr.developerworkshop.online\nsign.mcr.developerworkshop.online" as caddy
-    component "API · Fastify · TypeScript\nlogins (better-auth) · checks\nfile links · PDFs (Chromium)" as api
-    component "Documenso\nsigning pages · seals the PDF\nwith the company certificate" as doc
+  node "Server · 4 GB RAM · Docker Compose" as srv {
+    component "Caddy · Let's Encrypt\nmcr.developerworkshop.online" as caddy
+    component "API · Fastify · TypeScript\nlogins (better-auth) · checks\nfile links · PDFs (Chromium)\nstamps + seals signed PDFs" as api
     component "Nightly backup job" as job
   }
-  database "Managed PostgreSQL\nmcr · documenso\nserver access only" as pg
+  database "Managed PostgreSQL\nmcr\nserver access only" as pg
   folder "Object Storage\nprivate buckets" as s3
 }
-cloud "turboSMTP · EU\nSMTP for Documenso" <<developer's account>> as smtp $DEVELOPER
+cloud "Timestamping authority\nRFC 3161 · ADR-0023" as tsa
 
 cloud "Sentry · EU\nerrors, no personal data" <<developer's account>> as sentry $DEVELOPER
 cloud "Backup storage · EU\nanother provider · encrypted\nthe job can't delete" <<developer's account>> as bkp $DEVELOPER
@@ -36,19 +35,14 @@ cloud "Backup storage · EU\nanother provider · encrypted\nthe job can't delete
 staff --> app : uses
 staff --> web : uses
 web --> caddy : HTTPS · cookie session
-client --> wv : signs once
+client --> wv : draws once
 app --> caddy : HTTPS · session token
-wv --> caddy : HTTPS · sign.<domain>
+wv ..> app : drawing
 caddy --> api
-caddy --> doc
 app --> s3 : presigned links ≤ 5 min
 api --> pg
-doc --> pg
-api --> doc : API v2 · envelopes
-doc ..> api : webhook · document signed
 api --> s3
-doc --> s3 : own bucket
-doc ..> smtp
+api ..> tsa : timestamp per seal
 app ..> sentry : errors
 api ..> sentry : errors
 job --> pg : dumps
