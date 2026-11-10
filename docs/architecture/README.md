@@ -57,3 +57,15 @@ are the only public API routes. All future routes fail closed until US-010.
 No production component or business sequence was added by this slice, so its
 PlantUML sources and generated production diagrams are unchanged. See the
 [local deployment guide](../../deploy/README.md) for startup and service ports.
+
+## Physical schema (US-006 part 1)
+
+Class diagrams 05–08 now follow the migrations in `db/migrations/`. Every table
+has a UUID key and creation metadata. Contract terms are flattened typed
+columns: renter/additional-driver snapshots use the client field names with
+prefixes, rates use `rate_`, and PricingLines uses `pricing_` on revisions and
+`final_pricing_` on inspections. See the field map's physical-column appendix.
+The overview includes staff, audit and yearly-counter fields. Cardinalities
+show completed business records; feature functions enforce required photo-set
+completeness after staged inserts. Storage routes and lifecycle functions are
+not implemented by this schema slice.

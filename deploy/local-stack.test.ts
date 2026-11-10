@@ -55,7 +55,9 @@ describe('compose.local.yml (US-004, ADR-0019, ADR-0020, ADR-0022)', () => {
       expect(init).toContain(`CREATE DATABASE ${name} OWNER ${name};`);
       expect(init).toContain(`REVOKE ALL ON DATABASE ${name} FROM PUBLIC;`);
     }
-    expect(service('api')).toContain('postgresql://mcr:');
+    expect(service('api')).toContain('postgresql://mcr_runtime:');
+    expect(init).toContain('GRANT mcr_api TO mcr_runtime');
+    expect(init).not.toContain('GRANT mcr TO mcr_runtime');
     expect(service('api')).toContain('@postgres:5432/mcr');
     expect(read('.env.example')).toMatch(
       /^DOCUMENSO_DATABASE_URL=postgresql:\/\/documenso:.*\/documenso$/m,
@@ -170,15 +172,12 @@ describe('CI (ADR-0016, ADR-0022)', () => {
 });
 
 describe('migrations (dbmate, ADR-0019)', () => {
-  test('starts with one empty migration and exposes the commands', () => {
+  test('keeps the initial migration and adds the core schema', () => {
     const migrations = readdirSync(
       new URL('../db/migrations', import.meta.url),
     );
-    expect(migrations).toHaveLength(1);
-    const statements = read(`db/migrations/${migrations[0]}`)
-      .split('\n')
-      .filter((line) => line.trim() && !line.startsWith('--'));
-    expect(statements).toEqual([]);
+    expect(migrations).toContain('20261105000000_initial.sql');
+    expect(migrations).toContain('20261110000000_core_schema.sql');
     const scripts = JSON.parse(read('package.json')).scripts;
     for (const name of ['db:migrate', 'db:generate', 'db:check']) {
       expect(scripts).toHaveProperty([name]);

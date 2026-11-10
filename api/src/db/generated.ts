@@ -3,10 +3,441 @@
  * Please do not edit it manually.
  */
 
+import type { ColumnType } from 'kysely';
+
+export type Generated<T> =
+  T extends ColumnType<infer S, infer I, infer U>
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
+
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
+export type Numeric = ColumnType<string, number | string, number | string>;
+
+export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export interface AuditEvents {
+  action: string;
+  actor_id: string | null;
+  after_values: Json | null;
+  before_values: Json | null;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  id: Generated<string>;
+  row_id: string;
+  table_name: string;
+}
+
+export interface ClientDocuments {
+  client_id: string;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  id: Generated<string>;
+  label: string | null;
+  sha256: string;
+  size_bytes: number;
+  storage_path: string;
+  type: string;
+}
+
+export interface Clients {
+  birth_date: Timestamp | null;
+  birth_place_or_country: string | null;
+  city: string | null;
+  country: string | null;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  email: string | null;
+  first_name: string | null;
+  id: Generated<string>;
+  id_doc_country: string | null;
+  id_doc_expires_on: Timestamp | null;
+  id_doc_issued_on: Timestamp | null;
+  id_doc_number: string | null;
+  id_doc_type: string | null;
+  last_name: string;
+  licence_expires_on: Timestamp | null;
+  licence_issued_on: Timestamp | null;
+  licence_number: string | null;
+  line2: string | null;
+  local_address: string | null;
+  local_phone: string | null;
+  phone: string | null;
+  postcode: string | null;
+  state_region: string | null;
+  street: string | null;
+  title: string | null;
+}
+
+export interface ConditionBaselines {
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  id: Generated<string>;
+  reason: string;
+  taken_at: Timestamp;
+  taken_by: string;
+  vehicle_id: string;
+}
+
+export interface ContractDocuments {
+  contract_id: string;
+  copy_of_id: string | null;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  id: Generated<string>;
+  language: string;
+  revision_no: number;
+  sha256: string;
+  size_bytes: number;
+  stage: string;
+  storage_path: string;
+  template_version: string;
+  terms_version_id: string;
+}
+
+export interface ContractDrivers {
+  client_id: string;
+  contract_id: string;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  id: Generated<string>;
+  role: string;
+}
+
+export interface ContractNumberCounters {
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  id: Generated<string>;
+  last_value: number;
+  year: number;
+}
+
+export interface ContractRevisions {
+  additional_birth_date: Timestamp | null;
+  additional_birth_place_or_country: string | null;
+  additional_city: string | null;
+  additional_country: string | null;
+  additional_email: string | null;
+  additional_first_name: string | null;
+  additional_id_doc_country: string | null;
+  additional_id_doc_expires_on: Timestamp | null;
+  additional_id_doc_issued_on: Timestamp | null;
+  additional_id_doc_number: string | null;
+  additional_id_doc_type: string | null;
+  additional_info: string | null;
+  additional_last_name: string | null;
+  additional_licence_expires_on: Timestamp | null;
+  additional_licence_issued_on: Timestamp | null;
+  additional_licence_number: string | null;
+  additional_line2: string | null;
+  additional_local_address: string | null;
+  additional_local_phone: string | null;
+  additional_phone: string | null;
+  additional_postcode: string | null;
+  additional_state_region: string | null;
+  additional_street: string | null;
+  additional_title: string | null;
+  card_brand: string | null;
+  card_expiry: string | null;
+  card_last4: string | null;
+  contract_id: string;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  deductible_accident: Numeric | null;
+  deductible_theft: Numeric | null;
+  departure_agent: string | null;
+  departure_at: Timestamp | null;
+  deposit: Numeric | null;
+  flight_train: string | null;
+  id: Generated<string>;
+  intermediary: string | null;
+  intermediary_phone: string | null;
+  kind: string;
+  payment_method: string | null;
+  pickup_place: string | null;
+  planned_return: Timestamp | null;
+  pricing_balance: Numeric | null;
+  pricing_damage: Numeric | null;
+  pricing_delivery: Numeric | null;
+  pricing_extra_days: Numeric | null;
+  pricing_extra_driver: Numeric | null;
+  pricing_extra_km: Numeric | null;
+  pricing_fuel: Numeric | null;
+  pricing_misc: Numeric | null;
+  pricing_option_1: Numeric | null;
+  pricing_option_2: Numeric | null;
+  pricing_option_3: Numeric | null;
+  pricing_rental: Numeric | null;
+  pricing_rental_total_ht: Numeric | null;
+  pricing_total_ht: Numeric | null;
+  pricing_total_prepaid: Numeric | null;
+  pricing_total_ttc: Numeric | null;
+  pricing_under_25_insurance: Numeric | null;
+  pricing_vat_20: Numeric | null;
+  rate_1_3: Numeric | null;
+  rate_4_7: Numeric | null;
+  rate_extra_day_1: Numeric | null;
+  rate_extra_day_2: Numeric | null;
+  rate_extra_km: Numeric | null;
+  rate_km_included: number | null;
+  rate_package_days: number | null;
+  rate_package_price: Numeric | null;
+  reason: string | null;
+  rental_days: number | null;
+  renter_birth_date: Timestamp | null;
+  renter_birth_place_or_country: string | null;
+  renter_city: string | null;
+  renter_country: string | null;
+  renter_email: string | null;
+  renter_first_name: string | null;
+  renter_id_doc_country: string | null;
+  renter_id_doc_expires_on: Timestamp | null;
+  renter_id_doc_issued_on: Timestamp | null;
+  renter_id_doc_number: string | null;
+  renter_id_doc_type: string | null;
+  renter_last_name: string | null;
+  renter_licence_expires_on: Timestamp | null;
+  renter_licence_issued_on: Timestamp | null;
+  renter_licence_number: string | null;
+  renter_line2: string | null;
+  renter_local_address: string | null;
+  renter_local_phone: string | null;
+  renter_phone: string | null;
+  renter_postcode: string | null;
+  renter_state_region: string | null;
+  renter_street: string | null;
+  renter_title: string | null;
+  return_place: string | null;
+  revision_no: number;
+  signed_at: Timestamp | null;
+  snapshot_sha256: string | null;
+  terms_version_en_id: string | null;
+  terms_version_fr_id: string | null;
+  vehicle_colour: string | null;
+  vehicle_fuel_type: string | null;
+  vehicle_make_model: string | null;
+  vehicle_plate: string | null;
+}
+
+export interface Contracts {
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  current_revision_no: Generated<number>;
+  id: Generated<string>;
+  number: string | null;
+  number_confirmed_at: Timestamp | null;
+  number_reserved_at: Timestamp | null;
+  status: Generated<string>;
+  vehicle_id: string;
+  void_reason: string | null;
+}
+
+export interface Damages {
+  comment: string;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  estimate_amount: Numeric | null;
+  estimate_mode: string | null;
+  found_contract_id: string | null;
+  found_in_inspection_id: string | null;
+  found_stage: string;
+  id: Generated<string>;
+  repaired_in_maintenance_id: string | null;
+  repaired_on: Timestamp | null;
+  status: Generated<string>;
+  vehicle_id: string;
+}
+
+export interface Inspections {
+  agent_name: string;
+  at: Timestamp;
+  baseline_id: string | null;
+  car_papers: boolean | null;
+  clean_inside: boolean | null;
+  clean_outside: boolean | null;
+  comment: string | null;
+  contract_id: string;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  final_pricing_balance: Numeric | null;
+  final_pricing_damage: Numeric | null;
+  final_pricing_delivery: Numeric | null;
+  final_pricing_extra_days: Numeric | null;
+  final_pricing_extra_driver: Numeric | null;
+  final_pricing_extra_km: Numeric | null;
+  final_pricing_fuel: Numeric | null;
+  final_pricing_misc: Numeric | null;
+  final_pricing_option_1: Numeric | null;
+  final_pricing_option_2: Numeric | null;
+  final_pricing_option_3: Numeric | null;
+  final_pricing_rental: Numeric | null;
+  final_pricing_rental_total_ht: Numeric | null;
+  final_pricing_total_ht: Numeric | null;
+  final_pricing_total_prepaid: Numeric | null;
+  final_pricing_total_ttc: Numeric | null;
+  final_pricing_under_25_insurance: Numeric | null;
+  final_pricing_vat_20: Numeric | null;
+  fuel: number;
+  gps: boolean | null;
+  id: Generated<string>;
+  km: number;
+  open_damage_ids: Generated<string[]>;
+  ras: Generated<boolean>;
+  stage: string;
+  status: Generated<string>;
+}
+
+export interface MaintenanceRecords {
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  description: string;
+  finished_on: Timestamp | null;
+  id: Generated<string>;
+  kind: string;
+  odometer_km: number | null;
+  started_on: Timestamp;
+  vehicle_id: string;
+}
+
+export interface Photos {
+  angle: string | null;
+  baseline_id: string | null;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  damage_id: string | null;
+  id: Generated<string>;
+  imported: Generated<boolean>;
+  inspection_id: string | null;
+  kind: string;
+  sha256: string;
+  size_bytes: number;
+  storage_path: string;
+  taken_at: Timestamp;
+  taken_by: string;
+}
+
 export interface SchemaMigrations {
   version: string;
 }
 
+export interface Signatures {
+  app_version: string;
+  contract_id: string;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  device_model: string;
+  id: Generated<string>;
+  image_path: string;
+  image_sha256: string;
+  image_size_bytes: number;
+  ip_address: string;
+  mode: string;
+  os_version: string;
+  preview_id: string;
+  preview_sha256: string;
+  revision_no: number;
+  sealed_pdf_id: string;
+  sealed_pdf_sha256: string;
+  signed_at: Timestamp;
+  snapshot_sha256: string;
+  staff_id: string;
+  stage: string;
+  stored_signature_id: string | null;
+  strokes_path: string;
+  strokes_sha256: string;
+  strokes_size_bytes: number;
+  terms_version_ids: string[];
+}
+
+export interface StaffProfiles {
+  auth_user_id: string | null;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  display_name: string;
+  id: Generated<string>;
+}
+
+export interface StoredSignatures {
+  applied_at: Timestamp | null;
+  applied_by: string | null;
+  authorisation_pdf_id: string;
+  authorisation_version_id: string;
+  cancel_reason: string | null;
+  cancelled_at: Timestamp | null;
+  cancelled_by: string | null;
+  capture_agent_name: string;
+  capture_place: string | null;
+  captured_at: Timestamp;
+  captured_by: string;
+  contract_id: string;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  fuel_at_capture: number | null;
+  id: Generated<string>;
+  image_path: string;
+  image_sha256: string;
+  image_size_bytes: number;
+  km_at_capture: number | null;
+  status: Generated<string>;
+  strokes_path: string;
+  strokes_sha256: string;
+  strokes_size_bytes: number;
+}
+
+export interface TermsVersions {
+  body_pages: string[];
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  effective_from: Timestamp;
+  id: Generated<string>;
+  kind: string;
+  language: string;
+  version_label: string;
+}
+
+export interface Vehicles {
+  colour: string | null;
+  created_at: Generated<Timestamp>;
+  created_by: string;
+  current_baseline_id: string | null;
+  current_fuel: number | null;
+  current_km: Generated<number>;
+  fuel_type: Generated<string>;
+  id: Generated<string>;
+  make_model: string;
+  notes: string | null;
+  plate: string;
+  status: Generated<string>;
+}
+
 export interface DB {
+  audit_events: AuditEvents;
+  client_documents: ClientDocuments;
+  clients: Clients;
+  condition_baselines: ConditionBaselines;
+  contract_documents: ContractDocuments;
+  contract_drivers: ContractDrivers;
+  contract_number_counters: ContractNumberCounters;
+  contract_revisions: ContractRevisions;
+  contracts: Contracts;
+  damages: Damages;
+  inspections: Inspections;
+  maintenance_records: MaintenanceRecords;
+  photos: Photos;
   schema_migrations: SchemaMigrations;
+  signatures: Signatures;
+  staff_profiles: StaffProfiles;
+  stored_signatures: StoredSignatures;
+  terms_versions: TermsVersions;
+  vehicles: Vehicles;
 }

@@ -37,11 +37,11 @@ it('probes migrated PostgreSQL 17 and private Garage buckets with real drivers',
       server_version: string;
     }>`show server_version`.execute(database.db);
     expect(version.rows[0]?.server_version).toMatch(/^17\./);
-    const migrations = await database.db
-      .selectFrom('schema_migrations')
-      .selectAll()
+    const vehicles = await database.db
+      .selectFrom('vehicles')
+      .select('id')
       .execute();
-    expect(migrations).toEqual([{ version: '20261105000000' }]);
+    expect(vehicles).toBeInstanceOf(Array);
     await expect(
       wrongKey.send(
         new HeadBucketCommand({ Bucket: config.S3_HEALTH_BUCKET }),
