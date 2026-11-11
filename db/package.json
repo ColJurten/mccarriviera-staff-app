@@ -8,12 +8,15 @@
     "test": "vitest run",
     "migrate": "node scripts/migrate.mjs",
     "generate": "node scripts/generate-types.mjs",
-    "check-generated": "node scripts/generate-types.mjs --check"
+    "check-generated": "node scripts/generate-types.mjs --check",
+    "seed": "node scripts/seed.mjs",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "devDependencies": {
     "dbmate": "2.37.0",
     "kysely-codegen": "0.20.0",
     "kysely": "0.29.8",
-    "pg": "8.23.1"
+    "pg": "8.23.1",
+    "@types/pg": "8.15.6"
   }
 }

@@ -17,13 +17,16 @@ if [[ ! -e "$dir/cert.p12" ]]; then bash scripts/local-signing-certificate.sh; f
 bash scripts/local-signing-certificate.sh --check
 random() { openssl rand -hex 32; }
 mcr_password=$(random)
+api_password=$(random)
 doc_password=$(random)
 cat > "$dir/local.env" <<ENV
 LOCAL_SECRETS_DIR=$dir
 POSTGRES_PASSWORD=$(random)
 MCR_DB_PASSWORD=$mcr_password
+MCR_API_DB_PASSWORD=$api_password
 DOCUMENSO_DB_PASSWORD=$doc_password
-DATABASE_URL=postgresql://mcr:$mcr_password@localhost:5432/mcr?sslmode=disable
+MIGRATION_DATABASE_URL=postgresql://mcr:$mcr_password@localhost:5432/mcr?sslmode=disable
+DATABASE_URL=postgresql://mcr_runtime:$api_password@localhost:5432/mcr?sslmode=disable
 DOCUMENSO_DATABASE_URL=postgresql://documenso:$doc_password@postgres:5432/documenso
 GARAGE_RPC_SECRET=$(random)
 S3_ACCESS_KEY_ID=GK$(openssl rand -hex 12)

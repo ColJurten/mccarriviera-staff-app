@@ -1,22 +1,84 @@
 # Database migrations
 
-US-004 local foundation; ADR-0016/0019/0022. PostgreSQL 17.11 locally and in CI,
-with separate database owners for `mcr` and `documenso`. The first dbmate migration
-has empty up/down sections. No business or staff/session tables exist yet.
+US-006 part 1; ADR-0006/0007/0011/0019/0022/0023/0024. Ordered dbmate
+migrations create the 18 MVP tables on PostgreSQL 17. All have UUID primary keys,
+`created_at` and a `created_by` foreign key to `staff_profiles`.
 
 Load the external local configuration as described in [deploy](../deploy/README.md).
 From the repository root:
 
 ```sh
 pnpm db:migrate
+export DB_DISPOSABLE=1 # isolated synthetic local/test database only
+pnpm db:seed
+pnpm test --filter db
 pnpm db:generate
 pnpm db:check
 ```
 
+`MIGRATION_DATABASE_URL` is the `mcr` database owner connection, used only by
+migration, seed and code-generation scripts. `DATABASE_URL` is the restricted
+`mcr_runtime` login, inheriting the administrator-provisioned `mcr_api` role.
+Neither runtime role is a member of the owner role. The migrations require
+`mcr_api` to exist; they do not need permission to create login roles or handle
+passwords. The local initializer provisions the roles; see the existing-volume
+instructions in the deployment guide. Other environments must provision the
+same role separation externally before migrating.
+
 `db:migrate` runs dbmate up without a schema dump. `db:generate` introspects the
-app database with kysely-codegen, formats the result and writes
+owner connection with kysely-codegen, formats the result and writes
 `api/src/db/generated.ts`. `db:check` regenerates into an external temporary
-directory, compares, and fails on drift without changing the committed file.
-Only dbmate's `schema_migrations` metadata is present now. CI migrates a disposable
-PostgreSQL 17 database before checking types and real API driver queries.
-Never run destructive tests against staging or production.
+directory and fails on drift. CI applies migrations twice before checking types.
+
+The seed is idempotent and loads only invented clients and vehicles, attributed
+to a self-referencing synthetic staff fixture. It loads no contractual evidence,
+terms or real identities. Seed and integration tests require `DB_DISPOSABLE=1`
+and fail explicitly when configuration is absent. Integration fixtures remain
+in the disposable database; tests use unique identifiers and can run again.
+Never target staging or production.
+
+## Physical data and access rules
+
+Client/vehicle snapshots and both pricing groups are flattened typed columns,
+not opaque JSON. See [field map](../docs/contract-template/field-map.md) and
+[diagrams 05–08](../docs/architecture/README.md). Every amount is `numeric(10,2)`;
+only balance may be negative. Fuel is an integer 0–8, km nonnegative, instants
+`timestamptz`, names/address lines bounded to 80 and comments to 500 characters.
+Card storage is limited to an enumerated brand, four digits and MM/YY expiry.
+
+Column grants prevent runtime status, number/counter and completion-marker
+writes, including status on INSERT. Runtime INSERT omits status columns and
+uses their defaults. Evidence tables have no UPDATE, DELETE or TRUNCATE grants;
+signed revisions, recorded amendments and completed inspections also have row
+guards. Unsigned departure revisions and in-progress inspections accept permitted edits. Guards protect
+stable damage descriptions and stored drawings even from accidental owner
+updates. Terms versions are immutable. Runtime has no business DELETE grants;
+future feature functions will implement permitted discards and lifecycle writes.
+Database owners remain trusted administrators and can change DDL.
+
+Foreign keys and evidence-link guards validate contract/vehicle/inspection
+ownership, photo owner/kind, signature documents/hashes, authorisation references
+and version language/kind. Departure damage IDs are checked against the vehicle.
+Four-angle baseline completeness, required photos on damage, signature-time
+required fields and damage sums will be validated by the feature completion
+functions: inserts must permit staged capture. Audit-event generation is US-007;
+these migrations protect the audit table but generate no audit events.
+
+## Contract numbers
+
+`reserve_contract_number(contract_id uuid, year integer, actor_id uuid)` locks
+the contract, atomically increments the year's counter and assigns
+`MCR-YYYY-NNNN`. Repeating it returns that contract's existing reservation.
+Years are 2000–9999 and sequence values 1–9999; exhaustion fails without assigning
+a number. Counter/assignment and caller work share one transaction, so rollback
+consumes nothing. The caller supplies the business year, allowing the later
+preview function to apply the agency's timezone consistently.
+
+`confirm_contract_number(contract_id uuid, number varchar)` checks the reservation
+and records its first confirmation time; retries return the same number. It does
+not allocate again or activate the contract. Both functions use fixed search
+paths, qualified table names and explicit runtime execute grants; PUBLIC cannot
+execute them. Preview/sign/close/amend/cancel functions, audit triggers, upload
+routes and storage policies are separate stories. US-057 will compose confirmation
+with signing; preview creation must compose reservation with vehicle holding and
+preview registration in one transaction (F-18).

@@ -36,6 +36,10 @@ jobs:
           set +a
           pnpm db:migrate
           pnpm db:migrate
+          export DB_DISPOSABLE=1
+          pnpm db:seed
+          pnpm db:seed
+          pnpm test --filter db
           pnpm db:check
           pnpm --filter @mccarriviera/api test:integration
       - name: Build API container

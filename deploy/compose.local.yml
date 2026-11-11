@@ -6,6 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate external local.env first}
+      MCR_API_DB_PASSWORD: ${MCR_API_DB_PASSWORD:?Generate external local.env first}
       MCR_DB_PASSWORD: ${MCR_DB_PASSWORD:?Generate external local.env first}
       DOCUMENSO_DB_PASSWORD: ${DOCUMENSO_DB_PASSWORD:?Generate external local.env first}
     ports: ['127.0.0.1:5432:5432']
@@ -108,7 +109,7 @@ services:
       context: ..
       dockerfile: api/Dockerfile
     environment:
-      DATABASE_URL: postgresql://mcr:${MCR_DB_PASSWORD:?Generate external local.env first}@postgres:5432/mcr
+      DATABASE_URL: postgresql://mcr_runtime:${MCR_API_DB_PASSWORD:?Generate external local.env first}@postgres:5432/mcr
       S3_ENDPOINT: http://garage:3900
       S3_REGION: garage
       S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Generate external local.env first}

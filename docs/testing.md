@@ -2,7 +2,8 @@
 
 US-002 establishes the check pipeline for [ADR-0016](adr/0016-repository-environments-ci.md).
 US-004 adds API/shared contract tests, a registered-route session audit, and
-real PostgreSQL 17/Garage integration checks. Other workspaces still have smoke
+real PostgreSQL 17/Garage integration checks. US-006 adds database constraints,
+privileges, immutable evidence and concurrent numbering checks. Other workspaces still have smoke
 tests. PDF, app browser and iPhone suites arrive with their stories.
 
 Use synthetic data throughout, including fixtures, PDFs, screenshots and logs.
@@ -18,7 +19,7 @@ Prettier and every workspace's tests, and fails if any check fails. Run
 CI runs the same checks after `pnpm install --frozen-lockfile` on every pull
 request and push to main, with the pnpm store cached. Unit checks need no services.
 Then CI generates disposable external credentials, starts pinned PostgreSQL
-17.11 and Garage 2.1.0, applies migrations twice, checks generated types and runs
+17.11 and Garage 2.1.0, applies migrations twice, loads the synthetic seed twice, runs database tests, checks generated types and runs
 the API integration suite. It builds the API container and removes volumes even
 on failure. No deployment credentials or customer data are used.
 
@@ -31,13 +32,32 @@ app and localisation stories. Every workspace currently has its own smoke test.
 
 ## Database tests
 
-With the database stories, apply migrations from scratch to disposable
-PostgreSQL 17, the same major version as production (ADR-0022), then load
-synthetic seeds. Test constraints, grants and SQL functions, including atomic
-transitions, immutable signed data, audit entries and rejected operations.
-Regenerate database types and fail CI if committed types differ. Tear down the
-database after the run; never target staging or production for destructive
-tests.
+Load the external configuration from [deploy](../deploy/README.md), apply
+migrations to disposable PostgreSQL 17 (ADR-0022), and run:
+
+```sh
+pnpm db:migrate
+export DB_DISPOSABLE=1
+pnpm db:seed
+pnpm db:seed
+pnpm test --filter db
+pnpm db:check
+```
+
+The integration suite requires separate owner (`MIGRATION_DATABASE_URL`) and
+restricted runtime (`DATABASE_URL`) connections and fails when configuration
+is absent. It verifies the 18-table catalog, types, limits, status sets, unique
+active contracts, evidence ownership, owner-level immutability guards and runtime
+column grants. Eight independent runtime connections exercise concurrent
+reservations and same-contract retries. Tests also cover confirmation, rollback,
+year separation, missing reservations and counter exhaustion. Fixtures use unique
+synthetic identifiers and remain in the throwaway database. CI runs this suite
+after fresh migrations and two seed runs. Never target staging or production.
+
+US-007 adds audit-generation checks; transition-function tests arrive with their
+feature stories. No iPhone or PDF feature check applies to this database-only
+slice. Class-diagram SVGs and the architecture PDF are rebuilt from PlantUML
+when physical columns change.
 
 ## API tests
 
@@ -49,7 +69,7 @@ denies nonpublic requests until US-010; it does not implement staff sessions.
 
 `pnpm --filter @mccarriviera/api test:integration` requires the external local
 environment and migrated services from [deploy/README.md](../deploy/README.md).
-It queries the real PostgreSQL version and migration metadata, checks authenticated
+It queries the real PostgreSQL version and business schema with the restricted role, checks authenticated
 access to all four app buckets, denies access to Documenso's bucket and rejects
 anonymous/invalid storage credentials. Missing prerequisites fail the suite.
 `pnpm db:check` regenerates types into a temporary directory and detects drift.

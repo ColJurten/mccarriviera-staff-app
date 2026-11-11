@@ -38,7 +38,7 @@ class Inspection <<table: inspections>> {
   baseline_id : uuid [0..1] {departure}
   open_damage_ids : uuid[] {departure, as at signing}
   ras : boolean {return}
-  final_pricing : PricingLines [0..1] {return}
+  final_pricing_* : PricingLines [0..1] {typed numeric columns}
   comment : text [0..1]
   --
   {insert-only once completed}
@@ -52,7 +52,8 @@ class Signature <<table: signatures>> {
   mode : in_person | stored
   stored_signature_id : uuid [0..1]
   image_path, image_sha256 : text {the drawing}
-  strokes_path : text
+  strokes_path, strokes_sha256 : text
+  image_size_bytes, strokes_size_bytes : integer > 0
   preview_id : uuid
   preview_sha256, sealed_pdf_sha256 : text
   sealed_pdf_id : uuid
@@ -69,17 +70,22 @@ class Signature <<table: signatures>> {
 class StoredSignature <<table: stored_signatures>> {
   id : uuid
   contract_id : uuid {one Retour, F-28}
-  image_path, image_sha256, strokes_path : text
+  image_path, image_sha256, strokes_path, strokes_sha256 : text
+  image_size_bytes, strokes_size_bytes : integer > 0
   authorisation_version_id : uuid
   authorisation_pdf_id : uuid {sealed at capture}
   captured_at : timestamptz
   captured_by : uuid
+  capture_place : varchar(80) [0..1]
+  capture_agent_name : varchar(80) {snapshot}
   km_at_capture : integer [0..1]
   {field} fuel_at_capture : integer 0–8 [0..1]
   status : pending | applied | cancelled {SQL functions only}
   applied_at : timestamptz [0..1]
   applied_by : uuid [0..1]
-  cancel_reason : text [0..1]
+  cancelled_at : timestamptz [0..1]
+  cancelled_by : uuid [0..1]
+  cancel_reason : varchar(500) [0..1]
   --
   {only when the company switches it on;
   no time limit; used once}
@@ -94,6 +100,7 @@ class ContractDocument <<table: contract_documents>> {
   template_version : text
   terms_version_id : uuid
   storage_path, sha256 : text
+  size_bytes : integer > 0
   copy_of_id : uuid [0..1] {copies, US-063}
   --
   {insert-only; previews kept, never shared}
@@ -112,4 +119,11 @@ Inspection ..> PricingLines : final amounts
 Signature "0..*" --> "1" ContractRevision : covers
 Signature "0..*" --> "1" ContractDocument : signs the preview
 ContractDocument "0..*" --> "1" TermsVersion : printed with
+note as Constraints
+All tables include created_at and created_by (diagram 05).
+Agent/device/version names ≤80; comments/reasons ≤500.
+Paths ≤1024; hashes = 64 lowercase hex digits.
+Array evidence IDs are validated on write.
+Document stage/language/terms and signature hashes must agree.
+end note
 @enduml

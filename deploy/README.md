@@ -102,7 +102,8 @@ pnpm db:check
 pnpm --filter @mccarriviera/api test:integration
 ```
 
-The first migration is empty: only dbmate metadata exists. `db:check` compares
+The initial foundation migration stays empty; US-006 adds the 18 business tables,
+constraints, runtime grants and number-reservation helpers. `db:check` compares
 freshly generated, formatted Kysely types with the committed file. Run migrations
 before starting features that need them. To run the API on the host, stop its
 Compose service first, then `pnpm --filter @mccarriviera/api start`; external
@@ -131,3 +132,38 @@ For dependency-failure checks, stop `postgres` or `garage` separately and reques
 health: expect HTTP 503 and only `ok`/`error` statuses. Restart and expect HTTP
 200 with both `ok`. The API's generated OpenAPI file is `api/openapi.json`;
 there are no public documentation routes. See [testing](../docs/testing.md).
+
+## Database role separation (US-006 part 1)
+
+Generate new local configuration with `scripts/local-secrets.sh` into a new
+external directory. It now contains `MIGRATION_DATABASE_URL` for the database
+owner, `DATABASE_URL` for `mcr_runtime`, and a separate `MCR_API_DB_PASSWORD`.
+The API container uses the runtime password; migration, seed and code generation
+require the owner URL. Never give the owner connection to the API.
+
+On a new volume, `postgres/init.sh` provisions `mcr_api` (NOLOGIN privileges) and
+`mcr_runtime` (LOGIN, inherits only `mcr_api`) and grants database CONNECT. The
+owner applies schema grants through migrations. Keep Documenso's separate
+owner/database unchanged until its removal ticket.
+
+Existing PostgreSQL volumes do not rerun initialization. Preserve the volume,
+regenerate external configuration in a new directory (carry over existing owner,
+administrator and service credentials privately), and recreate the postgres/API
+containers with that configuration. Before migrating, provision the runtime
+roles once as the PostgreSQL administrator. In an interactive `psql` session in
+the recreated postgres container (`docker compose ... exec postgres psql -U
+postgres -d postgres`), use its externally supplied environment variable:
+
+```sql
+\getenv api_password MCR_API_DB_PASSWORD
+CREATE ROLE mcr_api NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
+CREATE ROLE mcr_runtime LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT PASSWORD :'api_password';
+GRANT mcr_api TO mcr_runtime;
+GRANT CONNECT ON DATABASE mcr TO mcr_api;
+```
+
+If these roles already exist, inspect their attributes and memberships instead
+of recreating them; ensure neither inherits `mcr` or administrator privileges.
+Load the external configuration, run `pnpm db:migrate` and restart the API.
+`DB_DISPOSABLE=1 pnpm db:seed` and `DB_DISPOSABLE=1 pnpm test --filter db` are
+only for isolated synthetic local databases. CI runs both with PostgreSQL 17.

@@ -1,7 +1,7 @@
 @startuml 05-data-overview
 ' UML class diagram, overview: the 18 tables and how they relate. Fields, and the links of a departure
 ' inspection to the reference set and the open damage, are on the detail diagrams (06 to 08).
-' Working names from US-006; the migrations are the reference once they exist.
+' US-006 physical schema; all 18 tables have UUID id, created_at timestamptz and created_by UUID FK.
 !include style.iuml
 hide circle
 hide empty members
@@ -33,9 +33,25 @@ package "Contracts and evidence" #FBFAF6 {
 
 package "Shared" #F8F9FB {
   class TermsVersion as "Terms version\n(general terms and the\nRetour authorisation, FR / EN)"
-  class StaffProfile as "Staff profile"
-  class AuditEvent as "Audit event"
-  class ContractNumberCounter as "Contract number counter"
+  class StaffProfile as "Staff profile" {
+    id, created_by : uuid
+    created_at : timestamptz
+    display_name : varchar(80)
+    auth_user_id : varchar(128) {unique, optional}
+  }
+  class AuditEvent as "Audit event" {
+    id, created_by, row_id : uuid
+    created_at : timestamptz
+    actor_id : uuid [0..1]
+    action, table_name : varchar(80)
+    before_values, after_values : jsonb [0..1]
+  }
+  class ContractNumberCounter as "Contract number counter" {
+    id, created_by : uuid
+    created_at : timestamptz
+    year : integer {unique, 2000–9999}
+    last_value : integer {1–9999}
+  }
 }
 
 Vehicle "1" *-- "0..*" ConditionBaseline
@@ -62,4 +78,9 @@ Contract "1" *-- "0..*" ContractDocument
 ContractRevision "0..*" --> "1..2" TermsVersion : printed with >
 Contract ..> ContractNumberCounter : number from >
 AuditEvent "0..*" --> "0..1" StaffProfile : actor >
+note as SchemaConventions
+Every table: id uuid PK, created_at timestamptz, created_by uuid FK to staff_profiles.
+Names and address lines: 80 characters; comments: 500.
+See db/migrations for exact nullability, grants and checks.
+end note
 @enduml

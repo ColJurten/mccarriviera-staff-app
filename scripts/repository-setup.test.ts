@@ -101,7 +101,11 @@ describe('root tooling', () => {
     expect(scripts.check).toBe('pnpm typecheck && pnpm lint && pnpm test');
     expect(scripts.typecheck).toBe('pnpm -r typecheck');
     expect(scripts.lint).toContain('pnpm -r lint');
-    expect(scripts.test).toBe('pnpm -r test');
+    expect(scripts.test).toBe('node scripts/test.mjs');
+    expect(read('scripts/test.mjs')).toContain("['-r', 'test']");
+    expect(read('scripts/test.mjs')).toContain(
+      "'@mccarriviera/db', 'test:integration'",
+    );
   });
 });
 

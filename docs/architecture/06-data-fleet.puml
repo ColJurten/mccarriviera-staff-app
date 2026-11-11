@@ -58,6 +58,7 @@ class Damage <<table: damages>> {
   comment : text {at least one photo}
   status : open | repaired {SQL functions only}
   found_stage : departure | return | vehicle_file
+  found_contract_id : uuid [0..1]
   found_in_inspection_id : uuid [0..1]
   {field} estimate_amount : numeric(10,2) [0..1] {Retour only}
   estimate_mode : indicative | billed [0..1]
@@ -86,4 +87,11 @@ Damage "1" *-- "1..*" Photo
 Vehicle "1" *-- "0..*" MaintenanceRecord
 MaintenanceRecord "0..1" -- "0..*" Damage : repairs
 Vehicle ..> VehicleStatus
+note as Constraints
+All tables include created_at and created_by (diagram 05).
+Names/address lines ≤80; comments/notes/descriptions ≤500.
+Paths ≤1024; SHA-256 = 64 lowercase hex digits.
+The four required angles and damage-photo completeness are
+checked by future completion functions, not during staged inserts.
+end note
 @enduml

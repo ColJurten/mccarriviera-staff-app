@@ -4,7 +4,9 @@ import { spawnSync } from 'node:child_process';
 import { mkdtemp, readFile, rm, copyFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
+if (!process.env.MIGRATION_DATABASE_URL)
+  throw new Error('MIGRATION_DATABASE_URL (migration owner) is required');
+process.env.DATABASE_URL = process.env.MIGRATION_DATABASE_URL;
 const directory = await mkdtemp(join(tmpdir(), 'mcr-codegen-'));
 const generated = join(directory, 'generated.ts');
 const committed = new URL('../../api/src/db/generated.ts', import.meta.url);
