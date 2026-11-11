@@ -28,6 +28,11 @@ workspace. CI uses `pnpm install --frozen-lockfile`. Run `pnpm format` to format
 maintained files; existing docs/assets are excluded except docs/testing.md.
 See [docs/testing.md](docs/testing.md) for test layers and device checks.
 
+Task-specific checklists for coding agents live in `.agents/skills/` (database
+migrations, API routes, the contract PDF). Codex reads them there, and
+`.claude/skills` links to the same folder for Claude Code. Keep one copy. They
+point to the docs, which win when the two disagree.
+
 Keep one story or goal per pull request. Cite its story and ADR IDs, describe
 how it was tested, and update touched documentation. Keep unrelated refactors
 out of scope. A person reviews and merges; never merge automatically.
