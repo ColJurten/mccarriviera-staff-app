@@ -7,9 +7,11 @@ import {
 } from 'fastify-type-provider-zod';
 import { installRoutePolicy } from './route-policy.js';
 import { registerHealth, type HealthOptions } from './routes/health.js';
+import { registerAuth } from './routes/auth.js';
+import { AuthFailure, type Authentication } from './auth.js';
 
 export async function buildApp(
-  options: HealthOptions,
+  options: HealthOptions & { auth?: Authentication },
   logStream?: { write: (text: string) => void },
 ) {
   const app = Fastify({
@@ -25,8 +27,10 @@ export async function buildApp(
   });
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
-  const routes = installRoutePolicy(app);
+  const routes = installRoutePolicy(app, options.auth);
   app.setErrorHandler((error, _request, reply) => {
+    if (error instanceof AuthFailure)
+      return reply.code(error.status).send({ error: error.code });
     const validation = (error as { validation?: unknown }).validation;
     return reply
       .code(validation ? 400 : 500)
@@ -50,5 +54,6 @@ export async function buildApp(
     transform: jsonSchemaTransform,
   });
   registerHealth(app, options);
+  registerAuth(app, options.auth);
   return { app, routes };
 }

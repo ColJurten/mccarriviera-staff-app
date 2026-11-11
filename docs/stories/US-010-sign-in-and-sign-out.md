@@ -21,3 +21,12 @@ As a staff member, I want to sign in with my own account, so that the app knows 
 - [ ] Sign-out (in Settings) ends the session on the server, clears in-memory data and the app's cached files (photos, PDFs), and returns to Sign-in.
 - [ ] A deactivated staff profile is refused by the API on its next request, and the app shows « Compte désactivé ».
 - [ ] Password resets and new accounts are handled by the developer, with a script. The app sends no e-mail in the MVP (`RECOMMENDED`).
+
+## API implementation (ticket #7)
+
+The server provides invite-only Better Auth password login, Postgres sessions,
+native bearer and strict web-cookie modes, active-profile checks and sign-out.
+See [API contract](../../api/README.md) and [developer commands](../runbook.md).
+Server acceptance tests cover credentials, HTTP rate limits and revocation.
+Screens, Keychain integration and client cache cleanup remain frontend work;
+the story checkboxes await review of the complete story.

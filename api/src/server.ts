@@ -2,6 +2,7 @@ import { buildApp } from './app.js';
 import { readConfig } from './config.js';
 import { createDatabase } from './db.js';
 import { createStorage } from './storage.js';
+import { createAuthentication } from './auth.js';
 
 try {
   const config = readConfig();
@@ -14,6 +15,7 @@ try {
     database: database.probe,
     storage: storage.probe,
     timeoutMs: config.HEALTH_TIMEOUT_MS,
+    auth: createAuthentication(database.db, config),
   });
   app.addHook('onClose', async () => {
     await database.close();

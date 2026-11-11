@@ -1,5 +1,5 @@
 @startuml 05-data-overview
-' UML class diagram, overview: the 18 tables and how they relate. Fields, and the links of a departure
+' UML class diagram, overview: 18 business tables plus auth storage. Fields, and the links of a departure
 ' inspection to the reference set and the open damage, are on the detail diagrams (06 to 08).
 ' US-006 physical schema; all 18 tables have UUID id, created_at timestamptz and created_by UUID FK.
 !include style.iuml
@@ -38,6 +38,7 @@ package "Shared" #F8F9FB {
     created_at : timestamptz
     display_name : varchar(80)
     auth_user_id : varchar(128) {unique, optional}
+    active : boolean = true
   }
   class AuditEvent as "Audit event" {
     id, created_by, row_id : uuid
@@ -53,6 +54,52 @@ package "Shared" #F8F9FB {
     last_value : integer {1–9999}
   }
 }
+
+package "Authentication (US-010/012/015)" #F8F9FB {
+  class AuthUser as "auth_users" {
+    id : uuid
+    email : varchar(254) {unique}
+    two_factor_enabled : boolean
+  }
+  class AuthAccount as "auth_accounts" {
+    id, user_id : uuid
+    password : hash
+  }
+  class AuthSession as "auth_sessions" {
+    id, user_id : uuid
+    mode : native / web_pending / web
+    authenticated_at, updated_at : timestamptz
+    expires_at : timestamptz
+  }
+  class AuthFactor as "auth_two_factors" {
+    id, user_id : uuid
+    secret, backup_codes : encrypted
+    verified : boolean
+  }
+  class AuthFlow as "auth_flows" {
+    id, user_id : uuid
+    token_hash : sha256
+    state : enrollment / challenge
+    internal_cookie : encrypted
+    created_at, expires_at : timestamptz
+  }
+  class AuthVerification as "auth_verifications" {
+    id : uuid
+    identifier, value : varchar
+    expires_at : timestamptz
+  }
+  class AuthRateLimit as "auth_rate_limits" {
+    key : HMAC {PK}
+    count : integer
+    window_started_at : timestamptz
+  }
+}
+StaffProfile "1" -- "0..1" AuthUser : nullable unique auth link >
+AuthUser "1" *-- "1" AuthAccount
+AuthUser "1" *-- "0..*" AuthSession
+AuthUser "1" *-- "0..1" AuthFactor
+AuthUser "1" *-- "0..*" AuthFlow
+AuthFlow ..> AuthVerification : plugin challenge >
 
 Vehicle "1" *-- "0..*" ConditionBaseline
 Vehicle "0..*" --> "0..1" ConditionBaseline : current >
@@ -79,7 +126,8 @@ ContractRevision "0..*" --> "1..2" TermsVersion : printed with >
 Contract ..> ContractNumberCounter : number from >
 AuditEvent "0..*" --> "0..1" StaffProfile : actor >
 note as SchemaConventions
-Every table: id uuid PK, created_at timestamptz, created_by uuid FK to staff_profiles.
+Business tables: id uuid PK, created_at timestamptz, created_by uuid FK to staff_profiles.
+Auth/plugin storage has its own metadata; limiter counters use a hashed key.
 Names and address lines: 80 characters; comments: 500.
 See db/migrations for exact nullability, grants and checks.
 end note

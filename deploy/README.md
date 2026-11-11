@@ -3,7 +3,8 @@
 WSL2 with Docker Engine/Compose v2, OpenSSL, Node 22.21.1 and pnpm 12.16.1.
 Use synthetic data only. This implements the local slice of US-004 under
 ADR-0012, ADR-0014, ADR-0016, ADR-0019, ADR-0020 and ADR-0022. Staging,
-production, staff sessions, business tables and signing integration come later.
+production and signing integration come later. Business tables and server-side
+staff sessions are now implemented by US-006 and US-010/012/015.
 
 ## First start
 
@@ -59,6 +60,27 @@ files in its database locally; that fifth bucket is reserved and unused.
 Garage does not implement Scaleway bucket policies/versioning equivalently;
 evidence immutability and upload endpoints are US-006 work, tested against
 Scaleway on staging. Do not use this local stack for production evidence.
+
+## Staff authentication configuration
+
+The external generator now creates `AUTH_SECRET`, `AUTH_BASE_URL` and
+`AUTH_TRUSTED_ORIGINS`; Compose passes them only to the API. Existing external
+configurations need a fresh random auth secret (at least 32 characters) and exact
+trusted HTTPS origins added in the protected file. Never print their values.
+Keep the secret stable across restarts and instances. `.env.example` is inert
+and deliberately fails auth validation.
+
+Secure cookies are required locally too. Health and native injected tests can
+use HTTP, but a browser needs a trusted local HTTPS reverse proxy serving the
+web app and `/api/` under the same origin. Set the two URL settings to that
+origin; the API's internal Compose listener remains HTTP behind the proxy.
+There is no development switch to weaken cookie security. The future frontend
+slice supplies browser screens and HTTPS development integration. The API does
+not trust caller forwarding headers; rate limits use its connection address.
+Behind a proxy the two staff share the conservative request budget.
+
+Create/revoke/reset staff with [the account runbook](../docs/runbook.md). Only
+the developer process loads the owner URL; do not add it to the API container.
 
 ## Local Documenso administrator and mail check
 

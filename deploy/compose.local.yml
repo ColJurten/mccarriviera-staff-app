@@ -117,6 +117,9 @@ services:
       S3_HEALTH_BUCKET: condition-photos
       API_PORT: '3001'
       HEALTH_TIMEOUT_MS: '1500'
+      AUTH_SECRET: ${AUTH_SECRET:?Generate external local.env first}
+      AUTH_BASE_URL: ${AUTH_BASE_URL:?Set HTTPS API URL}
+      AUTH_TRUSTED_ORIGINS: ${AUTH_TRUSTED_ORIGINS:?Set trusted HTTPS origins}
     ports: ['127.0.0.1:3001:3001']
     depends_on:
       postgres: { condition: service_healthy }

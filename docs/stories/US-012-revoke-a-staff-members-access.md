@@ -19,3 +19,11 @@ As the company, I want to cut access from a lost phone or a departing employee w
 - [ ] The developer can re-enable the account, or create a new one for a new phone.
 - [ ] The revocation is recorded in the audit trail.
 - [ ] The staff device-use rule (L-03) tells staff to report a lost phone immediately.
+
+## API implementation (ticket #7)
+
+[Developer commands](../runbook.md) deactivate/reactivate profiles and revoke
+all sessions and pending web challenges transactionally. Every protected request
+reads the session and active profile again. Commands invoke one attributed audit
+hook; persistent event wiring awaits US-007. Device messaging/cache deletion and
+the L-03 policy remain separate work; acceptance checkboxes are unchanged.

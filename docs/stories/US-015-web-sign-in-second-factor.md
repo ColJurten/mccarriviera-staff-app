@@ -20,3 +20,12 @@ As the company, I want the web app's sign-in to need more than a password, and i
 - [ ] Code attempts are rate-limited like password attempts. A wrong code says nothing about which factor failed.
 - [ ] The developer can reset a staff member's second factor with a script, recorded in the audit trail.
 - [ ] The iPhone app is unchanged: password and Face ID lock ([US-011](US-011-app-lock-with-face-id.md)).
+
+## API implementation (ticket #7)
+
+The [API](../../api/README.md) exposes first-login TOTP enrollment with backup
+codes, factor verification on every web login and developer factor reset. Pending
+flows cannot access protected routes. Complete web cookies expire after 30 minutes
+idle or 12 hours from password authentication, with immediate server revocation.
+HTTP factor attempts are rate-limited. Screens, QR rendering and browser memory
+cleanup remain frontend work. Audit persistence waits for US-007's event contract.

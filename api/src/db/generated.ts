@@ -38,6 +38,81 @@ export interface AuditEvents {
   table_name: string;
 }
 
+export interface AuthAccounts {
+  access_token: string | null;
+  access_token_expires_at: Timestamp | null;
+  account_id: string;
+  created_at: Generated<Timestamp>;
+  id: Generated<string>;
+  id_token: string | null;
+  password: string | null;
+  provider_id: string;
+  refresh_token: string | null;
+  refresh_token_expires_at: Timestamp | null;
+  scope: string | null;
+  updated_at: Generated<Timestamp>;
+  user_id: string;
+}
+
+export interface AuthFlows {
+  created_at: Generated<Timestamp>;
+  expires_at: Timestamp;
+  id: Generated<string>;
+  internal_cookie: string;
+  state: string;
+  token_hash: string;
+  user_id: string;
+}
+
+export interface AuthRateLimits {
+  count: number;
+  key: string;
+  window_started_at: Timestamp;
+}
+
+export interface AuthSessions {
+  authenticated_at: Generated<Timestamp>;
+  created_at: Generated<Timestamp>;
+  expires_at: Timestamp;
+  id: Generated<string>;
+  ip_address: string | null;
+  mode: string;
+  token: string;
+  updated_at: Generated<Timestamp>;
+  user_agent: string | null;
+  user_id: string;
+}
+
+export interface AuthTwoFactors {
+  backup_codes: string;
+  failed_verification_count: Generated<number>;
+  id: Generated<string>;
+  locked_until: Timestamp | null;
+  secret: string;
+  user_id: string;
+  verified: Generated<boolean>;
+}
+
+export interface AuthUsers {
+  created_at: Generated<Timestamp>;
+  email: string;
+  email_verified: Generated<boolean>;
+  id: Generated<string>;
+  image: string | null;
+  name: string;
+  two_factor_enabled: Generated<boolean>;
+  updated_at: Generated<Timestamp>;
+}
+
+export interface AuthVerifications {
+  created_at: Generated<Timestamp>;
+  expires_at: Timestamp;
+  id: Generated<string>;
+  identifier: string;
+  updated_at: Generated<Timestamp>;
+  value: string;
+}
+
 export interface ClientDocuments {
   client_id: string;
   created_at: Generated<Timestamp>;
@@ -360,6 +435,7 @@ export interface Signatures {
 }
 
 export interface StaffProfiles {
+  active: Generated<boolean>;
   auth_user_id: string | null;
   created_at: Generated<Timestamp>;
   created_by: string;
@@ -422,6 +498,13 @@ export interface Vehicles {
 
 export interface DB {
   audit_events: AuditEvents;
+  auth_accounts: AuthAccounts;
+  auth_flows: AuthFlows;
+  auth_rate_limits: AuthRateLimits;
+  auth_sessions: AuthSessions;
+  auth_two_factors: AuthTwoFactors;
+  auth_users: AuthUsers;
+  auth_verifications: AuthVerifications;
   client_documents: ClientDocuments;
   clients: Clients;
   condition_baselines: ConditionBaselines;

@@ -11,7 +11,7 @@ UML diagrams of the planned iOS app, back end and database, drawn from the [deci
 | 02 | [Build, release and development](svg/02-build-and-release.svg) · [source](02-build-and-release.puml) | Deployment | From the developer's PC to the staff phones and the servers: GitHub, EAS, Apple signing, homelab staging, Scaleway production |
 | 03 | [Front end](svg/03-app-components.svg) · [source](03-app-components.puml) | Component | The Expo app, for iOS and the web: screens (with their stories), data layer, PDF preview and signature pad, device services |
 | 04 | [Back end](svg/04-backend-components.svg) · [source](04-backend-components.puml) | Component | The production server (Caddy, the API with its PDF renderer and signing), the managed Postgres with its SQL functions, the buckets, the backup job |
-| 05 | [Database overview](svg/05-data-overview.svg) · [source](05-data-overview.puml) | Class | The 18 tables and how they relate |
+| 05 | [Database overview](svg/05-data-overview.svg) · [source](05-data-overview.puml) | Class | The 18 business tables, seven auth tables and their relationships |
 | 06 | [Fleet, photos, damage, maintenance](svg/06-data-fleet.svg) · [source](06-data-fleet.puml) | Class | Fields of `vehicles`, `condition_baselines`, `photos`, `damages`, `maintenance_records` |
 | 07 | [Clients, contracts and their terms](svg/07-data-contracts.svg) · [source](07-data-contracts.puml) | Class | Fields of `clients`, `client_documents`, `contracts`, `contract_drivers`, `contract_revisions`, `terms_versions` |
 | 08 | [What each handover records](svg/08-data-evidence.svg) · [source](08-data-evidence.puml) | Class | Fields of `inspections`, `signatures`, `stored_signatures`, `contract_documents` |
@@ -53,7 +53,8 @@ Garage, Mailpit, unmodified Documenso CE with database file storage, and Fastify
 Documenso is no longer part of the design ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md));
 a follow-up ticket removes it from the local stack.
 `GET /api/health` (also HEAD) probes the app database and private storage; these
-are the only public API routes. All future routes fail closed until US-010.
+are public API routes. US-010/012/015 now add the four exact sign-in/continuation
+POST exceptions; all other routes require a current active staff session.
 No production component or business sequence was added by this slice, so its
 PlantUML sources and generated production diagrams are unchanged. See the
 [local deployment guide](../../deploy/README.md) for startup and service ports.
@@ -69,3 +70,17 @@ The overview includes staff, audit and yearly-counter fields. Cardinalities
 show completed business records; feature functions enforce required photo-set
 completeness after staged inserts. Storage routes and lifecycle functions are
 not implemented by this schema slice.
+
+## Staff authentication (US-010/012/015 server side)
+
+Diagram 05 also includes Better Auth identity, credential, session, verification,
+factor, restricted-flow and limiter storage. Business-table creation metadata
+still applies to the 18 business tables; auth records use the library's schema.
+Profiles retain their optional unique auth link and gain `active`. Native
+sessions roll to 30 days idle. Complete web sessions need a factor at every
+sign-in and have 30-minute idle/12-hour absolute expiry. Pending web contexts
+cannot pass business-route guards. Every request reads Postgres; no session
+cookie cache bypasses revocation. [API contract](../../api/README.md) and
+[operator runbook](../runbook.md) describe implemented endpoints and commands.
+Audit-event generation still waits for US-007; commands have a transactional
+integration hook. Screens/device integration remain frontend work.
