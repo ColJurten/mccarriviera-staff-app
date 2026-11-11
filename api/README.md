@@ -14,6 +14,8 @@ Shutdown closes database connections and the S3 client.
 
 `pnpm --filter @mccarriviera/api openapi` regenerates `openapi.json` from the
 shared schemas. A unit test compares the artifact with runtime generation.
+Run `pnpm format` after generation, then `pnpm check`, so the committed JSON
+also satisfies the repository's formatting checks.
 There is no Swagger UI route. `test` runs injected unit requests;
 `test:integration` requires the migrated disposable Postgres 17 and initialized
 Garage described in the deployment guide, and fails on missing configuration.
