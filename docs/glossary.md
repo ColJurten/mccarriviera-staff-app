@@ -129,5 +129,9 @@ labels below.
 | Presigned link | A temporary link (5 minutes at most) to one private file, issued by the API after its checks ([ADR-0014](adr/0014-file-storage.md)) |
 | Staging | The test environment, on the developer's homelab, with invented data only (F-14) |
 | Web app | The same app in a browser, for staff laptops and the agency computer (F-19, [ADR-0021](adr/0021-web-app.md)) |
-| Second factor (TOTP) | A one-time code from an authenticator app, asked at every sign-in on the web (F-19) |
+| Second factor (TOTP) | A one-time code from an authenticator app, asked at every new native and web sign-in (ADR-0012, developer decision PR #25) |
 | Garage · Mailpit | The local stand-ins for S3 storage and for the e-mail server, in the developer's local stack (F-20) |
+
+Authentication uses password plus TOTP (or a one-use backup code) at every new
+native or web sign-in. Face ID/Touch ID only unlocks the local iPhone app
+([ADR-0012](adr/0012-authentication-and-authorisation.md), PR #25).

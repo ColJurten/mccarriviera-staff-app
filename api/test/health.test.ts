@@ -25,9 +25,12 @@ describe('health contract', () => {
       });
       expect(database).toHaveBeenCalledOnce();
       expect(storage).toHaveBeenCalledOnce();
-      expect(routes.map((r) => `${r.method} ${r.url}`).sort()).toEqual(
-        [...publicRoutes].sort(),
-      );
+      expect(
+        routes
+          .filter((r) => !r.sessionCheck)
+          .map((r) => `${r.method} ${r.url}`)
+          .sort(),
+      ).toEqual([...publicRoutes].sort());
       expect(() => assertRoutePolicy(routes)).not.toThrow();
       expect(
         (await app.inject({ method: 'HEAD', url: '/api/health' })).body,
@@ -173,7 +176,17 @@ describe('health contract', () => {
     try {
       await app.ready();
       const spec = app.swagger();
-      expect(Object.keys(spec.paths ?? {})).toEqual(['/api/health']);
+      expect(Object.keys(spec.paths ?? {})).toEqual([
+        '/api/health',
+        '/api/auth/native/sign-in',
+        '/api/auth/native/enroll',
+        '/api/auth/native/verify',
+        '/api/auth/web/sign-in',
+        '/api/auth/web/enroll',
+        '/api/auth/web/verify',
+        '/api/auth/session',
+        '/api/auth/sign-out',
+      ]);
       expect(spec.paths?.['/api/health']?.get?.responses).toHaveProperty('503');
       expect(spec).toEqual(
         JSON.parse(

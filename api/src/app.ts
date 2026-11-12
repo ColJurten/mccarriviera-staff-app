@@ -1,3 +1,4 @@
+import { BlockList } from 'node:net';
 import Fastify, { LogController } from 'fastify';
 import swagger from '@fastify/swagger';
 import {
@@ -7,12 +8,29 @@ import {
 } from 'fastify-type-provider-zod';
 import { installRoutePolicy } from './route-policy.js';
 import { registerHealth, type HealthOptions } from './routes/health.js';
+import { registerAuth } from './routes/auth.js';
+import { AuthFailure, type Authentication } from './auth.js';
 
 export async function buildApp(
-  options: HealthOptions,
+  options: HealthOptions & {
+    auth?: Authentication;
+    trustedProxyIp?: string | undefined;
+  },
   logStream?: { write: (text: string) => void },
 ) {
+  const trustedProxy = new BlockList();
+  if (options.trustedProxyIp) {
+    trustedProxy.addAddress(
+      options.trustedProxyIp,
+      options.trustedProxyIp.includes(':') ? 'ipv6' : 'ipv4',
+    );
+  }
   const app = Fastify({
+    trustProxy: options.trustedProxyIp
+      ? (address, hop) =>
+          hop === 0 &&
+          trustedProxy.check(address, address.includes(':') ? 'ipv6' : 'ipv4')
+      : false,
     logger: {
       level: 'info',
       base: null,
@@ -25,8 +43,10 @@ export async function buildApp(
   });
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
-  const routes = installRoutePolicy(app);
+  const routes = installRoutePolicy(app, options.auth);
   app.setErrorHandler((error, _request, reply) => {
+    if (error instanceof AuthFailure)
+      return reply.code(error.status).send({ error: error.code });
     const validation = (error as { validation?: unknown }).validation;
     return reply
       .code(validation ? 400 : 500)
@@ -50,5 +70,6 @@ export async function buildApp(
     transform: jsonSchemaTransform,
   });
   registerHealth(app, options);
+  registerAuth(app, options.auth);
   return { app, routes };
 }

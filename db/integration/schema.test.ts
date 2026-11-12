@@ -159,6 +159,65 @@ afterAll(async () => {
 });
 
 describe('US-006 database catalog and constraints', () => {
+  test('adds UUID Better Auth storage and activation without weakening business grants', async () => {
+    const authTables = [
+      'auth_users',
+      'auth_accounts',
+      'auth_sessions',
+      'auth_verifications',
+      'auth_two_factors',
+      'auth_flows',
+    ];
+    const columns = (
+      await owner.query(
+        "SELECT table_name,column_name,data_type FROM information_schema.columns WHERE table_schema='public'",
+      )
+    ).rows;
+    for (const table of authTables) {
+      expect(columns).toContainEqual({
+        table_name: table,
+        column_name: 'id',
+        data_type: 'uuid',
+      });
+      expect(
+        (
+          await api.query(
+            "SELECT has_table_privilege(current_user,$1,'SELECT,INSERT,UPDATE,DELETE') AS allowed",
+            [table],
+          )
+        ).rows[0].allowed,
+      ).toBe(true);
+    }
+    expect(columns).toContainEqual({
+      table_name: 'staff_profiles',
+      column_name: 'active',
+      data_type: 'boolean',
+    });
+    expect(
+      (
+        await owner.query('SELECT active FROM staff_profiles WHERE id=$1', [
+          actor,
+        ])
+      ).rows[0].active,
+    ).toBe(true);
+    expect(columns).toContainEqual({
+      table_name: 'auth_flows',
+      column_name: 'mode',
+      data_type: 'character varying',
+    });
+    await rejected(
+      api,
+      'UPDATE staff_profiles SET active=false WHERE id=$1',
+      [actor],
+      '42501',
+    );
+    await rejected(
+      api,
+      "INSERT INTO staff_profiles(created_by,display_name) VALUES ($1,'Synthetic forbidden account')",
+      [actor],
+      '42501',
+    );
+  });
   test('has 18 UUID tables, creation attribution, typed money and instants, no forbidden card fields', async () => {
     const columns = (
       await owner.query(

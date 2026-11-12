@@ -12,6 +12,9 @@ export const errorResponseSchema = z.strictObject({
     'unauthorized',
     'not_found',
     'internal_error',
+    'invalid_credentials',
+    'invalid_factor',
+    'rate_limited',
   ]),
 });
 export type HealthResponse = z.infer<typeof healthResponseSchema>;

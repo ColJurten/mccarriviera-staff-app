@@ -10,10 +10,16 @@ const ok = async () => {};
 const options = { database: ok, storage: ok, timeoutMs: 50 };
 
 describe('route inventory', () => {
-  it('declares only the health routes as public for now', () => {
+  it('declares only health and the exact sign-in/continuation methods as public', () => {
     expect([...publicRoutes].sort()).toEqual([
       'GET /api/health',
       'HEAD /api/health',
+      'POST /api/auth/native/enroll',
+      'POST /api/auth/native/sign-in',
+      'POST /api/auth/native/verify',
+      'POST /api/auth/web/enroll',
+      'POST /api/auth/web/sign-in',
+      'POST /api/auth/web/verify',
     ]);
   });
 

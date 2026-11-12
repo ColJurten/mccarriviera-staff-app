@@ -3,7 +3,8 @@
 US-002 establishes the check pipeline for [ADR-0016](adr/0016-repository-environments-ci.md).
 US-004 adds API/shared contract tests, a registered-route session audit, and
 real PostgreSQL 17/Garage integration checks. US-006 adds database constraints,
-privileges, immutable evidence and concurrent numbering checks. Other workspaces still have smoke
+privileges, immutable evidence and concurrent numbering checks. US-010/012/015
+add real native/web auth, second-factor and account-command tests. Other workspaces still have smoke
 tests. PDF, app browser and iPhone suites arrive with their stories.
 
 Use synthetic data throughout, including fixtures, PDFs, screenshots and logs.
@@ -65,7 +66,9 @@ when physical columns change.
 success/failures, aborted timeouts, strict input validation, sanitized logs,
 OpenAPI artifact parity and actual route hook coverage (including generated
 HEAD routes and a negative test with misleading metadata). The global guard
-denies nonpublic requests until US-010; it does not implement staff sessions.
+resolves current database sessions and active profiles, failing closed on storage
+errors. Unit checks also cover auth schemas, sanitized dependency errors and
+address normalization. Health and OpenAPI generation remain service-free.
 
 `pnpm --filter @mccarriviera/api test:integration` requires the external local
 environment and migrated services from [deploy/README.md](../deploy/README.md).
@@ -73,6 +76,25 @@ It queries the real PostgreSQL version and business schema with the restricted r
 access to all four app buckets, denies access to Documenso's bucket and rejects
 anonymous/invalid storage credentials. Missing prerequisites fail the suite.
 `pnpm db:check` regenerates types into a temporary directory and detects drift.
+
+The same integration suite creates unique synthetic staff accounts using the
+owner connection and calls real Fastify HTTP wrappers through the restricted
+runtime connection. It checks native sign-in across app instances, generic
+credential errors, persisted password/factor rate limits and spoofed forwarding
+headers, first web enrollment, mandatory TOTP, one-use backup codes, strict
+cookie flags, token non-disclosure, origin/CSRF checks and transport separation.
+Database timestamps exercise native idle renewal, web idle/hard expiry and
+pending-flow expiry without long sleeps. Missing/inactive profiles and revoked
+sessions fail immediately. Developer tests exercise deactivation, reactivation,
+factor/password reset, protected file input, transactional rollback and exactly
+one audit-hook invocation per completed command. US-007 will test event persistence;
+this slice's default hook explicitly persists nothing.
+
+Run with `DB_DISPOSABLE=1`, both database URLs and the external auth settings.
+Files run serially because they deliberately expire/reset the shared persisted
+limiter window; individual fixtures use unique accounts and synthetic connection
+addresses. Cookie tests use injection so Secure remains enabled. Browser/Keychain
+and real-iPhone sign-in checks belong to the frontend stories.
 
 For the local-stack smoke check, start the whole stack, check health and
 Documenso certificate status, bootstrap the synthetic admin and request its
@@ -82,10 +104,11 @@ then restart and confirm recovery. Container/browser checks require Docker acces
 record unavailable checks explicitly. No iPhone check applies to this
 infrastructure-only US-004 slice.
 
-With later authentication stories, Verify every protected route
-requires an active staff session, rejects missing, expired or revoked sessions,
-and enforces authorisation. Cover validation, transaction failures, signing and
-private storage access without real credentials or customer data.
+The auth integration inventory exercises every nonpublic registered route
+without a session, including generated HEAD and prefixed plugin routes. Future
+business routes extend success/refusal cases with real active, expired, revoked
+and enrollment-only sessions. Cover validation, transaction failures, signing
+and private storage access without real credentials or customer data.
 
 ## Contract PDF tests with Chromium
 
@@ -167,3 +190,20 @@ Drawing once, counting field taps and Adobe Reader's seal/modified-copy checks
 remain « to confirm by hand » until a person records evidence. The iPhone web
 view, data cleanup and sharing checks belong to part 2. US-009's story checkboxes
 remain unchanged; a person reviews them after the complete story is verified.
+
+## Staff authentication revision (ticket #7 / PR #25)
+
+The disposable API suite exercises native and web MFA enrollment/challenge,
+one-use backup codes, mode-bound/expired/replaced flows, mandatory factors even
+without browser headers, immediate deactivation/reset/revocation, and sanitized
+logs. Native sessions renew for 30 days idle with a 90-day absolute deadline;
+web cookies keep the 30-minute/12-hour policy. Timestamp fixtures check the caps
+without long sleeps. Account/IP limit tests inject trusted/untrusted Caddy peers,
+forged multi-hop chains, case variants and concurrent failures, and recreate an
+app instance to check persistence. Successful passwords do not count as account
+failures; expired limiter windows recover without waiting in real time.
+
+`db` integration checks include owner-only profile activation and auth flow mode
+storage. Upgrade verification applies the additive MFA migration over synthetic
+legacy sessions; those password-only sessions must be removed. Audit-hook tests
+remain separate from persistent audit generation, which is deferred to US-007.

@@ -15,8 +15,17 @@ As the company, I want the web app's sign-in to need more than a password, and i
 ## Acceptance criteria
 
 - [ ] On the web, every sign-in asks for the password, then a one-time code from an authenticator app (TOTP, better-auth's two-factor support) (F-19).
-- [ ] Each staff member sets up the authenticator at the first sign-in on the web, and receives backup codes to keep safe.
+- [ ] Each staff member sets up the authenticator at the first sign-in on either native or web, together with the developer (also after reset-factor), and receives backup codes to keep safe.
 - [ ] The session ends after 30 minutes without activity and after 12 hours in any case (`RECOMMENDED`). The screen then returns to sign-in, and in-memory data is cleared.
 - [ ] Code attempts are rate-limited like password attempts. A wrong code says nothing about which factor failed.
-- [ ] The developer can reset a staff member's second factor with a script, recorded in the audit trail.
-- [ ] The iPhone app is unchanged: password and Face ID lock ([US-011](US-011-app-lock-with-face-id.md)).
+- [ ] The developer can reset a staff member's second factor with a script; recording the event in the audit trail is deferred to [US-007](US-007-audit-trail-and-immutability.md) and remains open in ticket #7.
+- [ ] The iPhone app also requires password and TOTP (or a one-use backup code) at every new server sign-in (developer decision, PR #25); Face ID remains its local unlock ([US-011](US-011-app-lock-with-face-id.md)).
+
+## API implementation (ticket #7)
+
+The [API](../../api/README.md) exposes first-login TOTP enrollment with backup
+codes, factor verification on every native/web login and developer factor reset. Pending
+flows cannot access protected routes. Complete web cookies expire after 30 minutes
+idle or 12 hours from password authentication, with immediate server revocation.
+HTTP factor attempts are rate-limited. Screens, QR rendering and browser memory
+cleanup remain frontend work. Audit persistence waits for [US-007](US-007-audit-trail-and-immutability.md)'s event contract; this PR does not close that criterion.

@@ -32,7 +32,7 @@ running on their personal phones, and the same app on the web for their laptops 
 | Signatures | The client draws once on a pad in the app; the API stamps the drawing in the box at the bottom right of every page and seals the PDF with a self-signed company certificate and a timestamp (F-08, F-17, F-27). Departure and return signatures are both mandatory (F-04); the final PDF repeats the departure drawing. Optional stored Retour signature, switched on per company, for a client who can't wait for the end of the inspection (F-28). Replaces ADR-0020 (Documenso) | [0023](adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
 | PDF | Rendered on the API server with Chromium (F-13), from versioned HTML templates, in the language chosen in the preview before signing (F-17): model layout, every field of both forms (R-02), explicit A4 pages, full-size photo annex. Template v2 in [`contract-template/`](contract-template/README.md): page 1 with the pricing, no amendment pages, new damage first (F-22, F-24) | [0010](adr/0010-contract-pdf-generation.md) |
 | Languages | Language-neutral data, FR/EN catalogues, versioned general terms | [0011](adr/0011-localisation.md) |
-| Access and phones | Personal accounts (better-auth in the API), Face ID lock on the iPhone, a second factor on the web, every request checked by the API, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
+| Access and phones | Personal accounts (better-auth in the API), Face ID lock on the iPhone, a second factor at every native and web sign-in, every request checked by the API, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
 | Files | Private Scaleway Object Storage buckets (F-11); evidence can be uploaded and read but never overwritten or deleted; presigned links issued by the API, valid for 5 minutes at most | [0014](adr/0014-file-storage.md) |
 | Backups | Nightly encrypted dumps of the database plus incremental file copies, with a different provider, which the server's keys can't delete | [0015](adr/0015-backups.md) |
 | Repository and delivery | One repository (app, API, shared package, migrations, deployment); local, homelab staging and Scaleway production; CI with PDF tests; EAS builds and over-the-air updates | [0016](adr/0016-repository-environments-ci.md) |
@@ -131,7 +131,7 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 | 27 Technical risks | § Main risks above; Consequences sections of the ADRs | — |
 | 28 Legal/accounting questions | open-questions L-01–L-07; US-092 | — |
 | 29 Post-MVP | [`stories/README.md`](stories/README.md) § Post-MVP | — |
-| Operations | US-093, US-094 | `runbook.md` with US-093 |
+| Operations | US-010/012 staff accounts, US-093, US-094 | [Staff account runbook](runbook.md), to be completed by US-093 |
 
 ## Reference material (keep out of the repository)
 

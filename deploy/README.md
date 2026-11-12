@@ -3,7 +3,8 @@
 WSL2 with Docker Engine/Compose v2, OpenSSL, Node 22.21.1 and pnpm 12.16.1.
 Use synthetic data only. This implements the local slice of US-004 under
 ADR-0012, ADR-0014, ADR-0016, ADR-0019, ADR-0020 and ADR-0022. Staging,
-production, staff sessions, business tables and signing integration come later.
+production and signing integration come later. Business tables and server-side
+staff sessions are now implemented by US-006 and US-010/012/015.
 
 ## First start
 
@@ -59,6 +60,52 @@ files in its database locally; that fifth bucket is reserved and unused.
 Garage does not implement Scaleway bucket policies/versioning equivalently;
 evidence immutability and upload endpoints are US-006 work, tested against
 Scaleway on staging. Do not use this local stack for production evidence.
+
+## Staff authentication configuration
+
+The external generator now creates `AUTH_SECRET`, `AUTH_BASE_URL` and
+`AUTH_TRUSTED_ORIGINS`; Compose passes them only to the API. Existing external
+configurations need a fresh random auth secret (at least 32 characters) and exact
+trusted HTTPS origins added in the protected file. Never print their values.
+Keep the secret stable across restarts and instances. `.env.example` is inert
+and deliberately fails auth validation.
+
+Secure cookies are required locally too. Health and native injected tests can
+use HTTP, but a browser needs a trusted local HTTPS reverse proxy serving the
+web app and `/api/` under the same origin. Set the two URL settings to that
+origin; the API's internal Compose listener remains HTTP behind the proxy.
+There is no development switch to weaken cookie security. The future frontend
+slice supplies browser screens and HTTPS development integration.
+
+For Caddy, set optional `TRUSTED_PROXY_IP` to the single literal address of its
+connection as seen by the API (for example `192.0.2.10` in a synthetic test).
+Keep that address stable or update the protected environment when it changes.
+Compose passes it to the API only. Unset/empty is direct mode and trusts no
+forwarding. The setting accepts neither hostnames nor CIDR ranges nor `true`.
+Fastify trusts only that immediate peer, never earlier hops. Caddy reverse_proxy
+supplies X-Forwarded-For from its connection client by default and ignores
+untrusted supplied forwarding values; do not enable arbitrary upstream proxy
+trust in Caddy. Restrict deployed API ingress to Caddy. Verify with two client
+IPs and a forged multi-hop chain before staging/production sign-in is enabled
+(US-004 prerequisite). [Caddy forwarding defaults](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#defaults)
+and [Fastify proxy trust](https://fastify.dev/docs/latest/Reference/Server/#trustproxy).
+
+Without the correct proxy address, every proxied client shares one 3-request/
+10-second password budget: an anonymous request every ~3 seconds can keep all
+staff locked out of sign-in. The API additionally limits failed passwords per
+normalized account across native/web and changing IPs. Three failures cause a
+lockout until that 10-second window expires; blocked attempts do not extend the
+account window. Recovery within 10 seconds assumes the attacker stops. One
+anonymous client sending three wrong passwords every 10 seconds can keep a named
+staff account locked out indefinitely by restarting each window, even with the
+correct proxy configuration. A distributed guesser still gets about 25,920
+password guesses per account per day; a guessed password still requires TOTP.
+The developer should review these residual risks when tuning the window.
+Correct passwords consume only the IP request budget.
+See [the API contract](../api/README.md) for enrollment and factor limits.
+
+Create/revoke/reset staff with [the account runbook](../docs/runbook.md). Only
+the developer process loads the owner URL; do not add it to the API container.
 
 ## Local Documenso administrator and mail check
 

@@ -20,7 +20,7 @@ import tempfile
 HERE = pathlib.Path(__file__).resolve().parent
 SVG_DIR = HERE / "svg"
 OUT = HERE / "architecture.pdf"
-VERSION = "Version 1.4 · 10 November 2026"
+VERSION = "Version 1.6 · 12 November 2026"
 DOC = "MC Car Riviera staff app · planned architecture"
 
 # ---------------------------------------------------------------- page content
@@ -101,17 +101,18 @@ PAGES = [
     },
     {
         "uml": "class",
-        "title": "Database: the 18 tables",
+        "title": "Database: business and authentication",
         "subtitle": "UML class diagram · overview; the fields are on the next three pages",
         "diagrams": ["05-data-overview"],
         "layout": "below",
         "notation": True,
         "notes": [
             "Working table names from US-006. Once the migrations exist they are the reference, and these diagrams follow them.",
+            "US-010/012/015 add seven auth tables and profile activation. Better Auth stores identities, hashed passwords, Postgres sessions and encrypted factors; pending native/web flows cannot access business routes; both modes require MFA, with native sessions capped at 90 days. Auth records use library metadata; business creation attribution stays unchanged.",
             "A contract is a header plus numbered revisions. Revision 1 is the Départ as signed; each amendment adds a revision with a full snapshot, recorded in the app and not printed (F-22).",
             "Condition evidence is reused: a Départ's inspection points to the vehicle's current reference photo set and to the damage open at that moment (drawn on « What each handover records »).",
         ],
-        "refs": "ADR-0007 · ADR-0023 · ADR-0024 · US-006",
+        "refs": "ADR-0007 · ADR-0012 · ADR-0021 · ADR-0023 · ADR-0024 · US-006 · US-010 · US-012 · US-015",
     },
     {
         "uml": "class",
@@ -324,7 +325,7 @@ def cover_page(total):
     glance = [
         ("Front end", "One iOS app in Expo · React Native · TypeScript, built in the cloud with EAS (no Mac needed). Installed on the two staff iPhones by Ad Hoc distribution. Online only: no business data is kept on the phones."),
         ("Back end", "The developer's own API (TypeScript, Fastify) at Scaleway, Paris: logins, a check on every request, 5-minute links to private files, PDF rendering. Staging on his homelab."),
-        ("Database", "Managed PostgreSQL, 18 tables. Status changes through SQL functions only; signed data insert-only; every write audited."),
+        ("Database", "Managed PostgreSQL: 18 business tables and seven auth tables. Status changes through SQL functions only; signed data insert-only; audit generation awaits US-007."),
         ("Signatures", "A pad in the app: the client draws once, the API stamps it on every page and seals the PDF with the company's certificate and a timestamp. Optional stored Retour signature (F-28)."),
         ("Contract PDF", "Rendered by the API with Chromium, in the language chosen in the preview. Archived with its SHA-256."),
         ("Operations", "Nightly encrypted backup to a second EU provider, Sentry EU without personal data, deployments by CI."),

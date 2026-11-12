@@ -8,16 +8,18 @@
     "test": "vitest run",
     "start": "tsx src/server.ts",
     "openapi": "tsx scripts/openapi.ts",
+    "staff": "tsx scripts/staff.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1140.0",
+    "@fastify/swagger": "9.9.3",
     "@mccarriviera/shared": "workspace:*",
+    "better-auth": "1.7.20",
     "fastify": "5.12.8",
     "fastify-type-provider-zod": "7.0.0",
-    "@fastify/swagger": "9.9.3",
     "kysely": "0.29.8",
     "pg": "8.23.1",
-    "@aws-sdk/client-s3": "3.1140.0",
     "zod": "4.6.7"
   },
   "devDependencies": {
