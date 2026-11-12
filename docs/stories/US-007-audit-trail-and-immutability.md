@@ -20,3 +20,15 @@ As the company, I want every change to business data recorded with who and when,
 - [ ] The runbook has SQL snippets to see the audit trail of a contract, a vehicle or a client.
 - [ ] All audit and signature timestamps come from the server, not from the phone's clock.
 - [ ] Audit rows contain personal values (before and after). Their anonymisation follows the retention procedure ([US-094](US-094-retention-and-erasure.md)).
+
+## Staff account command integration (ticket #7)
+
+Wire the transactional `pendingAuthAudit` hook in
+[`api/src/auth-audit.ts`](../../api/src/auth-audit.ts) to the agreed audit writer
+for account creation, deactivation, reactivation, password reset and factor reset.
+The hook already receives the actor, staff profile, action and command transaction;
+no event is persisted by its current no-op implementation. This work is required
+to close the unchecked audit criteria in
+[US-012 AC4](US-012-revoke-a-staff-members-access.md#acceptance-criteria) and
+[US-015 AC5](US-015-web-sign-in-second-factor.md#acceptance-criteria).
+Keep credentials, tokens, TOTP secrets and backup codes out of audit payloads.

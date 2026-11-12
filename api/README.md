@@ -38,16 +38,16 @@ and two-factor plugin run internally; its wildcard handler, signup, e-mail
 reset, factor disabling, trusted-device bypass and administration endpoints
 are never mounted. Account commands are in [the runbook](../docs/runbook.md).
 
-| Method/path                     | Input                                             | Result                                                                        |
-| ------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------- |
-| POST `/api/auth/native/sign-in` | `{ email, password }`                             | `{ next: "enrollment" \| "challenge", flowToken }`; no active session         |
-| POST `/api/auth/native/enroll`  | `{ flowToken, password }`                         | `{ totpURI, backupCodes }`; first enrollment only                             |
-| POST `/api/auth/native/verify`  | `{ flowToken, kind: "totp" \| "backup", code }`   | `{ token, session }`; store token directly with expo-secure-store in Keychain |
-| POST `/api/auth/web/sign-in`    | `{ email, password }`                             | `{ next: "enrollment" \| "challenge" }` and a restricted flow cookie          |
-| POST `/api/auth/web/enroll`     | `{ password }`, flow cookie                       | `{ totpURI, backupCodes }`; first enrollment only                             |
-| POST `/api/auth/web/verify`     | `{ kind: "totp" \| "backup", code }`, flow cookie | Public session shape and the complete web-session cookie                      |
-| GET `/api/auth/session`         | Active native bearer or web cookie                | `{ staffId, displayName, mode, expiresAt }`                                   |
-| POST `/api/auth/sign-out`       | `{}`, active session                              | Revokes current session; clears web cookies                                   |
+| Method/path                     | Input                                             | Result                                                                 |
+| ------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| POST `/api/auth/native/sign-in` | `{ email, password }`                             | `{ next: "enrollment" \| "challenge", flowToken }`; no active session  |
+| POST `/api/auth/native/enroll`  | `{ flowToken, password }`                         | `{ totpURI, backupCodes }`; first enrollment only                      |
+| POST `/api/auth/native/verify`  | `{ flowToken, kind: "totp" \| "backup", code }`   | `{ token, session }`; native bearer (see integration open point below) |
+| POST `/api/auth/web/sign-in`    | `{ email, password }`                             | `{ next: "enrollment" \| "challenge" }` and a restricted flow cookie   |
+| POST `/api/auth/web/enroll`     | `{ password }`, flow cookie                       | `{ totpURI, backupCodes }`; first enrollment only                      |
+| POST `/api/auth/web/verify`     | `{ kind: "totp" \| "backup", code }`, flow cookie | Public session shape and the complete web-session cookie               |
+| GET `/api/auth/session`         | Active native bearer or web cookie                | `{ staffId, displayName, mode, expiresAt }`                            |
+| POST `/api/auth/sign-out`       | `{}`, active session                              | Revokes current session; clears web cookies                            |
 
 Enrollment must verify a TOTP before any business access. Backup codes are
 delivered during enrollment and each is consumable once after enrollment.
@@ -77,8 +77,10 @@ trusted Origin; GET/HEAD may omit it. Cross-site fetches are refused. CORS is
 not enabled, and native token responses are not exposed to browser origins.
 Missing browser headers do not attest an iPhone or replace a second factor.
 Every native sign-in also requires MFA. Face ID only unlocks the local app. The
-explicit API routes do not expose Better Auth's Expo client HTTP protocol; the
-native frontend stores the returned bearer directly with expo-secure-store.
+explicit API routes do not serve Better Auth's Expo plugin protocol. This is an
+open point: ADR-0012 and US-010 AC3 still require that integration. The developer
+must reconcile the mismatch before the front-end ticket. Direct bearer storage
+with expo-secure-store is an option for that decision, not an approved mechanism.
 Screens and device integration remain their own stories.
 
 Passwords need 12–128 characters when provisioned/reset. Unknown e-mail and
@@ -92,8 +94,14 @@ Normalization is case-insensitive, with HMAC keys instead of stored e-mails/IPs.
 Correct passwords do not consume the account failure budget. Counters survive
 app restarts and failed authentication work. Failures may temporarily lock an
 account even from another IP; attempts during lockout do not extend the account
-window, so the budget recovers after at most 10 seconds. Per-IP limits count all
-attempts, including successes. IPs/user agents are not stored on sessions.
+window. Once the attacker stops, the account budget recovers within 10 seconds.
+A continuing attacker can restart the lockout every window: one anonymous client
+sending three wrong passwords every 10 seconds can keep a named staff account
+locked out indefinitely, even with correct Caddy configuration. A distributed
+guesser still gets about 25,920 password guesses per account per day at this
+limit; a guessed password still requires TOTP. These residual risks need developer
+review when tuning the window. Per-IP limits count all attempts, including
+successes. IPs/user agents are not stored on sessions.
 
 `TRUSTED_PROXY_IP` is optional: unset/empty means Fastify trusts no forwarding.
 Behind Caddy set it to the single literal address the API sees as its immediate

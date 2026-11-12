@@ -24,7 +24,7 @@
 - **Sessions:**
   - sessions are stored in Postgres, and every request checks them, so a revoked session stops working at once;
   - a native session expires after 30 days without use, renewed on activity but never beyond 90 days from its original password authentication (`authenticated_at`); factor completion and renewal never reset that timestamp. A new sign-in after expiry requires both factors again;
-  - on the phone, the bearer token is stored in the iOS Keychain with expo-secure-store. The API exposes explicit routes rather than the Better Auth wildcard handler, so the client stores the token directly instead of using the Expo plugin's HTTP protocol;
+  - on the phone, the session token is stored in the iOS Keychain (expo-secure-store), through better-auth's Expo integration.
   - Better Auth 1.7.20 has no supported session-token hashing option: its `internal-adapter` creates a raw `token`, looks sessions up by that same value, and the two-factor plugin returns/consumes it. The `storeIdentifier: 'hashed'` option applies to verification identifiers, not sessions. Keep library-compatible raw session tokens rather than a custom adapter/fork. A database read exposing a complete session token permits replay until expiry/revocation. Mitigations are restricted database access, no token logging or cookie cache, transport isolation, bounded lifetimes and immediate server revocation. Opaque flow tokens are hashed; internal library cookies and factor material are encrypted.
 - **App lock:** Face ID or Touch ID, with the device passcode as fallback, when the app opens and after 5 minutes in the background (default for T-03). It needs a device passcode (F-03).
 - **No e-mail from the app in the MVP:** password resets are done by the developer. The e-mail provider chosen in F-15 can be used to switch on resets by e-mail later.
@@ -67,7 +67,7 @@ The company hires more staff, or different access levels are needed (R-16).
 
 ## Changes
 
-- 2026-11-12: developer-approved revision from PR #25: mandatory native and web MFA, local-only Face ID, a 90-day native absolute lifetime, paired enrollment/reset procedure, direct Keychain storage for explicit API routes, and the pinned Better Auth session-token storage trade-off. This supersedes the original native password-only exception; the historical F-19 client answer is retained in discovery.
+- 2026-11-12: developer-approved revision from PR #25: mandatory native and web MFA, local-only Face ID, a 90-day native absolute lifetime, paired enrollment/reset procedure, and the pinned Better Auth session-token storage trade-off. This supersedes the original native password-only exception; the historical F-19 client answer is retained in discovery.
 - 2026-11-03: Supabase Auth and row-level security replaced by better-auth and permission checks in the API, after F-11 and F-12 ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
 - 2026-11-03 (later): F-19 answered: on the web app, a second factor at every sign-in and a cookie session with an idle timeout.
 - 2026-11-10: Documenso is removed ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)): no Documenso API token; the API holds the signing certificate.

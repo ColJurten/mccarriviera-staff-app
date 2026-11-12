@@ -36,10 +36,7 @@ function isIgnored(path: string): boolean {
 
 describe('workspace layout', () => {
   test('registers exactly the required packages', () => {
-    const packageBlock = read('pnpm-workspace.yaml')
-      .split(/^packages:\s*$/m)[1]!
-      .split(/^\S/m)[0]!;
-    const entries = packageBlock
+    const entries = read('pnpm-workspace.yaml')
       .split('\n')
       .flatMap((line) => line.match(/^\s*-\s*(\S+)/)?.[1] ?? []);
     expect(entries.sort()).toEqual([...packages].sort());

@@ -94,8 +94,14 @@ Without the correct proxy address, every proxied client shares one 3-request/
 10-second password budget: an anonymous request every ~3 seconds can keep all
 staff locked out of sign-in. The API additionally limits failed passwords per
 normalized account across native/web and changing IPs. Three failures cause a
-bounded lockout until that 10-second window expires; blocked attempts do not
-extend the account window. Correct passwords consume only the IP request budget.
+lockout until that 10-second window expires; blocked attempts do not extend the
+account window. Recovery within 10 seconds assumes the attacker stops. One
+anonymous client sending three wrong passwords every 10 seconds can keep a named
+staff account locked out indefinitely by restarting each window, even with the
+correct proxy configuration. A distributed guesser still gets about 25,920
+password guesses per account per day; a guessed password still requires TOTP.
+The developer should review these residual risks when tuning the window.
+Correct passwords consume only the IP request budget.
 See [the API contract](../api/README.md) for enrollment and factor limits.
 
 Create/revoke/reset staff with [the account runbook](../docs/runbook.md). Only
