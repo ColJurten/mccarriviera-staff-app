@@ -67,7 +67,8 @@ package "Authentication (US-010/012/015)" #F8F9FB {
   }
   class AuthSession as "auth_sessions" {
     id, user_id : uuid
-    mode : native / web_pending / web
+    token : raw library token
+    mode : native_pending / native / web_pending / web
     authenticated_at, updated_at : timestamptz
     expires_at : timestamptz
   }
@@ -78,6 +79,7 @@ package "Authentication (US-010/012/015)" #F8F9FB {
   }
   class AuthFlow as "auth_flows" {
     id, user_id : uuid
+    mode : native / web
     token_hash : sha256
     state : enrollment / challenge
     internal_cookie : encrypted

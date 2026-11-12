@@ -33,8 +33,9 @@ it('fails closed when session storage fails, with no dependency detail or tokens
       url: '/private',
       headers: { authorization: 'Bearer synthetic-private-token' },
     });
-    expect(response.statusCode).toBe(401);
-    expect(response.json()).toEqual({ error: 'unauthorized' });
+    expect(response.statusCode).toBe(503);
+    expect(response.json()).toEqual({ error: 'internal_error' });
+    expect(logs.join('')).toContain('auth_storage_unavailable');
     expect(logs.join('')).not.toMatch(/synthetic|ECONN|token/);
   } finally {
     await app.close();

@@ -277,8 +277,9 @@ describe('US-010/012/015 real Postgres sessions', () => {
     const f = await authFixture();
     try {
       const native = await f.native();
+      await f.resetLimits();
       const pending = await f.web();
-      const enrollment = await f.enroll(pending.cookie);
+      const enrollment = f.factor();
       const verified = await f.verify(pending.cookie, totp(enrollment.secret));
       expect(verified.statusCode, verified.body).toBe(200);
       const cookie = sessionCookie(verified);
@@ -334,6 +335,11 @@ describe('US-010/012/015 real Postgres sessions', () => {
         payload: {},
       });
       expect(out.statusCode).toBe(200);
+      expect(
+        (out.headers['set-cookie'] as string[]).filter((v) =>
+          v.startsWith(`${WEB_COOKIE}=`),
+        ),
+      ).toEqual([expect.stringMatching(/^__Host-mcr-session=;/)]);
       expect(out.headers['set-cookie']).toEqual(
         expect.arrayContaining([expect.stringContaining('Max-Age=0')]),
       );
@@ -383,7 +389,7 @@ describe('US-010/012/015 real Postgres sessions', () => {
         ).statusCode,
       ).toBe(401);
       const pending = await f.web();
-      const enrollment = await f.enroll(pending.cookie);
+      const enrollment = f.factor();
       const verified = await f.verify(pending.cookie, totp(enrollment.secret));
       expect(verified.statusCode, verified.body).toBe(200);
       const cookie = sessionCookie(verified);
@@ -491,8 +497,9 @@ describe('US-010/012/015 real Postgres sessions', () => {
     const f = await authFixture();
     try {
       const token = await f.native();
+      await f.resetLimits();
       const pending = await f.web();
-      const enrollment = await f.enroll(pending.cookie);
+      const enrollment = f.factor();
       await f.owner
         .updateTable('staff_profiles')
         .set({ active: false })

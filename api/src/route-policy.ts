@@ -15,6 +15,8 @@ export const publicRoutes = new Set([
   'GET /api/health',
   'HEAD /api/health',
   'POST /api/auth/native/sign-in',
+  'POST /api/auth/native/enroll',
+  'POST /api/auth/native/verify',
   'POST /api/auth/web/sign-in',
   'POST /api/auth/web/enroll',
   'POST /api/auth/web/verify',
@@ -114,7 +116,10 @@ export function installRoutePolicy(
         ) {
           const token = authCookie(request, WEB_COOKIE);
           if (token && auth) request.staff = await auth.resolve(token, 'web');
-          if (request.staff)
+          if (
+            request.staff &&
+            request.routeOptions.url !== '/api/auth/sign-out'
+          )
             reply.header(
               'set-cookie',
               webCookie(
@@ -131,6 +136,9 @@ export function installRoutePolicy(
         }
       } catch {
         request.staff = null;
+        app.log.error({ event: 'auth_storage_unavailable' });
+        await reply.code(503).send({ error: 'internal_error' });
+        return;
       }
       if (!request.staff) await reply.code(401).send({ error: 'unauthorized' });
     }

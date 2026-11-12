@@ -6,6 +6,9 @@ import {
   factorSchema,
   emptyAuthSchema,
   nativeSignInResponseSchema,
+  nativeEnrollmentSchema,
+  nativeFactorSchema,
+  nativeVerifyResponseSchema,
   webSignInResponseSchema,
   enrollmentResponseSchema,
   staffSessionSchema,
@@ -33,11 +36,16 @@ const errors = {
   401: errorResponseSchema,
   429: errorResponseSchema,
   500: errorResponseSchema,
+  503: errorResponseSchema,
 };
 export function registerAuth(app: FastifyInstance, auth?: Authentication) {
   const typed = app.withTypeProvider<ZodTypeProvider>();
   const web = (request: FastifyRequest) => {
     if (!auth || !isWebRequest(request, auth))
+      throw new AuthFailure(401, 'unauthorized');
+  };
+  const native = (request: FastifyRequest) => {
+    if (!auth || !isNativeRequest(request) || request.headers.authorization)
       throw new AuthFailure(401, 'unauthorized');
   };
   app.addHook('onSend', async (request, reply) => {
@@ -54,11 +62,51 @@ export function registerAuth(app: FastifyInstance, auth?: Authentication) {
       },
     },
     async (request) => {
-      if (!auth || !isNativeRequest(request) || request.headers.authorization)
-        throw new AuthFailure(401, 'unauthorized');
-      await auth.limit(request.ip, 'password');
-      const result = await auth.signIn(request.body, 'native');
-      if (result.kind !== 'native') throw new Error('Unexpected auth mode');
+      native(request);
+      await auth!.limit(request.ip, 'password');
+      const result = await auth!.signIn(request.body, 'native');
+      return { next: result.next, flowToken: result.flowToken };
+    },
+  );
+  typed.post(
+    '/api/auth/native/enroll',
+    {
+      schema: {
+        operationId: 'nativeEnroll',
+        body: nativeEnrollmentSchema,
+        response: { 200: enrollmentResponseSchema, ...errors },
+      },
+    },
+    async (request) => {
+      native(request);
+      await auth!.limit(request.ip, 'factor');
+      const { flowToken, password } = request.body;
+      const result = await auth!.continueFlow(flowToken, 'native', {
+        password,
+      });
+      if (result.kind !== 'enrollment')
+        throw new Error('Unexpected auth state');
+      return { totpURI: result.totpURI, backupCodes: result.backupCodes };
+    },
+  );
+  typed.post(
+    '/api/auth/native/verify',
+    {
+      schema: {
+        operationId: 'nativeVerify',
+        body: nativeFactorSchema,
+        response: { 200: nativeVerifyResponseSchema, ...errors },
+      },
+    },
+    async (request) => {
+      native(request);
+      await auth!.limit(request.ip, 'factor');
+      const { flowToken, kind, code } = request.body;
+      const result = await auth!.continueFlow(flowToken, 'native', {
+        kind,
+        code,
+      });
+      if (result.kind !== 'verified') throw new Error('Unexpected auth state');
       return { token: result.token, session: publicSession(result.session) };
     },
   );
@@ -75,7 +123,6 @@ export function registerAuth(app: FastifyInstance, auth?: Authentication) {
       web(request);
       await auth!.limit(request.ip, 'password');
       const result = await auth!.signIn(request.body, 'web');
-      if (result.kind !== 'web') throw new Error('Unexpected auth mode');
       reply.header('set-cookie', [
         webCookie(FLOW_COOKIE, result.flowToken, 600),
         webCookie(WEB_COOKIE, '', 0),
@@ -98,7 +145,7 @@ export function registerAuth(app: FastifyInstance, auth?: Authentication) {
       const flow = authCookie(request, FLOW_COOKIE);
       if (!flow || hasAuthCookie(request, WEB_COOKIE))
         throw new AuthFailure(401, 'invalid_factor');
-      const result = await auth!.continueWeb(flow, request.body);
+      const result = await auth!.continueFlow(flow, 'web', request.body);
       if (result.kind !== 'enrollment')
         throw new Error('Unexpected auth state');
       return { totpURI: result.totpURI, backupCodes: result.backupCodes };
@@ -119,7 +166,7 @@ export function registerAuth(app: FastifyInstance, auth?: Authentication) {
       const flow = authCookie(request, FLOW_COOKIE);
       if (!flow || hasAuthCookie(request, WEB_COOKIE))
         throw new AuthFailure(401, 'invalid_factor');
-      const result = await auth!.continueWeb(flow, request.body);
+      const result = await auth!.continueFlow(flow, 'web', request.body);
       if (result.kind !== 'verified') throw new Error('Unexpected auth state');
       reply.header('set-cookie', [
         webCookie(

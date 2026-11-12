@@ -190,3 +190,20 @@ Drawing once, counting field taps and Adobe Reader's seal/modified-copy checks
 remain « to confirm by hand » until a person records evidence. The iPhone web
 view, data cleanup and sharing checks belong to part 2. US-009's story checkboxes
 remain unchanged; a person reviews them after the complete story is verified.
+
+## Staff authentication revision (ticket #7 / PR #25)
+
+The disposable API suite exercises native and web MFA enrollment/challenge,
+one-use backup codes, mode-bound/expired/replaced flows, mandatory factors even
+without browser headers, immediate deactivation/reset/revocation, and sanitized
+logs. Native sessions renew for 30 days idle with a 90-day absolute deadline;
+web cookies keep the 30-minute/12-hour policy. Timestamp fixtures check the caps
+without long sleeps. Account/IP limit tests inject trusted/untrusted Caddy peers,
+forged multi-hop chains, case variants and concurrent failures, and recreate an
+app instance to check persistence. Successful passwords do not count as account
+failures; expired limiter windows recover without waiting in real time.
+
+`db` integration checks include owner-only profile activation and auth flow mode
+storage. Upgrade verification applies the additive MFA migration over synthetic
+legacy sessions; those password-only sessions must be removed. Audit-hook tests
+remain separate from persistent audit generation, which is deferred to US-007.

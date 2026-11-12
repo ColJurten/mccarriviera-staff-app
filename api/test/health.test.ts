@@ -179,6 +179,8 @@ describe('health contract', () => {
       expect(Object.keys(spec.paths ?? {})).toEqual([
         '/api/health',
         '/api/auth/native/sign-in',
+        '/api/auth/native/enroll',
+        '/api/auth/native/verify',
         '/api/auth/web/sign-in',
         '/api/auth/web/enroll',
         '/api/auth/web/verify',

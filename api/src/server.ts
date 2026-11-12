@@ -15,6 +15,7 @@ try {
     database: database.probe,
     storage: storage.probe,
     timeoutMs: config.HEALTH_TIMEOUT_MS,
+    trustedProxyIp: config.TRUSTED_PROXY_IP,
     auth: createAuthentication(database.db, config),
   });
   app.addHook('onClose', async () => {

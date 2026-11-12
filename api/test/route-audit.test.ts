@@ -14,7 +14,9 @@ describe('route inventory', () => {
     expect([...publicRoutes].sort()).toEqual([
       'GET /api/health',
       'HEAD /api/health',
+      'POST /api/auth/native/enroll',
       'POST /api/auth/native/sign-in',
+      'POST /api/auth/native/verify',
       'POST /api/auth/web/enroll',
       'POST /api/auth/web/sign-in',
       'POST /api/auth/web/verify',

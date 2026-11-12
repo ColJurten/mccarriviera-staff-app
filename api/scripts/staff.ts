@@ -1,17 +1,23 @@
 import { open } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { createStaffAdmin } from '../src/staff-admin.js';
+import { ZodError } from 'zod';
+import { createStaffAdmin, StaffAdminFailure } from '../src/staff-admin.js';
 import { createDatabase } from '../src/db.js';
 import { readConfig } from '../src/config.js';
 
+class CommandFailure extends Error {
+  constructor(public code: string) {
+    super(code);
+  }
+}
 async function readPassword(path: string | undefined) {
-  if (!path) throw new Error('Password file required');
+  if (!path) throw new CommandFailure('password_file_required');
   const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
   try {
     const stat = await file.stat();
     if (!stat.isFile() || (stat.mode & 0o077) !== 0 || stat.size > 1024)
-      throw new Error('Password file must be protected');
+      throw new CommandFailure('password_file_unprotected');
     return (await file.readFile('utf8')).replace(/\r?\n$/, '');
   } finally {
     await file.close();
@@ -31,10 +37,16 @@ try {
     },
   });
   const [action] = positionals;
-  if (positionals.length !== 1) throw new Error('One action required');
-  const config = readConfig();
+  if (positionals.length !== 1) throw new CommandFailure('invalid_arguments');
+  const config = (() => {
+    try {
+      return readConfig();
+    } catch {
+      throw new CommandFailure('invalid_configuration');
+    }
+  })();
   if (!process.env.MIGRATION_DATABASE_URL)
-    throw new Error('Owner connection required for account administration');
+    throw new CommandFailure('owner_connection_required');
   database = createDatabase(process.env.MIGRATION_DATABASE_URL, 10000);
   const admin = createStaffAdmin(database.db, config);
   if (action === 'create') {
@@ -43,13 +55,14 @@ try {
       !values.name ||
       (values.bootstrap ? !!values.actor : !values.actor)
     )
-      throw new Error('Invalid create arguments');
-    await admin.create({
+      throw new CommandFailure('invalid_arguments');
+    const created = await admin.create({
       email: values.email,
       displayName: values.name,
       actorId: values.actor ?? null,
       password: await readPassword(values['password-file']),
     });
+    process.stdout.write(`Staff profile: ${created.staffId}\n`);
   } else if (
     action === 'deactivate' ||
     action === 'reactivate' ||
@@ -57,7 +70,7 @@ try {
     action === 'reset-factor'
   ) {
     if (!values.staff || !values.actor || values.bootstrap)
-      throw new Error('Actor and staff required');
+      throw new CommandFailure('invalid_arguments');
     await admin.change(
       action,
       values.staff,
@@ -66,15 +79,19 @@ try {
         ? await readPassword(values['password-file'])
         : undefined,
     );
-  } else throw new Error('Unknown action');
+  } else throw new CommandFailure('unknown_action');
   process.stdout.write(
     'Staff command completed. Audit persistence pending US-007.\n',
   );
-} catch {
-  // Never print validation details, arguments, credentials or driver errors.
-  process.stderr.write(
-    'Staff command failed. Check action, IDs and protected input.\n',
-  );
+} catch (error) {
+  // Only our fixed reason codes; no validation details, values or driver errors.
+  const code =
+    error instanceof CommandFailure || error instanceof StaffAdminFailure
+      ? error.code
+      : error instanceof ZodError
+        ? 'invalid_input'
+        : 'command_failed';
+  process.stderr.write(`Staff command failed: ${code}.\n`);
   process.exitCode = 1;
 } finally {
   await database?.close();

@@ -3,7 +3,7 @@ import { sql, type Kysely } from 'kysely';
 import { z } from 'zod';
 import { passwordSchema } from '@mccarriviera/shared';
 import type { DB } from './db/generated.js';
-import { createAuth, type AuthConfig } from './auth.js';
+import { createAuth, lockStaffAuth, type AuthConfig } from './auth.js';
 import {
   pendingAuthAudit,
   type AuthAuditHook,
@@ -19,6 +19,14 @@ const creationSchema = z.strictObject({
   password: passwordSchema,
   actorId: z.uuid().nullable(),
 });
+export class StaffAdminFailure extends Error {
+  constructor(
+    public code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
 type Action = 'deactivate' | 'reactivate' | 'reset-password' | 'reset-factor';
 const actions: Record<Action, AuthAuditEvent['action']> = {
   deactivate: 'staff_deactivated',
@@ -48,19 +56,28 @@ export function createStaffAdmin(
         // Serialize bootstrap and account creation across command processes.
         await sql`select pg_advisory_xact_lock(7110010)`.execute(trx);
         if (data.actorId) {
-          await trx
+          const actor = await trx
             .selectFrom('staff_profiles')
             .select('id')
             .where('id', '=', data.actorId)
             .where('active', '=', true)
-            .executeTakeFirstOrThrow();
+            .executeTakeFirst();
+          if (!actor)
+            throw new StaffAdminFailure(
+              'actor_inactive_or_missing',
+              'Active actor required',
+            );
         } else {
           if (
             await trx.selectFrom('auth_users').select('id').executeTakeFirst()
           )
-            throw new Error('Bootstrap requires an empty account store');
+            throw new StaffAdminFailure(
+              'bootstrap_not_empty',
+              'Bootstrap requires an empty account store',
+            );
         }
-        const context = await createAuth(trx, config, 'native').$context;
+        const context = await createAuth(trx, config, 'native_pending')
+          .$context;
         const user = await context.internalAdapter.createUser(
           { name: data.displayName, email: data.email, emailVerified: true },
           { method: 'email-password' },
@@ -103,19 +120,40 @@ export function createStaffAdmin(
       z.uuid().parse(actorId);
       if (action === 'reset-password') passwordSchema.parse(password);
       return db.transaction().execute(async (trx) => {
-        await trx
+        const actor = await trx
           .selectFrom('staff_profiles')
           .select('id')
           .where('id', '=', actorId)
           .where('active', '=', true)
-          .executeTakeFirstOrThrow();
+          .executeTakeFirst();
+        if (!actor)
+          throw new StaffAdminFailure(
+            'actor_inactive_or_missing',
+            'Active actor required',
+          );
+        const reference = await trx
+          .selectFrom('staff_profiles')
+          .select('auth_user_id')
+          .where('id', '=', staffId)
+          .executeTakeFirst();
+        if (!reference)
+          throw new StaffAdminFailure('profile_not_found', 'Profile not found');
+        if (!reference.auth_user_id)
+          throw new StaffAdminFailure(
+            'profile_without_account',
+            'Profile has no account',
+          );
+        await lockStaffAuth(trx, reference.auth_user_id);
         const profile = await trx
           .selectFrom('staff_profiles')
           .selectAll()
           .where('id', '=', staffId)
-          .forUpdate()
           .executeTakeFirstOrThrow();
-        if (!profile.auth_user_id) throw new Error('Profile has no account');
+        if (!profile.auth_user_id)
+          throw new StaffAdminFailure(
+            'profile_without_account',
+            'Profile has no account',
+          );
         if (action === 'deactivate' || action === 'reactivate') {
           await trx
             .updateTable('staff_profiles')
@@ -131,9 +169,10 @@ export function createStaffAdmin(
             .updateTable('auth_users')
             .set({ two_factor_enabled: false, updated_at: new Date() })
             .where('id', '=', profile.auth_user_id)
-            .executeTakeFirstOrThrow();
+            .execute();
         } else {
-          const context = await createAuth(trx, config, 'native').$context;
+          const context = await createAuth(trx, config, 'native_pending')
+            .$context;
           const hash = await context.password.hash(password!);
           const updated = await trx
             .updateTable('auth_accounts')

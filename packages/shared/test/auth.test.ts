@@ -1,6 +1,9 @@
 import { expect, it } from 'vitest';
 import {
   factorSchema,
+  nativeSignInResponseSchema,
+  nativeVerifyResponseSchema,
+  nativeFactorSchema,
   passwordSchema,
   signInSchema,
   staffSessionSchema,
@@ -35,4 +38,35 @@ it('never accepts session tokens or internal identity fields in the public sessi
       token: 'synthetic-token',
     }).success,
   ).toBe(false);
+});
+
+it('separates pending native flows from complete session responses and rejects factor bypass controls', () => {
+  const flowToken = 'x'.repeat(43);
+  expect(
+    nativeSignInResponseSchema.safeParse({ next: 'challenge', flowToken })
+      .success,
+  ).toBe(true);
+  expect(
+    nativeSignInResponseSchema.safeParse({
+      token: 'synthetic-token',
+      session: {},
+    }).success,
+  ).toBe(false);
+  expect(
+    nativeVerifyResponseSchema.safeParse({ next: 'enrollment', flowToken })
+      .success,
+  ).toBe(false);
+  for (const extra of [
+    { trustDevice: true },
+    { mode: 'web' },
+    { token: 'synthetic-token' },
+  ])
+    expect(
+      nativeFactorSchema.safeParse({
+        flowToken,
+        kind: 'totp',
+        code: '123456',
+        ...extra,
+      }).success,
+    ).toBe(false);
 });

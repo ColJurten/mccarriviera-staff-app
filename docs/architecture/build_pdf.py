@@ -20,7 +20,7 @@ import tempfile
 HERE = pathlib.Path(__file__).resolve().parent
 SVG_DIR = HERE / "svg"
 OUT = HERE / "architecture.pdf"
-VERSION = "Version 1.5 · 11 November 2026"
+VERSION = "Version 1.6 · 12 November 2026"
 DOC = "MC Car Riviera staff app · planned architecture"
 
 # ---------------------------------------------------------------- page content
@@ -108,7 +108,7 @@ PAGES = [
         "notation": True,
         "notes": [
             "Working table names from US-006. Once the migrations exist they are the reference, and these diagrams follow them.",
-            "US-010/012/015 add seven auth tables and profile activation. Better Auth stores identities, hashed passwords, Postgres sessions and encrypted factors; pending web flows cannot access business routes. Auth records use library metadata; business creation attribution stays unchanged.",
+            "US-010/012/015 add seven auth tables and profile activation. Better Auth stores identities, hashed passwords, Postgres sessions and encrypted factors; pending native/web flows cannot access business routes; both modes require MFA, with native sessions capped at 90 days. Auth records use library metadata; business creation attribution stays unchanged.",
             "A contract is a header plus numbered revisions. Revision 1 is the Départ as signed; each amendment adds a revision with a full snapshot, recorded in the app and not printed (F-22).",
             "Condition evidence is reused: a Départ's inspection points to the vehicle's current reference photo set and to the damage open at that moment (drawn on « What each handover records »).",
         ],

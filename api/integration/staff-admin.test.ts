@@ -15,14 +15,19 @@ it('deactivates all sessions/challenges, reactivates without resurrection, and r
   try {
     const first = await f.native();
     const second = await f.native();
+    await f.resetLimits();
     const pending = await f.web();
-    const enrolled = await f.enroll(pending.cookie);
+    const enrolled = f.factor();
     const verified = await f.verify(pending.cookie, totp(enrolled.secret));
     expect(verified.statusCode, verified.body).toBe(200);
     await f.resetLimits();
     const challenge = await f.web();
+    const nativeChallenge = (await f.nativeSignIn()).json().flowToken as string;
     await admin.change('deactivate', f.staffId, f.actorId);
     expect(audit).toHaveBeenCalledTimes(1);
+    expect(
+      (await f.nativeVerify(nativeChallenge, totp(enrolled.secret))).statusCode,
+    ).toBe(401);
     expect(
       await f.runtime
         .selectFrom('auth_sessions')
@@ -232,8 +237,8 @@ it('runs the developer CLI with protected file input and sanitized output', asyn
       '--password-file',
       file,
     ]);
-    expect(result.stdout).toBe(
-      'Staff command completed. Audit persistence pending US-007.\n',
+    expect(result.stdout).toMatch(
+      /^Staff profile: [a-f0-9-]{36}\nStaff command completed\. Audit persistence pending US-007\.\n$/,
     );
     expect(result.stderr).toBe('');
     const user = await f.runtime
@@ -246,6 +251,21 @@ it('runs the developer CLI with protected file input and sanitized output', asyn
       .select('id')
       .where('auth_user_id', '=', user.id)
       .executeTakeFirstOrThrow();
+    expect(result.stdout).toContain(profile.id);
+    await expect(
+      run([
+        'create',
+        '--email',
+        email,
+        '--name',
+        'Synthetic CLI',
+        '--bootstrap',
+        '--password-file',
+        file,
+      ]),
+    ).rejects.toMatchObject({
+      stderr: 'Staff command failed: bootstrap_not_empty.\n',
+    });
     for (const action of [
       'deactivate',
       'reactivate',
@@ -275,7 +295,7 @@ it('runs the developer CLI with protected file input and sanitized output', asyn
         f.password,
       ]),
     ).rejects.toMatchObject({
-      stderr: 'Staff command failed. Check action, IDs and protected input.\n',
+      stderr: 'Staff command failed: command_failed.\n',
     });
   } finally {
     await rm(directory, { recursive: true, force: true });

@@ -17,12 +17,21 @@ export const staffSessionSchema = z.strictObject({
   mode: z.enum(['native', 'web']),
   expiresAt: z.iso.datetime(),
 });
-export const nativeSignInResponseSchema = z.strictObject({
+export const nativeVerifyResponseSchema = z.strictObject({
   token: z.string(),
   session: staffSessionSchema,
 });
 export const webSignInResponseSchema = z.strictObject({
   next: z.enum(['enrollment', 'challenge']),
+});
+export const nativeSignInResponseSchema = webSignInResponseSchema.extend({
+  flowToken: z.string().regex(/^[a-zA-Z0-9_-]{43}$/),
+});
+export const nativeEnrollmentSchema = enrollmentSchema.extend({
+  flowToken: z.string().regex(/^[a-zA-Z0-9_-]{43}$/),
+});
+export const nativeFactorSchema = factorSchema.extend({
+  flowToken: z.string().regex(/^[a-zA-Z0-9_-]{43}$/),
 });
 export const enrollmentResponseSchema = z.strictObject({
   totpURI: z.string(),

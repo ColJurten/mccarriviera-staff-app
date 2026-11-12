@@ -200,6 +200,17 @@ describe('US-006 database catalog and constraints', () => {
         ])
       ).rows[0].active,
     ).toBe(true);
+    expect(columns).toContainEqual({
+      table_name: 'auth_flows',
+      column_name: 'mode',
+      data_type: 'character varying',
+    });
+    await rejected(
+      api,
+      'UPDATE staff_profiles SET active=false WHERE id=$1',
+      [actor],
+      '42501',
+    );
     await rejected(
       api,
       "INSERT INTO staff_profiles(created_by,display_name) VALUES ($1,'Synthetic forbidden account')",

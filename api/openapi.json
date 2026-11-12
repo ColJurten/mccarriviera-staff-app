@@ -121,6 +121,375 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "next": {
+                      "type": "string",
+                      "enum": ["enrollment", "challenge"]
+                    },
+                    "flowToken": {
+                      "type": "string",
+                      "pattern": "^[a-zA-Z0-9_-]{43}$"
+                    }
+                  },
+                  "required": ["next", "flowToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/native/enroll": {
+      "post": {
+        "operationId": "nativeEnroll",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128
+                  },
+                  "flowToken": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_-]{43}$"
+                  }
+                },
+                "required": ["password", "flowToken"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totpURI": {
+                      "type": "string"
+                    },
+                    "backupCodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": ["totpURI", "backupCodes"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/native/verify": {
+      "post": {
+        "operationId": "nativeVerify",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["totp", "backup"]
+                  },
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "flowToken": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_-]{43}$"
+                  }
+                },
+                "required": ["kind", "code", "flowToken"],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
                     "token": {
                       "type": "string"
                     },
@@ -241,6 +610,32 @@
             }
           },
           "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Default Response",
             "content": {
               "application/json": {
@@ -419,6 +814,32 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
           }
         }
       }
@@ -548,6 +969,32 @@
             }
           },
           "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Default Response",
             "content": {
               "application/json": {
@@ -739,6 +1186,32 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
           }
         }
       }
@@ -883,6 +1356,32 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
           }
         }
       }
@@ -1000,6 +1499,32 @@
             }
           },
           "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid_request",
+                        "unauthorized",
+                        "not_found",
+                        "internal_error",
+                        "invalid_credentials",
+                        "invalid_factor",
+                        "rate_limited"
+                      ]
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Default Response",
             "content": {
               "application/json": {

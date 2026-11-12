@@ -9,7 +9,7 @@ import { buildApp } from '../src/app.js';
 import { requireSession } from '../src/route-policy.js';
 import { publicSession } from '../src/session.js';
 
-export async function authFixture() {
+export async function authFixture(trustedProxyIp?: string) {
   if (process.env.DB_DISPOSABLE !== '1' || !process.env.MIGRATION_DATABASE_URL)
     throw new Error('Disposable owner database required');
   const config = readConfig();
@@ -46,6 +46,7 @@ export async function authFixture() {
       storage: async () => {},
       timeoutMs: 1000,
       auth,
+      trustedProxyIp,
     },
     {
       write: (line) => {
@@ -73,8 +74,44 @@ export async function authFixture() {
     app.inject(
       typeof options === 'string'
         ? { url: options, remoteAddress }
-        : { ...options, remoteAddress },
+        : { remoteAddress, ...options },
     );
+  let factor: { secret: string; backupCodes: string[] } | undefined;
+  const material = (response: {
+    json: () => { totpURI: string; backupCodes: string[] };
+  }) => {
+    const body = response.json();
+    factor = {
+      secret: new URL(body.totpURI).searchParams.get('secret')!,
+      backupCodes: body.backupCodes,
+    };
+    return factor;
+  };
+  const nativeSignIn = () =>
+    inject({
+      method: 'POST',
+      url: '/api/auth/native/sign-in',
+      payload: { email, password },
+    });
+  const nativeEnroll = async (flowToken: string) => {
+    const response = await inject({
+      method: 'POST',
+      url: '/api/auth/native/enroll',
+      payload: { flowToken, password },
+    });
+    expect(response.statusCode, response.body).toBe(200);
+    return material(response);
+  };
+  const nativeVerify = (
+    flowToken: string,
+    code: string,
+    kind: 'totp' | 'backup' = 'totp',
+  ) =>
+    inject({
+      method: 'POST',
+      url: '/api/auth/native/verify',
+      payload: { flowToken, kind, code },
+    });
   return {
     config,
     owner: owner.db,
@@ -92,14 +129,28 @@ export async function authFixture() {
     email,
     password,
     origin,
+    nativeSignIn,
+    nativeEnroll,
+    nativeVerify,
+    factor: () => {
+      if (!factor) throw new Error('No synthetic enrollment');
+      return factor;
+    },
     async native() {
+      // Session fixture setup exercises HTTP MFA; explicit limit tests bypass this helper.
+      await owner.db.deleteFrom('auth_rate_limits').execute();
       const response = await inject({
         method: 'POST',
         url: '/api/auth/native/sign-in',
         payload: { email, password },
       });
       expect(response.statusCode, response.body).toBe(200);
-      return response.json().token as string;
+      const flow = response.json() as { next: string; flowToken: string };
+      if (flow.next === 'enrollment') await nativeEnroll(flow.flowToken);
+      if (!factor) throw new Error('Missing synthetic factor');
+      const verified = await nativeVerify(flow.flowToken, totp(factor.secret));
+      expect(verified.statusCode, verified.body).toBe(200);
+      return verified.json().token as string;
     },
     async web() {
       const response = await inject({
@@ -125,11 +176,7 @@ export async function authFixture() {
         payload: { password },
       });
       expect(response.statusCode, response.body).toBe(200);
-      const uri = new URL(response.json().totpURI);
-      return {
-        secret: uri.searchParams.get('secret')!,
-        backupCodes: response.json().backupCodes as string[],
-      };
+      return material(response);
     },
     async verify(
       cookie: string,

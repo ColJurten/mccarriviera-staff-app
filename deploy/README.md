@@ -75,9 +75,28 @@ use HTTP, but a browser needs a trusted local HTTPS reverse proxy serving the
 web app and `/api/` under the same origin. Set the two URL settings to that
 origin; the API's internal Compose listener remains HTTP behind the proxy.
 There is no development switch to weaken cookie security. The future frontend
-slice supplies browser screens and HTTPS development integration. The API does
-not trust caller forwarding headers; rate limits use its connection address.
-Behind a proxy the two staff share the conservative request budget.
+slice supplies browser screens and HTTPS development integration.
+
+For Caddy, set optional `TRUSTED_PROXY_IP` to the single literal address of its
+connection as seen by the API (for example `192.0.2.10` in a synthetic test).
+Keep that address stable or update the protected environment when it changes.
+Compose passes it to the API only. Unset/empty is direct mode and trusts no
+forwarding. The setting accepts neither hostnames nor CIDR ranges nor `true`.
+Fastify trusts only that immediate peer, never earlier hops. Caddy reverse_proxy
+supplies X-Forwarded-For from its connection client by default and ignores
+untrusted supplied forwarding values; do not enable arbitrary upstream proxy
+trust in Caddy. Restrict deployed API ingress to Caddy. Verify with two client
+IPs and a forged multi-hop chain before staging/production sign-in is enabled
+(US-004 prerequisite). [Caddy forwarding defaults](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#defaults)
+and [Fastify proxy trust](https://fastify.dev/docs/latest/Reference/Server/#trustproxy).
+
+Without the correct proxy address, every proxied client shares one 3-request/
+10-second password budget: an anonymous request every ~3 seconds can keep all
+staff locked out of sign-in. The API additionally limits failed passwords per
+normalized account across native/web and changing IPs. Three failures cause a
+bounded lockout until that 10-second window expires; blocked attempts do not
+extend the account window. Correct passwords consume only the IP request budget.
+See [the API contract](../api/README.md) for enrollment and factor limits.
 
 Create/revoke/reset staff with [the account runbook](../docs/runbook.md). Only
 the developer process loads the owner URL; do not add it to the API container.

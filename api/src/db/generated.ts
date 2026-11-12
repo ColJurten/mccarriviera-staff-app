@@ -59,6 +59,7 @@ export interface AuthFlows {
   expires_at: Timestamp;
   id: Generated<string>;
   internal_cookie: string;
+  mode: string;
   state: string;
   token_hash: string;
   user_id: string;

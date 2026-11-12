@@ -1,3 +1,4 @@
+import { BlockList } from 'node:net';
 import Fastify, { LogController } from 'fastify';
 import swagger from '@fastify/swagger';
 import {
@@ -11,10 +12,25 @@ import { registerAuth } from './routes/auth.js';
 import { AuthFailure, type Authentication } from './auth.js';
 
 export async function buildApp(
-  options: HealthOptions & { auth?: Authentication },
+  options: HealthOptions & {
+    auth?: Authentication;
+    trustedProxyIp?: string | undefined;
+  },
   logStream?: { write: (text: string) => void },
 ) {
+  const trustedProxy = new BlockList();
+  if (options.trustedProxyIp) {
+    trustedProxy.addAddress(
+      options.trustedProxyIp,
+      options.trustedProxyIp.includes(':') ? 'ipv6' : 'ipv4',
+    );
+  }
   const app = Fastify({
+    trustProxy: options.trustedProxyIp
+      ? (address, hop) =>
+          hop === 0 &&
+          trustedProxy.check(address, address.includes(':') ? 'ipv6' : 'ipv4')
+      : false,
     logger: {
       level: 'info',
       base: null,

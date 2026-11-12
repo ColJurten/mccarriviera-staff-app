@@ -22,11 +22,11 @@ pnpm --filter @mccarriviera/api staff create \
 ```
 
 `--bootstrap` is only for the first auth account. Its profile is self-attributed,
-matching the existing bootstrap convention. Record its profile UUID through an
-owner query (`SELECT id, display_name FROM staff_profiles WHERE auth_user_id IS NOT NULL`)
-in the protected operator session. Later commands require `--actor <profile UUID>`
-of an active profile to attribute the developer's action. No identity or secret
-is printed by the script; its only success output includes the audit limitation.
+matching the existing bootstrap convention. The command prints its new profile
+UUID; record that ID in the protected operator session. Later commands require
+`--actor <profile UUID>` of an active profile to attribute the developer's action.
+The profile UUID and fixed reason codes are safe operator output; names, e-mails,
+passwords and tokens are never printed. Success output includes the audit limitation.
 
 ```sh
 pnpm --filter @mccarriviera/api staff create \
@@ -49,9 +49,16 @@ profile; keep an operator profile active. Production bootstrap/handover procedur
 will be completed with US-093.
 
 `reset-factor` removes the encrypted TOTP secret and backup codes, clears the
-enabled flag, and revokes every session/challenge. The next web sign-in must
-enroll again. Native login still uses only a password. `reset-password` hashes
+enabled flag, and revokes every native/web session and challenge. The next
+sign-in in either mode must enroll again. `reset-password` hashes
 the new password with Better Auth and revokes every session/challenge too.
+The developer and staff member do the first sign-in and TOTP enrollment together,
+on either iPhone or web, and repeat this paired procedure after `reset-factor`.
+The staff member verifies the authenticator code before business access and keeps
+the backup codes privately in their password manager or another safe place.
+Never copy their TOTP secret or backup codes into developer notes or support logs.
+Every later new sign-in still needs a factor; Face ID only unlocks the app locally.
+
 Share initial/reset passwords through a protected channel outside this tool;
 remove the temporary password file after provisioning.
 

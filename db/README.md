@@ -35,12 +35,16 @@ profiles; the account command creates the account, credential and linked profile
 in one transaction with explicit actor attribution. Bootstrap uses the existing
 self-reference convention and is allowed only while no auth account exists.
 
-Runtime gets only auth SELECT/INSERT/UPDATE/DELETE and profile `active` UPDATE
-(also permits the profile lock used at sign-in). Existing business/evidence
+Runtime gets only auth SELECT/INSERT/UPDATE/DELETE; profile activation remains
+owner-only. Shared advisory transaction locks serialize sign-in, factor completion
+and developer commands without granting runtime activation rights. Existing business/evidence
 grants stay intact; runtime cannot create profiles. Developer commands use the
 owner connection, never an HTTP administration endpoint. Sessions record native,
-pending-web or complete-web mode, expiry, last activity and original authentication
-time. Flows store hashed opaque tokens and encrypted internal cookies; the
+pending-native, pending-web or complete-web mode, expiry, last activity and original authentication
+time (native: 30 days idle, capped at 90 days; web: 30 minutes idle, capped at 12 hours).
+The additive `20261112000000_native_second_factor.sql` migration invalidates
+legacy password-only native sessions and pre-change pending state, adds flow-mode
+binding and revokes runtime UPDATE(active). Flows store hashed opaque tokens and encrypted internal cookies; the
 two-factor plugin encrypts TOTP secrets and backup codes using `AUTH_SECRET`.
 All time columns are `timestamptz`. See [the runbook](../docs/runbook.md) for
 revocation, factor/password reset and the pending US-007 audit hook.

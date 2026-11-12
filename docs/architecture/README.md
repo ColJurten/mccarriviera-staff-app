@@ -53,7 +53,7 @@ Garage, Mailpit, unmodified Documenso CE with database file storage, and Fastify
 Documenso is no longer part of the design ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md));
 a follow-up ticket removes it from the local stack.
 `GET /api/health` (also HEAD) probes the app database and private storage; these
-are public API routes. US-010/012/015 now add the four exact sign-in/continuation
+are public API routes. US-010/012/015 now add the six exact sign-in/continuation
 POST exceptions; all other routes require a current active staff session.
 No production component or business sequence was added by this slice, so its
 PlantUML sources and generated production diagrams are unchanged. See the
@@ -77,10 +77,16 @@ Diagram 05 also includes Better Auth identity, credential, session, verification
 factor, restricted-flow and limiter storage. Business-table creation metadata
 still applies to the 18 business tables; auth records use the library's schema.
 Profiles retain their optional unique auth link and gain `active`. Native
-sessions roll to 30 days idle. Complete web sessions need a factor at every
-sign-in and have 30-minute idle/12-hour absolute expiry. Pending web contexts
+sessions need a factor at every new sign-in and roll to 30 days idle, capped at
+90 days from original authentication. Complete web sessions need a factor at every
+sign-in and have 30-minute idle/12-hour absolute expiry. Pending native/web contexts
 cannot pass business-route guards. Every request reads Postgres; no session
 cookie cache bypasses revocation. [API contract](../../api/README.md) and
 [operator runbook](../runbook.md) describe implemented endpoints and commands.
 Audit-event generation still waits for US-007; commands have a transactional
 integration hook. Screens/device integration remain frontend work.
+
+The native and web flows share one enrollment; completing it invalidates other
+pending enrollment contexts. Failed passwords have an HMAC-keyed account budget
+shared across transports as well as per-IP limits; only the configured immediate
+Caddy peer may supply client IPs. Runtime cannot change profile activation.

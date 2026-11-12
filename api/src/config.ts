@@ -1,3 +1,4 @@
+import { isIP } from 'node:net';
 import { z } from 'zod';
 
 const httpsOriginSchema = z
@@ -31,6 +32,13 @@ const configSchema = z.object({
     .string()
     .transform((value) => value.split(',').map((origin) => origin.trim()))
     .pipe(z.array(httpsOriginSchema).min(1)),
+  TRUSTED_PROXY_IP: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z
+      .string()
+      .refine((value) => isIP(value) !== 0 && !value.includes('%'))
+      .optional(),
+  ),
   API_PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   HEALTH_TIMEOUT_MS: z.coerce.number().int().min(50).max(10000).default(1500),
 });

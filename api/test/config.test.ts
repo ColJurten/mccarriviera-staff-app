@@ -22,7 +22,24 @@ it('requires a server secret and exact HTTPS auth origins', () => {
     'https://app.example.com',
     'https://staging.example.com',
   ]);
+  expect(readConfig(env).TRUSTED_PROXY_IP).toBeUndefined();
+  expect(
+    readConfig({ ...env, TRUSTED_PROXY_IP: '' }).TRUSTED_PROXY_IP,
+  ).toBeUndefined();
+  for (const ip of ['192.0.2.10', '::1'])
+    expect(readConfig({ ...env, TRUSTED_PROXY_IP: ip }).TRUSTED_PROXY_IP).toBe(
+      ip,
+    );
   for (const replacement of [
+    ...[
+      'true',
+      '1',
+      'caddy',
+      '192.0.2.0/24',
+      '192.0.2.1,192.0.2.2',
+      ' 192.0.2.1',
+      'fe80::1%eth0',
+    ].map((TRUSTED_PROXY_IP) => ({ TRUSTED_PROXY_IP })),
     { AUTH_SECRET: '' },
     { AUTH_SECRET: 'fake-auth-secret-do-not-use' },
     { AUTH_BASE_URL: 'http://app.example.com' },

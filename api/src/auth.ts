@@ -23,17 +23,18 @@ export class AuthFailure extends Error {
       | 'invalid_factor'
       | 'unauthorized'
       | 'rate_limited',
+    public failedPassword = false,
   ) {
     super(code);
   }
 }
 
-// Separate contexts share identities, but native never invokes the web 2FA hook.
+// Separate transport contexts share identities and require the same library MFA.
 // These instances are internal only: no wildcard Better Auth handler is mounted.
 export function createAuth(
   db: Kysely<DB>,
   config: AuthConfig,
-  mode: 'native' | 'web_pending',
+  mode: 'native_pending' | 'web_pending',
 ) {
   return betterAuth({
     appName: 'MC Car Riviera',
@@ -80,7 +81,7 @@ export function createAuth(
         ipAddress: 'ip_address',
         userAgent: 'user_agent',
       },
-      expiresIn: mode === 'native' ? 30 * 86400 : FLOW_SECONDS,
+      expiresIn: FLOW_SECONDS,
       disableSessionRefresh: true,
       cookieCache: { enabled: false },
       additionalFields: {
@@ -106,7 +107,7 @@ export function createAuth(
       database: { generateId: 'uuid', validateSchema: false },
       useSecureCookies: true,
       cookiePrefix:
-        mode === 'native' ? 'mcr-native-internal' : 'mcr-web-internal',
+        mode === 'native_pending' ? 'mcr-native-internal' : 'mcr-web-internal',
       defaultCookieAttributes: {
         httpOnly: true,
         secure: true,
@@ -136,28 +137,25 @@ export function createAuth(
         },
       },
     },
-    plugins:
-      mode === 'native'
-        ? []
-        : [
-            twoFactor({
-              issuer: 'MC Car Riviera',
-              skipVerificationOnEnable: false,
-              twoFactorCookieMaxAge: FLOW_SECONDS,
-              schema: {
-                user: { fields: { twoFactorEnabled: 'two_factor_enabled' } },
-                twoFactor: {
-                  modelName: 'auth_two_factors',
-                  fields: {
-                    userId: 'user_id',
-                    backupCodes: 'backup_codes',
-                    failedVerificationCount: 'failed_verification_count',
-                    lockedUntil: 'locked_until',
-                  },
-                },
-              },
-            }),
-          ],
+    plugins: [
+      twoFactor({
+        issuer: 'MC Car Riviera',
+        skipVerificationOnEnable: false,
+        twoFactorCookieMaxAge: FLOW_SECONDS,
+        schema: {
+          user: { fields: { twoFactorEnabled: 'two_factor_enabled' } },
+          twoFactor: {
+            modelName: 'auth_two_factors',
+            fields: {
+              userId: 'user_id',
+              backupCodes: 'backup_codes',
+              failedVerificationCount: 'failed_verification_count',
+              lockedUntil: 'locked_until',
+            },
+          },
+        },
+      }),
+    ],
   });
 }
 
@@ -188,6 +186,7 @@ function internalHeaders(cookie = '') {
 function authError(
   error: unknown,
   code: 'invalid_credentials' | 'invalid_factor',
+  failedPassword = code === 'invalid_credentials',
 ) {
   if (
     error instanceof APIError &&
@@ -196,13 +195,14 @@ function authError(
     return new AuthFailure(
       error.statusCode === 429 ? 429 : 401,
       error.statusCode === 429 ? 'rate_limited' : code,
+      error.statusCode !== 429 && failedPassword,
     );
   }
   throw error;
 }
 
 // Canonicalize IPv6 and group its /64 so rotating interface addresses cannot
-// bypass limits. Forwarding headers never enter this function (trustProxy=false).
+// bypass limits. Only Fastify's validated connection/proxy address enters here.
 export function rateAddress(ip: string) {
   if (ip.startsWith('::ffff:') && isIP(ip.slice(7)) === 4) return ip.slice(7);
   if (isIP(ip) !== 6) return ip;
@@ -218,13 +218,70 @@ export function rateAddress(ip: string) {
     .join(':');
 }
 
+// Shared with developer commands; runtime does not need profile UPDATE grants.
+export async function lockStaffAuth(db: Kysely<DB>, userId: string) {
+  await sql`SELECT pg_advisory_xact_lock(hashtextextended(${'staff-auth:' + userId}, 0))`.execute(
+    db,
+  );
+}
+async function incrementLimit(db: Kysely<DB>, key: string) {
+  const result = await sql<{
+    count: number;
+  }>`INSERT INTO auth_rate_limits(key, count, window_started_at)
+    VALUES (${key}, 1, clock_timestamp()) ON CONFLICT (key) DO UPDATE SET
+    count = CASE WHEN auth_rate_limits.window_started_at <= clock_timestamp() - interval '10 seconds' THEN 1 ELSE auth_rate_limits.count + 1 END,
+    window_started_at = CASE WHEN auth_rate_limits.window_started_at <= clock_timestamp() - interval '10 seconds' THEN clock_timestamp() ELSE auth_rate_limits.window_started_at END
+    RETURNING count`.execute(db);
+  return result.rows[0]!.count;
+}
 export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
+  const limitKey = (value: string) =>
+    createHmac('sha256', config.AUTH_SECRET).update(value).digest('hex');
+  // Serialize the account budget. A savepoint lets failed authentication work
+  // roll back while its failed-password counter still commits on this connection.
+  async function passwordAttempt<T>(
+    email: string,
+    operation: (trx: Kysely<DB>) => Promise<T | AuthFailure>,
+  ): Promise<T> {
+    const key = limitKey(`account-password:${email.toLowerCase()}`);
+    const result = await db.transaction().execute(async (budget) => {
+      await sql`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`.execute(
+        budget,
+      );
+      const counter = await budget
+        .selectFrom('auth_rate_limits')
+        .select('count')
+        .where('key', '=', key)
+        .where(
+          'window_started_at',
+          '>',
+          sql<Date>`clock_timestamp() - interval '10 seconds'`,
+        )
+        .executeTakeFirst();
+      if (counter && counter.count >= 3)
+        return new AuthFailure(429, 'rate_limited');
+      await sql`SAVEPOINT password_attempt`.execute(budget);
+      let value: T | AuthFailure;
+      try {
+        value = await operation(budget);
+      } catch (error) {
+        if (!(error instanceof AuthFailure)) throw error;
+        value = error;
+      }
+      if (value instanceof AuthFailure) {
+        await sql`ROLLBACK TO SAVEPOINT password_attempt`.execute(budget);
+        if (value.failedPassword) await incrementLimit(budget, key);
+      }
+      await sql`RELEASE SAVEPOINT password_attempt`.execute(budget);
+      return value;
+    });
+    if (result instanceof AuthFailure) throw result;
+    return result;
+  }
   return {
     config,
     async limit(ip: string, group: 'password' | 'factor') {
-      const key = createHmac('sha256', config.AUTH_SECRET)
-        .update(`${group}:${rateAddress(ip)}`)
-        .digest('hex');
+      const key = limitKey(`${group}:${rateAddress(ip)}`);
       await db
         .deleteFrom('auth_rate_limits')
         .where(
@@ -233,14 +290,8 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
           sql<Date>`clock_timestamp() - interval '10 seconds'`,
         )
         .execute();
-      const result = await sql<{
-        count: number;
-      }>`INSERT INTO auth_rate_limits(key, count, window_started_at)
-        VALUES (${key}, 1, clock_timestamp()) ON CONFLICT (key) DO UPDATE SET
-        count = CASE WHEN auth_rate_limits.window_started_at <= clock_timestamp() - interval '10 seconds' THEN 1 ELSE auth_rate_limits.count + 1 END,
-        window_started_at = CASE WHEN auth_rate_limits.window_started_at <= clock_timestamp() - interval '10 seconds' THEN clock_timestamp() ELSE auth_rate_limits.window_started_at END
-        RETURNING count`.execute(db);
-      if (result.rows[0]!.count > 3) throw new AuthFailure(429, 'rate_limited');
+      if ((await incrementLimit(db, key)) > 3)
+        throw new AuthFailure(429, 'rate_limited');
     },
     resolve: (token: string, mode: 'native' | 'web') =>
       resolveToken(db, token, mode),
@@ -248,7 +299,13 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
       body: { email: string; password: string },
       mode: 'native' | 'web',
     ) {
-      const result = await db.transaction().execute(async (trx) => {
+      return passwordAttempt(body.email, async (trx) => {
+        const user = await trx
+          .selectFrom('auth_users')
+          .select('id')
+          .where('email', '=', body.email.toLowerCase())
+          .executeTakeFirst();
+        if (user) await lockStaffAuth(trx, user.id);
         const profile = await trx
           .selectFrom('staff_profiles')
           .innerJoin('auth_users', (join) =>
@@ -262,12 +319,11 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
             'auth_users.id as userId',
           ])
           .where('auth_users.email', '=', body.email.toLowerCase())
-          .forUpdate('staff_profiles')
           .executeTakeFirst();
         const auth = createAuth(
           trx,
           config,
-          mode === 'native' ? 'native' : 'web_pending',
+          mode === 'native' ? 'native_pending' : 'web_pending',
         );
         // Run the library's password check even for unknown addresses (dummy hash).
         let response;
@@ -278,26 +334,19 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
           });
         } catch (error) {
           if (error instanceof APIError && !profile?.active)
-            return new AuthFailure(401, 'invalid_credentials');
+            return new AuthFailure(401, 'invalid_credentials', true);
           return authError(error, 'invalid_credentials');
         }
         if (!profile?.active)
-          return new AuthFailure(401, 'invalid_credentials');
-        if (mode === 'native') {
-          if (!('token' in response.response) || !response.response.token)
-            return new AuthFailure(401, 'invalid_credentials');
-          const token = response.response.token;
-          const session = await resolveToken(trx, token, 'native');
-          if (!session) throw new Error('Missing new session');
-          return { kind: 'native' as const, token, session };
-        }
+          return new AuthFailure(401, 'invalid_credentials', true);
         await trx
           .deleteFrom('auth_flows')
           .where('user_id', '=', profile.userId)
+          .where('mode', '=', mode)
           .execute();
         const cookie = cookieJar(response.headers);
         const challenged = 'twoFactorRedirect' in response.response;
-        // Only one enrollment context per identity; old pending sessions never
+        // One pending context per identity and mode; old pending sessions never
         // become business sessions. Completed sessions remain independent.
         const current = challenged
           ? null
@@ -305,7 +354,7 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
         await trx
           .deleteFrom('auth_sessions')
           .where('user_id', '=', profile.userId)
-          .where('mode', '=', 'web_pending')
+          .where('mode', '=', `${mode}_pending`)
           .$if(!!current, (q) => q.where('token', '!=', current!.session.token))
           .execute();
         const flowToken = randomBytes(32).toString('base64url');
@@ -317,6 +366,7 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
           .values({
             token_hash: hash(flowToken),
             user_id: profile.userId,
+            mode,
             state,
             internal_cookie: await symmetricEncrypt({
               key: config.AUTH_SECRET,
@@ -325,44 +375,54 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
             expires_at: new Date(Date.now() + FLOW_SECONDS * 1000),
           })
           .execute();
-        return { kind: 'web' as const, flowToken, next: state };
+        return { flowToken, next: state };
       });
-      if (result instanceof AuthFailure) throw result;
-      return result;
     },
-    async continueWeb(
+    async continueFlow(
       flowToken: string,
+      mode: 'native' | 'web',
       action: { password: string } | { kind: 'totp' | 'backup'; code: string },
     ) {
-      const result = await db.transaction().execute(async (trx) => {
+      const attempt = async (trx: Kysely<DB>) => {
         // Same lock order as sign-in/admin; serializes backup consumption and
         // prevents a concurrently reset/deactivated profile being promoted.
         const reference = await trx
           .selectFrom('auth_flows')
           .select('user_id')
           .where('token_hash', '=', hash(flowToken))
+          .where('mode', '=', mode)
           .executeTakeFirst();
         if (!reference) return new AuthFailure(401, 'invalid_factor');
+        await lockStaffAuth(trx, reference.user_id);
         const profile = await trx
           .selectFrom('staff_profiles')
           .select(['id', 'active'])
           .where('auth_user_id', '=', reference.user_id)
-          .forUpdate()
           .executeTakeFirst();
         const flow = await trx
           .selectFrom('auth_flows')
           .selectAll()
           .where('token_hash', '=', hash(flowToken))
           .where('expires_at', '>', sql<Date>`clock_timestamp()`)
+          .where('mode', '=', mode)
           .forUpdate()
           .executeTakeFirst();
         if (!profile?.active || !flow)
+          return new AuthFailure(401, 'invalid_factor');
+        const user = await trx
+          .selectFrom('auth_users')
+          .select('two_factor_enabled')
+          .where('id', '=', reference.user_id)
+          .executeTakeFirstOrThrow();
+        // A simultaneous first enrollment in the other transport supersedes
+        // this password-only context; it must never replace an enabled factor.
+        if (flow.state === 'enrollment' && user.two_factor_enabled)
           return new AuthFailure(401, 'invalid_factor');
         const cookie = await symmetricDecrypt({
           key: config.AUTH_SECRET,
           data: flow.internal_cookie,
         });
-        const auth = createAuth(trx, config, 'web_pending');
+        const auth = createAuth(trx, config, `${mode}_pending`);
         const headers = internalHeaders(cookie);
         try {
           if ('password' in action) {
@@ -411,36 +471,67 @@ export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
           if (!current || current.user.id !== flow.user_id)
             return new AuthFailure(401, 'invalid_factor');
           const token = current.session.token;
-          await trx
+          const promoted = await trx
             .updateTable('auth_sessions')
             .set({
-              mode: 'web',
+              mode,
               authenticated_at: flow.created_at,
               updated_at: new Date(),
               expires_at: new Date(
                 Math.min(
-                  Date.now() + 1800000,
-                  flow.created_at.getTime() + 43200000,
+                  Date.now() + (mode === 'native' ? 30 * 86400000 : 1800000),
+                  flow.created_at.getTime() +
+                    (mode === 'native' ? 90 * 86400000 : 43200000),
                 ),
               ),
             })
             .where('token', '=', token)
-            .where('mode', '=', 'web_pending')
+            .where('mode', '=', `${mode}_pending`)
             .executeTakeFirstOrThrow();
-          await trx
-            .deleteFrom('auth_flows')
-            .where('id', '=', flow.id)
-            .execute();
-          const session = await resolveToken(trx, token, 'web');
+          if (promoted.numUpdatedRows !== 1n)
+            throw new Error('Missing pending session');
+          if (flow.state === 'enrollment') {
+            await trx
+              .deleteFrom('auth_flows')
+              .where('user_id', '=', flow.user_id)
+              .execute();
+            await trx
+              .deleteFrom('auth_sessions')
+              .where('user_id', '=', flow.user_id)
+              .where('mode', 'in', ['native_pending', 'web_pending'])
+              .execute();
+            await trx
+              .deleteFrom('auth_verifications')
+              .where('value', '=', flow.user_id)
+              .execute();
+          } else {
+            await trx
+              .deleteFrom('auth_flows')
+              .where('id', '=', flow.id)
+              .execute();
+          }
+          const session = await resolveToken(trx, token, mode);
           if (!session) throw new Error('Missing verified session');
           return { kind: 'verified' as const, token, session };
         } catch (error) {
-          return authError(error, 'invalid_factor');
+          return authError(error, 'invalid_factor', 'password' in action);
         }
-      });
-      // Commit failed-attempt counters before returning a generic failure.
-      if (result instanceof AuthFailure) throw result;
-      return result;
+      };
+      if (!('password' in action)) {
+        const result = await db.transaction().execute(attempt);
+        // Commit the library's factor-attempt counters before reporting failure.
+        if (result instanceof AuthFailure) throw result;
+        return result;
+      }
+      const flow = await db
+        .selectFrom('auth_flows')
+        .innerJoin('auth_users', 'auth_users.id', 'auth_flows.user_id')
+        .select('auth_users.email')
+        .where('token_hash', '=', hash(flowToken))
+        .where('mode', '=', mode)
+        .executeTakeFirst();
+      if (!flow) throw new AuthFailure(401, 'invalid_factor');
+      return passwordAttempt(flow.email, attempt);
     },
     async signOut(identity: SessionIdentity) {
       await db

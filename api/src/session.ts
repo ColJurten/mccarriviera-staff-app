@@ -20,12 +20,12 @@ export async function resolveToken(
     display_name: string;
     expires_at: Date;
   }>`UPDATE auth_sessions s SET updated_at = clock_timestamp(), expires_at =
-      CASE WHEN s.mode = 'native' THEN clock_timestamp() + interval '30 days'
+      CASE WHEN s.mode = 'native' THEN LEAST(clock_timestamp() + interval '30 days', s.authenticated_at + interval '90 days')
       ELSE LEAST(clock_timestamp() + interval '30 minutes', s.authenticated_at + interval '12 hours') END
     FROM staff_profiles p WHERE s.token = ${token} AND s.mode = ${mode}
       AND p.auth_user_id = s.user_id::text AND p.active
       AND s.expires_at > clock_timestamp()
-      AND (s.mode = 'native' OR s.authenticated_at + interval '12 hours' > clock_timestamp())
+      AND s.authenticated_at + CASE WHEN s.mode = 'native' THEN interval '90 days' ELSE interval '12 hours' END > clock_timestamp()
     RETURNING s.id, s.user_id, p.id AS staff_id, p.display_name, s.expires_at`.execute(
     db,
   );
