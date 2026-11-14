@@ -34,10 +34,13 @@ disagrees with them, they win: say so in the PR.
 - Business rules on data the API can't trust come from the database: state
   changes call the SQL functions ([db-migrations](../db-migrations/SKILL.md)),
   never an UPDATE of a status column.
-- **Files:** the API checks the session, what the file belongs to, its kind and
-  its size, then returns a presigned S3 link valid for 5 minutes at most. The
-  phone uploads and downloads directly; the API confirms the upload and records
-  its metadata row. Evidence buckets are never deleted from.
+- **Files** ([ADR-0014](../../../docs/adr/0014-file-storage.md)): the app
+  uploads to the temporary `incoming` bucket through a presigned link valid for
+  5 minutes at most, with an `uploads` row. The API verifies the stored file
+  (size, real type, SHA-256). The route that creates the record files its
+  verified uploads, each used once. The app never writes to another bucket, and
+  signatures and PDFs are written by the API. Downloads use a presigned link
+  after the access checks. Evidence buckets are never deleted from.
 - Signing routes are idempotent: the same drawing for the same preview returns
   the first result ([US-044](../../../docs/stories/US-044-client-signs-in-the-app.md)).
 

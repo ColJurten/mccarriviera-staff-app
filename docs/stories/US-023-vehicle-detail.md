@@ -17,6 +17,7 @@ As a staff member, I want to see a vehicle's current condition, status and histo
 - [ ] The screen shows the vehicle's identity (plate, model, colour, fuel type), current km and fuel level, and status.
 - [ ] It shows the current reference photo set (date and author) in a full-screen, swipeable viewer.
 - [ ] It shows open damages (photos, comment, date found, contract) and, collapsed, repaired ones.
+- [ ] It lists the vehicle's documents, which can be opened, added and deleted ([US-027](US-027-vehicle-documents.md)).
 - [ ] If the vehicle is rented, the active contract appears: renter, departure, planned return.
 - [ ] History lists past contracts (number, renter, dates) and maintenance records, newest first.
 - [ ] Actions depend on the status:

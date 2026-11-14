@@ -4,6 +4,11 @@ Start from [docs/README.md](docs/README.md) and follow its read order. Work from
 one story, read its linked ADRs and open points, and follow the
 [Definition of Done](docs/stories/README.md#definition-of-done).
 
+The web app is built and released first, and the iPhone app follows from the
+same code ([ADR-0025](docs/adr/0025-web-app-first.md)). Build screens with React
+Native components only, keep device-specific code behind the platform modules,
+and follow the [design reference](docs/design/README.md).
+
 Follow the [ADRs](docs/adr/README.md). Never change an accepted ADR without
 asking first (default for N-06). Stop and ask if implementation requires a
 different decision; after approval, follow ADR-0001 for a superseding ADR.

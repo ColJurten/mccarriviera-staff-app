@@ -16,8 +16,8 @@ As a staff member, I want to photograph or upload the client's licence, ID and o
 
 - [ ] From the client record, « Ajouter un document » offers: take a photo (in-app camera), choose from the photo library, or choose a file (PDF or image).
 - [ ] Each document has a type (permis, carte d'identité, passeport, autre) and an optional label.
-- [ ] Images are resized and stripped of location metadata. Files are limited to 10 MB. Everything goes to the private `client-documents` bucket.
-- [ ] Documents are listed with type and date. Opening one uses a presigned link valid for 5 minutes or less, in an in-app viewer. Nothing is saved to the phone.
+- [ ] Accepted files: PDF, JPEG and PNG, up to 10 MB. Images are resized and stripped of location metadata, and other image formats are converted to JPEG before upload. Files reach the private `client-documents` bucket through the upload flow of [ADR-0014](../adr/0014-file-storage.md): a temporary upload, checked by the API, then filed.
+- [ ] Documents are listed with type and date. Opening one uses a presigned link valid for 5 minutes or less, in an in-app viewer. Nothing is saved on the device.
 - [ ] A document uploaded by mistake can be deleted after confirmation (default for R-15). The deletion is audited, without its content.
 - [ ] No document is required before a Départ (default for R-15).
 

@@ -132,9 +132,34 @@ cleanup. Use isolated synthetic accounts and reset services between runs.
 Add this build and suite to PR CI when implemented; see
 [ADR-0021](adr/0021-web-app.md).
 
+## Browser checklist (web phase)
+
+The web app is the first release ([ADR-0025](adr/0025-web-app-first.md)). For
+each story with a user-facing part, check it on staging in a desktop browser
+and in a phone's browser (Safari on iOS or Chrome on Android), at both layouts.
+Record the story ID, the commit, the browser and device, the date, the tester
+and each result. Attach synthetic evidence only.
+
+As the features become available, verify:
+
+- Sign-in with the authenticator code, sign-out, the idle sign-out and
+  revocation.
+- The tab bar on a narrow screen and the sidebar on a wide one; keyboard,
+  scrolling and French text.
+- The in-page camera view on a phone, with the permission granted and refused;
+  photo capture, file selection and uploads.
+- The signature pad with a finger on a phone, and with a mouse or a trackpad on
+  a computer.
+- The PDF in the browser's viewer, its download, and sharing where the browser
+  offers it.
+- Nothing left in the browser's storage after signing out
+  ([US-016](stories/US-016-client-data-in-the-browser.md)).
+
 ## Real-iPhone checklist
 
-For each story with a user-facing part, use a registered physical test iPhone
+From the iPhone phase ([ADR-0025](adr/0025-web-app-first.md),
+[US-095](stories/US-095-iphone-release.md)), for each screen and flow accepted on
+the web, use a registered physical test iPhone
 and staging build, as required by [ADR-0018](adr/0018-development-and-test-devices.md).
 Record story ID, commit/build, device model, iOS version, date, tester and each
 result (pass, fail or not applicable with reason). Attach synthetic evidence

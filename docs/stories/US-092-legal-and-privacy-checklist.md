@@ -25,7 +25,7 @@ As the company, I want the legal points checked before the app replaces paper, s
   - retention periods (L-07).
 - [ ] The accountant's feedback on the contract title, invoicing, and whether billed damage carries VAT, is recorded (L-04).
 - [ ] A data processing agreement between the company (controller) and the developer (processor) is signed, since client data is hosted in his accounts (F-02). It lists his sub-processors: Scaleway (server, database, files), turboSMTP (e-mail; the contracting company is to be confirmed), the backup storage provider, Expo and Sentry. The company's record of processing is updated (L-03).
-- [ ] The staff device-use rule (L-03) is written and given to both staff members. It covers their phones, their laptops and the agency computer (web app).
+- [ ] The staff device-use rule (L-03) is written and given to both staff members. It covers their phones (the web app in the browser, then the iPhone app), their laptops and the agency computer.
 - [ ] Every resulting change becomes a story before go-live. The retention answers feed US-094.
 
 ## Notes

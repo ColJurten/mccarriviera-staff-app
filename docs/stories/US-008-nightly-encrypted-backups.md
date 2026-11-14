@@ -15,9 +15,9 @@ As the company, I want an encrypted off-site copy of the databases and files eve
 ## Acceptance criteria
 
 - [ ] A nightly job runs on the production server (a container started by a systemd timer), since the database only accepts the server's connections.
-- [ ] Both databases, `mcr` and `documenso`, are dumped with `pg_dump` (custom format) as a read-only backup role. Each dump's row counts per table match the live database, otherwise the job fails.
+- [ ] The database `mcr` is dumped with `pg_dump` (custom format) as a read-only backup role. The dump's row counts per table match the live database, otherwise the job fails.
 - [ ] Dumps are encrypted with `age` and uploaded to `db/daily/`, and on the 1st of the month also to `db/monthly/`. The provider's lifecycle rules delete them after 30 days and 12 months. These periods are `RECOMMENDED`; L-07 may change them.
-- [ ] Files are copied incrementally with `rclone copy`, from the app's buckets, to an rclone `crypt` remote under `files/`. Each file is copied once, and nothing is deleted.
+- [ ] Files are copied incrementally with `rclone copy`, from the app's buckets, except the temporary `incoming` one, to an rclone `crypt` remote under `files/`. Each file is copied once, and nothing is deleted.
 - [ ] The backup bucket is EU-located, held by the developer (F-02), and with a different provider from Scaleway. The key the job uses for it can write and list, but not delete. The keys it uses to read the database and the buckets can only read.
 - [ ] The managed database's automated backups are switched on at Scaleway (`RECOMMENDED`).
 - [ ] The `age` private key and the crypt password are stored offline by the developer. The company keeps a sealed copy, so it can restore without him by following the runbook (US-093).

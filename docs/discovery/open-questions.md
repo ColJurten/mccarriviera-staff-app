@@ -1,6 +1,8 @@
 # Open questions
 
 > **Status (2026-11-10):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). On 2026-11-03, F-11 was answered (option C: your own API, your own Postgres, files in S3), and you chose Documenso for signatures. That opened F-12 to F-20, all answered the same day, including a web app with the iPhone app's features (F-19): see [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) and [ADR-0020](../adr/0020-signatures-with-documenso.md) and [ADR-0021](../adr/0021-web-app.md). On 2026-11-05, F-21 was answered: PostgreSQL 17 in every environment ([ADR-0022](../adr/0022-postgresql-17.md)). On 2026-11-10, after the spike showed that Documenso needs one tap per page and after a meeting with the client about the PDF, F-22 to F-28 were answered: signatures in the app, sealed by the API ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)), four required reference angles, damage found at the Départ and estimates on new damage ([ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)), and template v2 of the PDF. Of the earlier follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
+>
+> **Update (2026-11-14):** after a review of the repository, the developer answered F-29 to F-34: the web app is built and goes live before the iPhone app ([ADR-0025](../adr/0025-web-app-first.md)), signing stays on the pad, uploads go through a temporary area, vehicles get documents, sign-in has no account lockout, and staging is reached through a tunnel. R-10 Q5, the format of R-09 and the repository question of T-04 are answered too. T-08 is new and open.
 > **How to answer:** write under each **Answer** line, or reply with the IDs (for example "B-03: b").
 > Some questions show a **Suggested default**. This is a recommendation, not an assumption, and it is used only if you confirm it.
 > **Owners:** **You** (developer) · **Client** (MC Car Riviera) · **Lawyer** · **Accountant** · **Bank/PSP**.
@@ -39,7 +41,7 @@
 | **F-16** | Client e-mail for Documenso | You + client | Answered: optional; the placeholder address is no longer needed since Documenso was dropped (F-27) |
 | **F-17** | How signing works with Documenso | You + client | Answered: one signature for every page, language chosen in the preview, departure image repeated, self-signed certificate → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) (Documenso couldn't do the first point) |
 | **F-18** | Contract number on the PDF the client signs | You + client | Answered: reserved at the preview; a contract never signed is kept as « Annulé avant signature » |
-| **F-19** | A web app | You + client | Answered: same features as the iPhone app, in the MVP, on staff laptops and the agency computer, password + second factor → [ADR-0021](../adr/0021-web-app.md) |
+| **F-19** | A web app | You + client | Answered: same features as the iPhone app, in the MVP, on staff laptops and the agency computer, password + second factor → [ADR-0021](../adr/0021-web-app.md); built and live first since F-29 |
 | **F-20** | Local S3 store | You | Answered: no preference; Garage (`RECOMMENDED`) |
 | **F-21** | PostgreSQL major version | You | Answered: PostgreSQL 17 → [ADR-0022](../adr/0022-postgresql-17.md) |
 | **F-22** | PDF layout after the client meeting | Client | Answered: page 1 with the pricing, no services or key-terms box, deposit in the pricing, no amendment pages → [template v2](../contract-template/README.md), [ADR-0010](../adr/0010-contract-pdf-generation.md) |
@@ -49,6 +51,12 @@
 | **F-26** | Changing a draft waiting for signature | Client | Answered: new photos and damage before signing, Départ and Retour → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
 | **F-27** | Signing technology after the spike | You | Answered: signature pad in the app, PDF stamped and sealed by the API; Documenso dropped → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
 | **F-28** | Stored Retour signature | Client + you | Answered: a switchable feature, on for MC Car Riviera; one Retour, authorisation signed first, no time limit, staff share the PDF → [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) |
+| **F-29** | The web app first | You | Answered: the web app goes live first and the iPhone app second; phone browsers are supported; one Expo codebase; tickets feature by feature → [ADR-0025](../adr/0025-web-app-first.md) |
+| **F-30** | Signing on the web: pad or link | You | Answered: the pad only; a signing link (e-mail, SMS, QR code) is post-MVP → [ADR-0025](../adr/0025-web-app-first.md) |
+| **F-31** | Uploads before their record exists | You | Answered: a temporary bucket and an `uploads` table, then the API files the file → [ADR-0014](../adr/0014-file-storage.md) |
+| **F-32** | Documents on a vehicle | You | Answered: yes, in the MVP → [US-027](../stories/US-027-vehicle-documents.md) |
+| **F-33** | Sign-in: account lockout and the deactivated-account message | You | Answered: no account lockout at the password step; a generic message → [ADR-0012](../adr/0012-authentication-and-authorisation.md) |
+| **F-34** | How staging is reached | You | Answered: through a tunnel → [ADR-0016](../adr/0016-repository-environments-ci.md) |
 | **R-01** | Layout of the new contract | Client | Answered: Q2 on 2026-11-02, the rest by F-22 → [template v2](../contract-template/README.md) |
 | **R-02** | Fields only the model template has | Client | Answered: all of them are kept → [template v1](../contract-template/field-map.md) |
 | R-03 | Client fields and additional drivers | Client | Open, default applied |
@@ -57,8 +65,8 @@
 | R-06 | Fuel and mileage | Client | Open, default applied |
 | R-07 | Deductible, deposit and prepayment | Client | Open, default applied |
 | R-08 | Intermediary | Client | Open, default applied |
-| R-09 | Contract number | Client (+ accountant) | Open, default applied |
-| R-10 | Recording damage | Client | Q4 answered by F-24 (estimates); the rest open, default applied; Q5 (taking back a photo or damage entry before the client signs) open |
+| R-09 | Contract number | Client (+ accountant) | Q1 to Q3 answered (2026-11-14): one number per rental, `MCR-YYYY-NNNN`, yearly, no gaps; Q4 open |
+| R-10 | Recording damage | Client | Q4 answered by F-24 (estimates); Q5 answered (2026-11-14): a photo or a damage can be withdrawn until the signature; the rest open, default applied |
 | R-11 | Extension and other changes after signature | Client | Q4 answered by F-22 (no amendment pages); the rest open, default applied |
 | R-12 | Cancellation, vehicle swap, early return | Client | Open, default applied |
 | R-13 | Vehicle statuses and future bookings | Client | Open, default applied |
@@ -71,10 +79,11 @@
 | T-01 | Apple accounts | Client | Superseded by F-02 (Ad Hoc needs no Apple Business account) |
 | T-02 | Volumes and existing data | Client | Partly answered (2 staff); import is optional (US-090) |
 | T-03 | Staff sign-in | You + client | Open, default applied |
-| T-04 | Existing cloud accounts and tooling | You + client | Open, default applied |
+| T-04 | Existing cloud accounts and tooling | You + client | Q3 answered (2026-11-14): a public GitHub repository on the developer's account; Q1 and Q2 covered by F-02 and F-14 |
 | T-05 | PDF archive and copies on devices | Client | Open, default applied |
 | T-06 | Minimum iOS version | Client | Moved to F-01 |
 | T-07 | Timeline and team | You | Partly answered (solo developer); test device → F-05 |
+| T-08 | How the iPhone app keeps its session | You | Open; needed before the iPhone app (US-095) |
 | N-01 – N-06 | Nice to clarify | Various | Open; defaults applied for N-01, N-02, N-03, N-06 |
 | L-01 – L-07 | External confirmation before go-live | Lawyer / accountant / bank | Open; tracked in US-092 |
 
@@ -651,6 +660,8 @@ You said: "I would also like to create a web app for this app since we are using
 > **Decision:** one Expo codebase builds the iPhone app and the web app. On the web, sign-in needs a one-time code from an authenticator app, the session is a protected cookie that ends after 30 minutes idle, and no client data stays in the browser. The analytics and administration pages are after the MVP (N-04). → [ADR-0021](../adr/0021-web-app.md), US-015, US-016
 >
 > **Consequences:** more work in every story with a screen (two layouts, checks in browsers too); a sign-in page on the public internet; client data shown on personal laptops and a shared computer, so the device rule covers them (L-03). A signature drawn with a touchpad or mouse is awkward: on the web, a touchscreen or the iPhone suits the client better.
+>
+> **Update (2026-11-14):** F-29 replaces answer 2: the web app goes live first, and it also runs in phone browsers ([ADR-0025](../adr/0025-web-app-first.md)).
 
 ### F-20 · Local S3 store
 **Owner:** you · **Needed by:** US-004
@@ -750,6 +761,86 @@ The spike US-009, part 1, showed that Documenso asks for a tap on each page's si
 
 ---
 
+## Follow-ups from the 2026-11-14 review
+
+The developer asked for a review of the repository before putting new tickets on the board, and said the web app would be built before the iPhone app. The review found points that no ADR or story decided, and places where the design file went further than the docs. They were settled the same day through multiple-choice questions.
+
+### F-29 · The web app first
+**Owner:** you · **Needed by:** US-003, US-091, US-095
+
+1. Which app goes live first?
+2. Until the iPhone app exists, which devices must the web app serve for a handover at the car?
+3. Is the single Expo codebase kept?
+4. In which order are the tickets built?
+
+> **Answer (2026-11-14):**
+> 1. The web app goes live first; the iPhone app is a second release.
+> 2. A phone's browser too, with camera photos and a finger signature, as well as laptops.
+> 3. Yes, one Expo codebase.
+> 4. Feature by feature: the shared foundations, the web skeleton and sign-in, then each feature as an API ticket followed by its web ticket.
+>
+> **Decision:** → [ADR-0025](../adr/0025-web-app-first.md). Phases P0 to P5 are accepted on the web, P6 is the web go-live and P7 the iPhone app. This replaces « both at go-live » (F-19, answer 2) and the build order of 2026-11-03.
+>
+> **Consequences:** the go-live no longer depends on Apple's enrolment; every screen is built and tested at two widths; the iPhone app is only proven in P7; the device rule covers phone browsers (L-03).
+
+### F-30 · Signing on the web: pad or link
+**Owner:** you · **Needed by:** US-044
+
+The « Web Desktop » page of the design shows two ways to sign: « Signer sur cet écran », and « Envoyer un lien au client » by e-mail, SMS or QR code, so that the client signs on their own phone. Remote signing was listed as post-MVP, and the app sends no e-mail.
+
+> **Answer (2026-11-14):** the pad only.
+>
+> **Decision:** the client signs on the staff member's screen. At a laptop, staff can reopen the contract waiting for signature on their phone, so the client signs with a finger. A signing link stays post-MVP: it needs a public signing page, sending e-mail or SMS, and the lawyer's view on remote signing (L-01). → [ADR-0025](../adr/0025-web-app-first.md), [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)
+
+### F-31 · Uploads before their record exists
+**Owner:** you · **Needed by:** US-006 (ticket #8), US-026, US-033
+
+The coding agent stopped on ticket #8. Photos are uploaded before their record exists (a reference set is saved only once its four photos are in), and no table tracked an upload in between. It also asked which file types are allowed, and which ticket writes the audit events.
+
+> **Answer (2026-11-14):** a temporary area, then the API files the file.
+>
+> **Decision:** → [ADR-0014](../adr/0014-file-storage.md), [US-006](../stories/US-006-core-database-schema-and-storage.md)
+> - A new `uploads` table and a private temporary bucket. The app uploads there through a link valid for 5 minutes. The API checks the size, the type and the SHA-256. When the record is created, the API copies the file to its final place.
+> - The app never writes to an evidence bucket. Drawings, stroke points and PDFs are written by the API itself, during signing.
+> - Allowed types (`RECOMMENDED`): JPEG for condition photos; PDF, JPEG and PNG for documents. The app converts other image formats to JPEG first.
+> - The audit trail (US-007, ticket #9) is built before ticket #8, so file records are audited by its triggers.
+
+### F-32 · Documents on a vehicle
+**Owner:** you · **Needed by:** US-022, US-027
+
+The design's « Nouveau véhicule » screen has « Pièces jointes · PDF, JPG… ». The stories had documents on clients only.
+
+> **Answer (2026-11-14):** yes, vehicle documents are in the MVP.
+>
+> **Decision:** documents attached to a vehicle, handled like client documents: a type, an optional label, a PDF or an image up to 10 MB, a private bucket, and deletion of a file attached by mistake. The types (carte grise, assurance, contrôle technique, autre) are `RECOMMENDED`. → [US-027](../stories/US-027-vehicle-documents.md), [ADR-0014](../adr/0014-file-storage.md)
+
+### F-33 · Sign-in: account lockout and the deactivated-account message
+**Owner:** you · **Needed by:** US-010, US-012, US-015
+
+Two points left open by the sign-in work (ticket #7):
+
+1. As built, three wrong passwords in 10 seconds block that account for the window, even from another address. With a public sign-in page, someone who knows a staff e-mail address can keep that person locked out.
+2. US-010 and US-012 asked the app to show « Compte désactivé », but the API answers a generic 401 on purpose and can't say why a session ended.
+
+> **Answer (2026-11-14):**
+> 1. No account lockout: attempts are limited per IP address only, and a correct password always goes on to the authenticator code.
+> 2. A generic message.
+>
+> **Decision:** → [ADR-0012](../adr/0012-authentication-and-authorisation.md)
+> - The password step has no per-account limit. The authenticator step keeps its own, which only someone who knows the password can reach.
+> - When a session ends for any reason, the app returns to sign-in with « Session terminée. Reconnectez-vous. ». Sign-in on a deactivated account fails with the usual generic error.
+
+### F-34 · How staging is reached
+**Owner:** you · **Needed by:** US-004
+
+ADR-0016 left it open: « a tunnel or the homelab's reverse proxy ».
+
+> **Answer (2026-11-14):** a tunnel.
+>
+> **Decision:** the staging VM opens a tunnel to a public endpoint for `stg.developerworkshop.online`, so no port is opened on the home network. The tool is chosen when staging is set up (Cloudflare Tunnel, `RECOMMENDED`). → [ADR-0016](../adr/0016-repository-environments-ci.md)
+
+---
+
 ## Defaults
 
 While the F, R, T, N and L questions are open, the ADRs and stories use these defaults so work can start.
@@ -767,19 +858,18 @@ While the F, R, T, N and L questions are open, the ADRs and stories use these de
 | R-06 | Fuel in eighths. No electric-car support. No fuel charge calculated. One km allowance per contract. Km driven and extra km computed by the app | ADR-0006, US-053, US-071 |
 | R-07 | Fields kept as printed; « Total prépayé » is typed like any other amount. Empty deductible amounts trigger a warning | US-052 |
 | R-08 | Intermediary is free text, defaulting to « MC CAR RIVIERA », with an optional phone | US-052 |
-| R-09 | Contract number `MCR-YYYY-NNNN` from a yearly counter (reserved at the preview, no gaps: F-18 answered) | ADR-0007, US-006, US-057 |
-| R-10 | A damage entry is at least one photo plus a comment. « RAS » is one tap. Estimates per damage since F-24 | ADR-0024, US-072 |
+| R-09 | Q1 to Q3 are answered (`MCR-YYYY-NNNN`, one per rental, yearly, no gaps). Q4 (does it replace the handwritten invoice number?) stays open: the PDF carries the contract number only ([ADR-0006](../adr/0006-contract-only-scope.md)) | ADR-0007, US-006, US-057 |
+| R-10 | A damage entry is at least one photo plus a comment. « RAS » is one tap. Estimates per damage since F-24. Withdrawal until the signature since Q5 was answered | ADR-0024, US-072 |
 | R-11 | Amendable fields as listed in US-061. A reason is required. No amendment page and no client signature in the app (F-22, `INTERPRETATION`). The 48-hour rule is recorded, not enforced | ADR-0007, US-061 |
 | R-12 | Drafts can be discarded. A signed contract can be voided with a reason before its Retour. No vehicle swap: close the contract and open a new one | ADR-0007, US-056, US-062 |
 | R-13 | Statuses: available, rented, maintenance, archived. No future bookings | ADR-0007, US-006, US-025 |
-| R-14 | Maintenance kinds: routine, damage repair, other. Partial repairs allowed. Odometer optional. No costs | ADR-0024, US-006, US-080, US-082 |
+| R-14 | Maintenance kinds: routine, damage repair, other. Partial repairs allowed. Odometer optional. No costs. No planned end date | ADR-0024, US-006, US-080, US-082 |
 | R-15 | No document is required before a Départ. A document uploaded by mistake can be deleted | ADR-0014, US-033 |
 | R-16 | One staff role with full access. The developer does the admin tasks | ADR-0012 |
 | R-17 | English PDF blocked until an approved English text of the terms exists. A signed contract can be regenerated in the other language only if that language's terms existed at signature | ADR-0011, US-041, US-063 |
 | R-18 | Placeholder gold/black theme until the brand assets arrive | ADR-0010, US-003, US-040 |
 | R-19 | Q2: no company signature or stamp, as on both forms (Q1 answered: the staff name is printed) | ADR-0010, US-040 |
 | T-03 | Email and password. Face ID app lock when the app opens and after 5 minutes in the background. Password resets done by the developer | ADR-0012, US-010, US-011 |
-| T-04 | Private GitHub repository on the developer's account (F-02) | ADR-0016, US-002 |
 | T-05 | Every PDF archived in the cloud. PDFs cached on the phone are deleted after 7 days and at sign-out | ADR-0013, US-013 |
 | N-01 | Staff app in French, with translation keys ready for English | ADR-0011, US-003 |
 | N-02 | The vehicle record holds only the fields the contract needs (plate, model, colour, fuel type, km, fuel, notes). More can be added later | US-022 |
@@ -909,7 +999,9 @@ Options b) and c) need a licence issue date field.
 3. Must there be no gaps? This is mandatory if the number is also the invoice number (B-04).
 4. Does it replace the invoice number written by hand today, or sit next to it?
 
-> **Answer:**
+> **Answer (2026-11-14, developer), Q1 to Q3:** `MCR-YYYY-NNNN`, one number per rental, from a yearly counter, with no gaps (F-18). The departure PDF and the final PDF carry the same number: the Retour isn't a separately numbered document. The design file's CT-… and PV-… numbers are not followed.
+>
+> Q4 is still open (accountant, L-04).
 
 ### R-10 · Recording damage
 The brief says "only photos" for the template, and also says "record damage, take photos, add comments" at return.
@@ -922,7 +1014,9 @@ The brief says "only photos" for the template, and also says "record damage, tak
 
 > **Answer (2026-11-10), Q4:** yes, an optional estimate per new damage, indicative or billed (F-24). → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)
 >
-> Q1, Q2, Q3 and Q5 are still open; their defaults apply.
+> **Answer (2026-11-14), Q5:** yes. Until the client signs, staff can withdraw a photo or a damage they added during that Départ or Retour. It stays stored and in the audit trail, marked « retiré », and is left off the PDF. After the signature nothing can change. → [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md), [US-006](../stories/US-006-core-database-schema-and-storage.md)
+>
+> Q1, Q2 and Q3 are still open; their defaults apply.
 
 ### R-11 · Extension and other changes after signature
 1. How do extensions usually happen: in person, by phone, by email or by message?
@@ -1044,7 +1138,9 @@ Private distribution through Apple (a "custom app") needs two accounts. The clie
 2. Is there a domain name for the backend?
 3. Where will the code live (GitHub, GitLab)?
 
-> **Answer:**
+> **Answer (2026-11-14), Q3:** GitHub, in a **public** repository on the developer's account. Nothing secret or personal may be committed, or written in issues, pull requests or CI logs. → [ADR-0016](../adr/0016-repository-environments-ci.md)
+>
+> Q1 and Q2 are covered by F-02 and F-14.
 
 ### T-05 · PDF archive and copies on devices
 1. Should every generated PDF also be archived in the cloud? (Suggested: yes, for audit.)
@@ -1063,6 +1159,17 @@ Which device models and iOS versions do staff use? Supporting only recent iOS ve
 3. How many test devices do you have?
 
 > **Partly answered (2026-10-07):** you are the only developer and maintainer (B-11). The test-device question moved to F-05. The target date is still open; the backlog's rough size is in [`../stories/README.md`](../stories/README.md).
+
+### T-08 · How the iPhone app keeps its session
+*(added 2026-11-14)* ADR-0012 and US-010 say the iPhone app stores its session through better-auth's Expo integration. The API built for ticket #7 has its own native routes, which return a bearer token, and doesn't serve that integration's protocol.
+
+1. Does the iPhone app store the token from the API's native routes in the Keychain itself (expo-secure-store), or does the API add better-auth's Expo protocol?
+
+> **Suggested:** the app stores the token from the existing native routes in the Keychain. The routes are built and tested, and nothing is added to the API.
+>
+> **Answer:**
+
+Needed before the iPhone app ([US-095](../stories/US-095-iphone-release.md)). The web app isn't concerned: it uses the session cookie.
 
 ---
 

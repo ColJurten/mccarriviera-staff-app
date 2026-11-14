@@ -16,7 +16,7 @@ As the company, I want signing a Départ to happen in one server-side transactio
 
 - [ ] When the sealed departure PDF is stored ([US-044](US-044-client-signs-in-the-app.md)), the API calls one SQL function that does everything in a single transaction:
   - checks the draft is complete and the vehicle is available;
-  - confirms the contract number `MCR-YYYY-NNNN` reserved at the preview (default for R-09, F-18);
+  - confirms the contract number `MCR-YYYY-NNNN` reserved at the preview (R-09, F-18);
   - freezes revision 1, with the full snapshot of client and vehicle values, the IDs of the terms versions in force, and the SHA-256 of the snapshot;
   - stores the departure inspection;
   - stores the signature evidence record (the drawing's path and SHA-256, the preview's and the sealed PDF's SHA-256, server time, staff user, device model, operating-system and app versions, IP address, signing mode);

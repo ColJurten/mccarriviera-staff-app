@@ -2,11 +2,11 @@
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
-| E0 · Foundations | Must | P0 | S | To do |
+| E0 · Foundations | Must | P0 | S | Done |
 
 - **Depends on:** —
 - **Decisions:** [ADR-0016](../adr/0016-repository-environments-ci.md) · [ADR-0001](../adr/0001-record-architecture-decisions.md)
-- **Open points:** T-04, N-06 (see [open questions](../discovery/open-questions.md))
+- **Open points:** N-06 (see [open questions](../discovery/open-questions.md))
 
 ## Story
 
@@ -14,7 +14,7 @@ As the developer, I want one repository for the app, the API, the database and t
 
 ## Acceptance criteria
 
-- [ ] A private GitHub repository on the developer's account (F-02; default for T-04), with folders `app/`, `api/`, `packages/shared/`, `db/`, `deploy/`, `docs/`, `scripts/` (pnpm workspaces, [ADR-0016](../adr/0016-repository-environments-ci.md)).
+- [ ] A GitHub repository on the developer's account (F-02), public (T-04, answered 2026-11-14), with folders `app/`, `api/`, `packages/shared/`, `db/`, `deploy/`, `docs/`, `scripts/` (pnpm workspaces, [ADR-0016](../adr/0016-repository-environments-ci.md)).
 - [ ] `docs/` contains this documentation set. The scanned reference PDFs are not committed (ignored, or kept outside the repo).
 - [ ] A root `AGENTS.md`, and a `CLAUDE.md` that points to it, say: start from `docs/README.md`, follow the ADRs, never use real customer data, and how to run the checks (default for N-06).
 - [ ] TypeScript strict mode, ESLint and Prettier are configured. `npm run check` runs typecheck, lint and tests.

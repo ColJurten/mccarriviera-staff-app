@@ -15,8 +15,8 @@ As a staff member, I want to put a car into maintenance with the reason, so that
 ## Acceptance criteria
 
 - [ ] Only an available vehicle can go into maintenance. A rented vehicle goes through the Retour first.
-- [ ] Staff choose a kind (default for R-14): « Entretien courant », « Réparation de dégâts » (selecting the open damages being repaired) or « Autre ».
-- [ ] They add a description. The start date defaults to today, and the odometer is optional (default for R-14).
+- [ ] Staff choose a kind (default for R-14): « Entretien courant », « Réparation de dégâts » (selecting the open damages being repaired; the selection is stored with the maintenance record, for [US-082](US-082-finish-a-damage-repair.md)) or « Autre ».
+- [ ] They add a description. The start date defaults to today, and the odometer is optional (default for R-14). No planned end date is recorded (default for R-14).
 - [ ] An SQL function, called by the API, sets the status to `maintenance`, and the vehicle disappears from the Départ list.
 - [ ] After a Retour that recorded new damage, the Retour summary offers « Mettre en maintenance », with those damages preselected for repair.
 - [ ] The change is recorded in the audit trail.

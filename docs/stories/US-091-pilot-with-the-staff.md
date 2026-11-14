@@ -16,15 +16,15 @@ As the company, we want to run real handovers on the staff phones, with paper as
 
 - [ ] Every Must story of phases P0 to P5 is done, and so are US-008, US-092, US-093 and US-094.
 - [ ] The data processing agreement between the company and the developer is signed (F-02, L-03).
-- [ ] Both staff phones have the production build installed (Developer Mode on) and their own accounts. Both staff have signed in to the web app with their second factor, on their laptops and on the agency computer.
+- [ ] Both staff have signed in to the web app with their own accounts and their second factor: on their laptops, on the agency computer and in their phones' browsers ([ADR-0025](../adr/0025-web-app-first.md)). The iPhone app has its own pilot in [US-095](US-095-iphone-release.md).
 - [ ] A written test script covers:
   - adding a vehicle;
   - creating a client with documents;
-  - a Départ with French and English PDFs, one on the iPhone and one in the web app;
+  - a Départ with French and English PDFs, one in a phone's browser at the car and one on a laptop;
   - an extension;
   - a Retour with RAS;
   - a Retour with new damage;
   - maintenance, repair and a new reference set;
-  - revoking a lost phone.
+  - revoking the access of a lost phone or laptop.
 - [ ] During the pilot (2 weeks, `RECOMMENDED`), each handover is also done on paper, and every difference is logged as an issue.
 - [ ] The go/no-go decision is recorded with the client.

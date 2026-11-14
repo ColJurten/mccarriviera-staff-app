@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | Brief · B-06, B-08 · F-04, F-18, F-22, F-26, F-28 (answered) · defaults for R-09, R-11, R-12, R-13 |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | Brief · B-06, B-08 · F-04, F-18, F-22, F-26, F-28, R-09, R-10 Q5 (answered) · defaults for R-11, R-12, R-13 |
 
 ## Context
 
@@ -25,7 +25,7 @@
   - active → closed when the Retour is completed;
   - drafts without a number (before the preview) can be discarded;
   - an active contract can be voided with a reason, but never deleted (default for R-12).
-- **One active contract per vehicle:** enforced by a partial unique index and by the transition functions.
+- **One active contract per vehicle:** enforced by a partial unique index and by the transition functions. A contract waiting for signature holds its vehicle in the same way (F-18): at most one contract per vehicle is `awaiting_signature` or `active`.
 - **Write paths:**
   - Nothing writes a status column directly. Contract, vehicle and damage statuses change only through SQL functions, which the API calls; each runs in one transaction and also switches the vehicle status.
   - Column-level grants keep the status columns read-only for the API's database role ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
@@ -37,13 +37,13 @@
   - stored Retour signatures, whose status (pending, applied, cancelled) changes only through SQL functions (F-28);
   - stored previews;
   - reference photo sets and photos;
-  - damage descriptions and photos (only the repair status changes, through the maintenance function);
+  - damage descriptions and photos, once their Départ or Retour is signed. Before that, a comment or an estimate can be corrected, and a photo or a damage can be withdrawn: it is kept, marked « retiré », and left off the PDF (F-26, R-10 Q5). Afterwards only the repair status changes, through the maintenance function;
   - generated-PDF records;
   - audit events.
 
   In storage, the evidence buckets accept uploads and reads only ([ADR-0014](0014-file-storage.md)).
 - **Audit trail:** triggers on every business table append a row to `audit_events` with the server time, the user, the action, the row, and the values before and after. These rows contain personal values, so they follow the retention procedure ([US-094](../stories/US-094-retention-and-erasure.md)).
-- **Contract number:** `MCR-YYYY-NNNN`, from a yearly counter (default for R-09). It is reserved when the preview to sign is created, since the sealed PDF carries it, and a contract never signed keeps it as « Annulé avant signature ». The numbering therefore has no gaps (F-18, answered 2026-11-03).
+- **Contract number:** `MCR-YYYY-NNNN`, from a yearly counter, one number per rental (R-09, confirmed 2026-11-14). It is reserved when the preview to sign is created, since the sealed PDF carries it, and a contract never signed keeps it as « Annulé avant signature ». The numbering therefore has no gaps (F-18, answered 2026-11-03).
 - **Changes after the Départ** (F-22, answered 2026-11-10): an amendment is recorded with its reason, author and time, and is not printed as a page. The client doesn't sign it in the app (`INTERPRETATION` of « no amendment pages at all »; it replaces the default for R-11). The final statement, which the client signs at the Retour, reflects it.
 - **Vehicle statuses:** available, rented, maintenance, archived (default for R-13). Their transitions are in the second diagram below.
 
@@ -104,6 +104,7 @@ Legal advice (L-01, L-07) requires a different evidence model.
 - 2026-10-09: wording aligned with F-04: the client's return signature is mandatory, so a Retour is completed only when the client signs. The UML state machines in `docs/architecture/` show both lifecycles.
 - 2026-11-03: F-18 answered: a contract waits « En attente de signature » with its number reserved, and one that is never signed is kept as « Annulé avant signature », so the numbering has no gaps.
 - 2026-11-10: client meeting. F-22: amendments are no longer printed or signed by the client (the default for R-11 on the amendment signature is replaced). F-26: a contract waiting for signature can take new photos and damage. F-28: the Retour can be signed with a signature recorded at the drop-off. Signatures move from Documenso to the app ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)).
+- 2026-11-14: R-10 Q5 answered: until the signature, a photo or a damage added by mistake can be withdrawn; it is kept, marked « retiré », and left off the PDF. A contract waiting for signature holds its vehicle through the same index as an active one. R-09 confirmed: one number per rental.
 
 ## Implemented by
 

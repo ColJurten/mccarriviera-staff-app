@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | B-11 · F-02, F-11, F-14 (answered) · defaults for L-03, L-07 |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | B-11 · F-02, F-11, F-14 (answered) · defaults for L-03, L-07 |
 
 ## Context
 
@@ -15,10 +15,10 @@
 ## Decision
 
 - **A nightly job on the production server** (a container started by a systemd timer), since the database only accepts connections from there:
-  1. **Dump both databases** (`mcr` and `documenso`) with `pg_dump`, in custom format, as a read-only backup role.
+  1. **Dump the database** (`mcr`) with `pg_dump`, in custom format, as a read-only backup role.
   2. **Check each dump:** row counts per table are compared with the live database, and the job fails if they don't match. This catches an empty or partial dump.
   3. **Encrypt and store the dumps:** encrypted with `age` (only the public key is on the server) and uploaded to `db/daily/`. On the 1st of the month they also go to `db/monthly/`.
-  4. **Copy files incrementally:** `rclone copy` from the app's buckets to an rclone `crypt` remote (contents and names encrypted), under `files/`.
+  4. **Copy files incrementally:** `rclone copy` from the app's buckets, except the temporary `incoming` one ([ADR-0014](0014-file-storage.md)), to an rclone `crypt` remote (contents and names encrypted), under `files/`.
      - Files are never modified after upload ([ADR-0007](0007-contract-lifecycle-and-audit.md)), so each file is copied once.
      - The job never deletes anything.
 - **Where:** an EU-located, S3-compatible bucket, held by the developer (F-02), **with a different provider from Scaleway**. Examples: Backblaze B2 in an EU region, or Cloudflare R2 with EU jurisdiction.
@@ -70,6 +70,7 @@ Retention rules (L-07) change, or the volume makes the backup storage cost matte
 - 2026-10-09: F-02 answered: the backup bucket is held by the developer; it must be with a different provider from the files.
 - 2026-11-03: rewritten for the developer's own back end (F-11, [ADR-0019](0019-backend-own-api-postgres-s3.md)): the job runs on the production server, dumps both databases (app and Documenso), and copies Documenso's files too.
 - 2026-11-10: Documenso is removed ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)): one database and one set of buckets to back up.
+- 2026-11-14: a leftover removed: the job dumps one database, since Documenso is gone ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). The temporary upload bucket isn't copied (F-31).
 
 ## Implemented by
 
