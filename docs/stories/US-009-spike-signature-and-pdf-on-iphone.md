@@ -25,11 +25,12 @@ Ticket #5, PR #21, Documenso v2.20.0. Rendering, envelopes, the language switch,
 - [ ] Two sealing libraries are tried on the stamped file: pyHanko (called as a command) and a maintained Node library. Each applies a PAdES signature with a self-signed .p12 certificate and an RFC 3161 timestamp. The choice, and the timestamping authority, are recorded.
 - [ ] The sealed PDF opens in Files, Mail and WhatsApp. Adobe Reader shows the seal (signer identity unverified, with a self-signed certificate) and the timestamp, and detects a modified copy.
 - [ ] **One drawing, every page, at once** (F-17): the client draws once and every box is filled, with no tap per page.
-- [ ] In a desktop browser, a canvas pad works with a mouse and a touch screen ([ADR-0021](../adr/0021-web-app.md)). At the start of the front end, the pad component chosen for the app works on the test iPhone in portrait and landscape (needs [US-005](US-005-eas-builds-and-internal-distribution.md)), and its PNG and stroke points reach a test endpoint.
+- [ ] In a desktop browser and in a phone's browser, a canvas pad works with a mouse, a trackpad and a finger, and its PNG and stroke points reach a test endpoint ([ADR-0021](../adr/0021-web-app.md), [ADR-0025](../adr/0025-web-app-first.md)).
+- [ ] In the iPhone phase: the pad component chosen for the app works on the test iPhone in portrait and landscape (needs [US-005](US-005-eas-builds-and-internal-distribution.md)), and its PNG and stroke points reach the test endpoint.
 - [ ] Timings are recorded: rendering a 10-photo contract, stamping and sealing it, and the round trip from the phone over mobile data. The 30-photo case is measured, with the server's memory use (it sets the server size, [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)).
 - [ ] Findings are recorded in `docs/spikes/US-009-findings.md`. If something doesn't work, ADR-0023 is changed before any feature builds on it.
 
 ## Notes
 
 - This is throwaway code. Only what is learned is kept.
-- Run part 2 in two halves. The server and browser checks come first, with the back end (build order, 2026-11-03), since their answers shape US-043 and US-044. The iPhone pad check comes at the start of the front end.
+- Run part 2 in two halves. The server and browser checks come first, with the back end, since their answers shape US-043 and US-044. The iPhone pad check waits for the iPhone phase ([ADR-0025](../adr/0025-web-app-first.md), [US-095](US-095-iphone-release.md)).

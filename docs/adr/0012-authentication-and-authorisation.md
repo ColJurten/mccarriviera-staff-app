@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-12) | Developer, with the client's answers and PR #25 security decisions | B-02 · defaults for T-03, R-16 · F-03 · F-11, F-12, F-19 (answered) |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers and PR #25 security decisions | B-02 · defaults for T-03, R-16 · F-03 · F-11, F-12, F-19, F-29, F-33 (answered) · T-08 |
 
 ## Context
 
@@ -15,7 +15,7 @@
 
 - **better-auth**, in the API, with e-mail and password (default for T-03). Public sign-up is disabled; the developer creates the accounts with a script.
 - **One account per person.** No shared login.
-- **Passwords:** at least 12 characters, hashed by better-auth. Sign-in attempts are rate-limited.
+- **Passwords:** at least 12 characters, hashed by better-auth. Sign-in attempts are rate-limited per IP address. The password step has no per-account lockout: a correct password always goes on to the authenticator code (F-33). The authenticator step keeps its own per-account limit, which only someone who knows the password can reach.
 - **On both the iPhone and web apps:** every new sign-in requires a password followed by a TOTP from an authenticator app (better-auth's two-factor support), or a one-use recovery backup code after enrollment. The developer and staff member perform first sign-in and TOTP enrollment together, including after a factor reset. Pending enrollment/challenge credentials grant no business access. Missing browser headers never prove a request came from an iPhone.
 - **On the web app** (F-19, [ADR-0021](0021-web-app.md)):
   - the session is an `HttpOnly`, `Secure`, `SameSite=Strict` cookie, which JavaScript can't read;
@@ -24,7 +24,7 @@
 - **Sessions:**
   - sessions are stored in Postgres, and every request checks them, so a revoked session stops working at once;
   - a native session expires after 30 days without use, renewed on activity but never beyond 90 days from its original password authentication (`authenticated_at`); factor completion and renewal never reset that timestamp. A new sign-in after expiry requires both factors again;
-  - on the phone, the session token is stored in the iOS Keychain (expo-secure-store), through better-auth's Expo integration.
+  - on the phone, the session token is stored in the iOS Keychain (expo-secure-store), through better-auth's Expo integration. The API's native routes don't serve that integration's protocol: T-08 settles this before the iPhone app ([ADR-0025](0025-web-app-first.md)).
   - Better Auth 1.7.20 has no supported session-token hashing option: its `internal-adapter` creates a raw `token`, looks sessions up by that same value, and the two-factor plugin returns/consumes it. The `storeIdentifier: 'hashed'` option applies to verification identifiers, not sessions. Keep library-compatible raw session tokens rather than a custom adapter/fork. A database read exposing a complete session token permits replay until expiry/revocation. Mitigations are restricted database access, no token logging or cookie cache, transport isolation, bounded lifetimes and immediate server revocation. Opaque flow tokens are hashed; internal library cookies and factor material are encrypted.
 - **App lock:** Face ID or Touch ID, with the device passcode as fallback, when the app opens and after 5 minutes in the background (default for T-03). It needs a device passcode (F-03).
 - **No e-mail from the app in the MVP:** password resets are done by the developer. The e-mail provider chosen in F-15 can be used to switch on resets by e-mail later.
@@ -34,7 +34,7 @@
   - the database protects append-only data and status changes through grants, triggers and SQL functions ([ADR-0007](0007-contract-lifecycle-and-audit.md));
   - files are reached only through presigned links that the API issues after its checks ([ADR-0014](0014-file-storage.md));
   - database credentials, storage keys, the signing certificate and its passphrase live only on the servers and in protected CI environments. None of them ships in the app.
-- **Revocation:** the developer marks the staff profile inactive and revokes its sessions. The next request from that phone is refused ([US-012](../stories/US-012-revoke-a-staff-members-access.md)).
+- **Revocation:** the developer marks the staff profile inactive and revokes its sessions. The next request from that phone is refused ([US-012](../stories/US-012-revoke-a-staff-members-access.md)). The API gives no reason: the app returns to sign-in with a generic message, and sign-in on a deactivated account fails with the usual generic error (F-33).
 - **Multi-factor authentication:** required at every new native and web sign-in. Face ID remains a local app unlock; it does not replace the server's second-factor check.
 
 ## Consequences
@@ -71,10 +71,11 @@ The company hires more staff, or different access levels are needed (R-16).
 - 2026-11-03: Supabase Auth and row-level security replaced by better-auth and permission checks in the API, after F-11 and F-12 ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
 - 2026-11-03 (later): F-19 answered: on the web app, a second factor at every sign-in and a cookie session with an idle timeout.
 - 2026-11-10: Documenso is removed ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)): no Documenso API token; the API holds the signing certificate.
+- 2026-11-14: F-33 answered: no account lockout at the password step, and a generic message when a session ends or an account is deactivated. T-08 opened: how the iPhone app keeps its session. The web sign-in also serves phone browsers ([ADR-0025](0025-web-app-first.md)).
 
 ## Implemented by
 
-- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for iOS and the web
+- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for the web first
 - [US-004](../stories/US-004-api-server-and-environments.md): Create the API server and its environments: local, homelab staging, Scaleway production
 - [US-006](../stories/US-006-core-database-schema-and-storage.md): Create the core database schema, access rules and storage
 - [US-007](../stories/US-007-audit-trail-and-immutability.md): Record an audit trail and protect signed data

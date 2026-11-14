@@ -15,7 +15,7 @@ As a staff member, I want to pick the rented car and see its departure informati
 ## Acceptance criteria
 
 - [ ] Start from « Retour » by choosing an active rental (US-060), or from the vehicle's detail screen.
-- [ ] The Retour screen shows: contract number, renter, departure date and time, planned return (as last amended), km out, fuel out, reference photos, damages open at departure, and any extra departure photos.
+- [ ] The Retour screen shows: contract number, renter, departure date and time, planned return (as last amended), km out, fuel out, reference photos, the damages open at departure, and the dashboard photo of the Départ if there is one.
 - [ ] The return date and time default to now and can be edited (default for R-05).
 - [ ] A Retour in progress is saved on the server as it is entered, so it can be finished later. Until the client signs, the vehicle shows « Retour en attente de signature » and stays « En cours » (F-04; `RECOMMENDED`).
 - [ ] The Retour sequence diagram in `docs/architecture/` matches the flow as built.

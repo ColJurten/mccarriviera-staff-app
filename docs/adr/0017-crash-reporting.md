@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | RECOMMENDED (no question) · F-02 (answered) · L-03 |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | RECOMMENDED (no question) · F-02 (answered) · L-03 |
 
 ## Context
 
@@ -13,6 +13,7 @@
 ## Decision
 
 - **Service:** use **Sentry** (`@sentry/react-native` with its Expo config plugin), with the EU (Germany) data storage location chosen when the organisation is created. Start on the free developer plan. This is `RECOMMENDED`.
+- **Order** ([ADR-0025](0025-web-app-first.md)): the API and the web app report first, with Sentry's Node and browser SDKs. The React Native SDK comes with the iPhone app.
 - **No personal data in reports:**
   - `sendDefaultPii` is off;
   - no screenshots and no session replay;
@@ -51,6 +52,7 @@ The client refuses another processor (fall back to self-hosting), or the free pl
 - 2026-10-09: F-02 answered: the Sentry organisation is the developer's.
 - 2026-11-03: the developer's own API reports its errors too (ADR-0019).
 - 2026-11-03 (later): the web app reports its errors too (ADR-0021).
+- 2026-11-14: the API and the web app report first; the React Native SDK comes with the iPhone app (F-29, [ADR-0025](0025-web-app-first.md)).
 
 ## Implemented by
 

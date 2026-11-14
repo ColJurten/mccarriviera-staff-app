@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | B-01, B-02, B-11 · F-05, F-12, F-13 (answered) · F-01 |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | B-01, B-02, B-11 · F-05, F-12, F-13 (answered) · F-01 |
 
 ## Context
 
@@ -17,7 +17,7 @@
 - Use the latest stable Expo SDK at project start (SDK 57 was released on 30 June 2026). Upgrade deliberately, one SDK at a time.
 - Use Expo's continuous native generation. No `ios/` folder is committed: native configuration lives in `app.config.ts` and config plugins.
 - Compile iOS builds in the cloud with **EAS Build**. No local Xcode.
-- **Web:** the same code also builds for the web (React Native for Web, with Expo Router), for staff laptops and the agency computer ([ADR-0021](0021-web-app.md)).
+- **Web:** the same code also builds for the web (React Native for Web, with Expo Router), for staff laptops and the agency computer ([ADR-0021](0021-web-app.md)). The web target is built and released first; native builds wait for the iPhone phase ([ADR-0025](0025-web-app-first.md)).
 - Test on a real iPhone with a development build (`expo-dev-client`), installed through internal distribution ([ADR-0003](0003-ios-distribution-ad-hoc.md)). There is no iOS simulator on Windows. The test iPhone, and the Android emulator used for day-to-day work, are in [ADR-0018](0018-development-and-test-devices.md).
 - The Metro bundler runs in WSL2. The phone reaches it through WSL mirrored networking (Windows 11) or `expo start --tunnel`. Development builds use the staging backend ([ADR-0016](0016-repository-environments-ci.md)).
 - Native crash logs can't be read without a Mac, so crashes are reported to an EU-hosted service with personal data removed ([ADR-0017](0017-crash-reporting.md)).
@@ -67,9 +67,10 @@ A Mac becomes available and a native-only capability becomes necessary, or Expo'
 - 2026-11-03: the app talks to the developer's own API (ADR-0019); the signature pad and expo-print are dropped, since signing moves to Documenso (ADR-0020) and PDF rendering to the API (F-13).
 - 2026-11-03 (later): the same code also builds a web app (F-19, ADR-0021).
 - 2026-11-10: Documenso is replaced: the app has a signature pad again, and the API stamps and seals the PDF ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). No web view is needed for signing.
+- 2026-11-14: the web target is built and released first; native builds wait for the iPhone phase (F-29, [ADR-0025](0025-web-app-first.md)).
 
 ## Implemented by
 
-- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for iOS and the web
+- [US-003](../stories/US-003-expo-app-skeleton.md): Create the Expo app skeleton, for the web first
 - [US-005](../stories/US-005-eas-builds-and-internal-distribution.md): Set up EAS builds, internal distribution and over-the-air updates
 - [US-009](../stories/US-009-spike-signature-and-pdf-on-iphone.md): Spike: prove in-app signing, stamping and sealing, and server-rendered PDFs, in a browser and on a real iPhone

@@ -2,7 +2,7 @@
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
-| E1 · Access, security and monitoring | Must | P1 | S | To do |
+| E1 · Access, security and monitoring | Must | P7 | S | To do |
 
 - **Depends on:** [US-010](US-010-sign-in-and-sign-out.md)
 - **Decisions:** [ADR-0012](../adr/0012-authentication-and-authorisation.md) · [ADR-0013](../adr/0013-personal-device-data-protection.md)
@@ -22,3 +22,5 @@ As a staff member using my personal phone, I want the app to lock itself, so tha
 ## Notes
 
 - iPhone only. On the web, the idle sign-out of [US-015](US-015-web-sign-in-second-factor.md) plays this role.
+
+- Since 2026-11-14 this story belongs to the iPhone phase (P7, [ADR-0025](../adr/0025-web-app-first.md)). In a browser, the idle sign-out of [US-015](US-015-web-sign-in-second-factor.md) plays this role.

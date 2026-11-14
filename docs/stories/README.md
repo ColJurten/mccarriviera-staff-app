@@ -1,14 +1,14 @@
 # User stories: MVP backlog
 
-62 stories (54 Must, 6 Should, 2 Could), written from the brief, the
-reference documents and the answers of 2026-10-07, 2026-10-09, 2026-11-02, 2026-11-03 and 2026-11-10 (client meeting), and revised after an independent review. Each story links the decisions
+65 stories (57 Must, 6 Should, 2 Could), written from the brief, the
+reference documents and the answers of 2026-10-07, 2026-10-09, 2026-11-02, 2026-11-03, 2026-11-10 (client meeting) and 2026-11-14 (review: the web app first), and revised after an independent review. Each story links the decisions
 ([`../adr/`](../adr/README.md)) and the open points ([`../discovery/open-questions.md`](../discovery/open-questions.md)) it
 depends on.
 
 ## How to use this backlog
 
 - **Files:** one file per story, `US-NNN-short-title.md`. The tens digit of the ID is the epic (US-05x = Départ).
-- **Order:** work in phase order, P0 to P6. Start a story only when its dependencies are done. US-092 (legal questions) starts in P0, because its answers can change later stories.
+- **Order:** work in phase order, P0 to P7. Start a story only when its dependencies are done. US-092 (legal questions) starts in P0, because its answers can change later stories.
 - **Labels:**
   - "default for X-nn" in a criterion is a default for an open question (see open-questions § Defaults). If the answer changes, update the story **before** building it.
   - `RECOMMENDED` marks a technical choice that no question asked about.
@@ -16,7 +16,7 @@ depends on.
 - **Priority:** **Must** = needed for the MVP; **Should** = MVP if time allows; **Could** = only if needed.
 - **Status:** To do · In progress · Blocked · Done. Update the status line in the story file.
 - **Size:** S ≈ up to 1 day, M ≈ 2–3 days, L ≈ 4–5 days, for one developer. These are rough guides for ordering, not commitments.
-  - Must stories add up to roughly 113 developer-days (121 for everything).
+  - Must stories add up to roughly 121 developer-days (129 for everything).
   - Add time for learning React Native and iOS, and for waiting on Apple, the client and the lawyer.
 
 ## Definition of Ready
@@ -27,13 +27,13 @@ depends on.
   - covered by a default listed in open-questions § Defaults;
   - an external confirmation (L-xx), tracked in US-092, that doesn't block building.
 - Questions with no default (T-02) must be answered before the stories that cite them.
-- The acceptance criteria can be checked on a real iPhone or by an automated test.
+- The acceptance criteria can be checked in a browser or by an automated test, or on a real iPhone for the stories of the iPhone phase.
 
 ## Definition of Done
 
 - Every acceptance criterion is met.
-- Stories with a user-facing part are demonstrated on a real iPhone and in a browser (web app), with a staging build.
-- Typecheck, lint, unit tests, API tests, contract PDF tests and database tests pass in CI.
+- Stories with a user-facing part are demonstrated in a desktop browser and in a phone's browser, on staging. Their iPhone check comes with the iPhone app ([US-095](US-095-iphone-release.md), [ADR-0025](../adr/0025-web-app-first.md)).
+- Typecheck, lint, unit tests, API tests, contract PDF tests, database tests and browser tests pass in CI.
 - Every new API route requires an active staff session, and any state change goes through a SQL function in one transaction. No bucket is public, and no database credential or storage key is in the app.
 - No real personal data appears in code, fixtures, seeds, screenshots, logs or crash reports.
 - Any new UI text is in the French catalogue; any new contract text is in both catalogues.
@@ -44,26 +44,27 @@ depends on.
 
 ```mermaid
 flowchart LR
-    P0[P0 Foundations] --> P1[P1 Access, vehicles, clients] --> P2[P2 Contract document] --> P3[P3 Départ] --> P4[P4 Active rentals and Retour] --> P5[P5 Maintenance] --> P6[P6 Go-live]
+    P0[P0 Foundations] --> P1[P1 Access, vehicles, clients] --> P2[P2 Contract document] --> P3[P3 Départ] --> P4[P4 Active rentals and Retour] --> P5[P5 Maintenance] --> P6[P6 Web go-live] --> P7[P7 iPhone app]
 ```
 
-### Build order (2026-11-03)
+### Build order (2026-11-14)
 
-The back end comes first, run locally, then the front end (the iPhone app and the web app, from the same code):
+The web app is built and released first; the iPhone app follows from the same code ([ADR-0025](../adr/0025-web-app-first.md), F-29). This replaces the order of 2026-11-03.
 
-1. **Back end, local:** US-002, US-004 (local stack first: Postgres, Garage, Mailpit, the API), the server and browser half of the spike US-009 (part 2), US-006, US-007, US-043, then the API side of each feature story: routes, SQL functions, PDF rendering (US-040, US-041), signing (US-044's API part), with API tests.
-2. **Back end, deployed:** staging on the homelab, then production at Scaleway (US-004).
-3. **Front end:** US-001, US-003, US-005, the iPhone half of the spike US-009 (part 2), then each feature story's screens, checked on the iPhone and in a browser.
+1. **Shared foundations of the back end:** US-007 (audit trail), US-006 part 2 (file storage), the server and browser half of the spike US-009 (part 2), then US-043.
+2. **Web skeleton and sign-in:** US-003, one address for the web app and the API in the local stack (US-004), then the web screens of US-010 and US-015.
+3. **Feature by feature, in phase order:** an API ticket (routes, SQL functions, API tests), then its web ticket (screens at both widths, browser tests).
+4. **Staging** on the homelab as soon as the skeleton exists (US-004), so that every feature is checked in a desktop browser and on a phone. Production at Scaleway before the pilot.
+5. **Web go-live** (P6).
+6. **iPhone app** (P7): US-001, US-005, the iPhone half of the spike US-009, US-011, US-013 and US-095.
 
-Within a phase, a feature story is done only when both its API and its screens are done.
+A feature story is done only when both its API and its web screens are done.
 
-### P0 · Foundations: accounts, repository, app skeleton, backend, builds, schema, spike, legal questions sent
+### P0 · Foundations: repository, backend, schema, web skeleton, spike, legal questions sent
 
-- [US-001](US-001-apple-developer-account-and-devices.md) Open the Apple developer account and register the iPhones (Must, S)
 - [US-002](US-002-repository-and-agent-guidance.md) Set up the repository, checks and agent guidance (Must, S)
-- [US-003](US-003-expo-app-skeleton.md) Create the Expo app skeleton, for iOS and the web (Must, M)
+- [US-003](US-003-expo-app-skeleton.md) Create the Expo app skeleton, for the web first (Must, M)
 - [US-004](US-004-api-server-and-environments.md) Create the API server and its environments: local, homelab staging, Scaleway production (Must, L)
-- [US-005](US-005-eas-builds-and-internal-distribution.md) Set up EAS builds, internal distribution and over-the-air updates (Must, M)
 - [US-006](US-006-core-database-schema-and-storage.md) Create the core database schema, access rules and storage (Must, L)
 - [US-007](US-007-audit-trail-and-immutability.md) Record an audit trail and protect signed data (Must, M)
 - [US-009](US-009-spike-signature-and-pdf-on-iphone.md) Spike: prove in-app signing, stamping and sealing, and server-rendered PDFs, in a browser and on a real iPhone (Must, M)
@@ -74,7 +75,6 @@ Within a phase, a feature story is done only when both its API and its screens a
 ### P1 · Access, vehicles and clients
 
 - [US-010](US-010-sign-in-and-sign-out.md) Sign in and sign out (Must, M)
-- [US-011](US-011-app-lock-with-face-id.md) Lock the app with Face ID (Must, S)
 - [US-012](US-012-revoke-a-staff-members-access.md) Revoke a staff member's access (lost phone or departure) (Must, S)
 - [US-015](US-015-web-sign-in-second-factor.md) Sign in to the web app with a second factor, and sign out when idle (Must, M)
 - [US-020](US-020-home-screen.md) Home screen: Départ, Retour and the fleet (Must, M)
@@ -84,6 +84,7 @@ Within a phase, a feature story is done only when both its API and its screens a
 - [US-024](US-024-edit-a-vehicle.md) Edit vehicle information (Must, S)
 - [US-025](US-025-archive-a-vehicle.md) Archive and restore a vehicle (Should, S)
 - [US-026](US-026-guided-reference-photo-capture.md) Guided reference photo capture (Must, M)
+- [US-027](US-027-vehicle-documents.md) Attach and view vehicle documents (Must, S)
 - [US-030](US-030-find-and-select-a-client.md) Find and select a client (Must, S)
 - [US-031](US-031-create-a-client.md) Create a client (Must, M)
 - [US-032](US-032-edit-a-client.md) Edit a client (Must, S)
@@ -91,8 +92,7 @@ Within a phase, a feature story is done only when both its API and its screens a
 
 ### P2 · Contract document
 
-- [US-013](US-013-minimum-local-data-on-phones.md) Keep client data on staff phones to a minimum (Must, S)
-- [US-016](US-016-client-data-in-the-browser.md) Keep client data out of the browser on laptops and the agency computer (Must, S)
+- [US-016](US-016-client-data-in-the-browser.md) Keep client data out of the browser on laptops, phones and the agency computer (Must, S)
 - [US-040](US-040-contract-pdf-template.md) Contract PDF template in French and English, with the signature block at the bottom right (Must, L)
 - [US-041](US-041-general-terms-per-language.md) Manage the general terms (CGV) per language (Must, S)
 - [US-042](US-042-archive-and-share-pdfs.md) Archive, download and share contract PDFs (Must, M)
@@ -109,6 +109,7 @@ Within a phase, a feature story is done only when both its API and its screens a
 - [US-056](US-056-resume-or-discard-a-draft.md) Resume or discard a draft Départ (Should, S)
 - [US-057](US-057-sign-departure-server-function.md) API: sign a Départ in one database transaction (Must, M)
 - [US-058](US-058-change-a-contract-awaiting-signature.md) Change a Départ or a Retour waiting for signature: new photos, damage, values (Must, M)
+- [US-065](US-065-contrats-list-and-contract-detail.md) Contrats: find a contract and open it (Must, M)
 
 ### P4 · Active rentals and Retour
 
@@ -132,7 +133,7 @@ Within a phase, a feature story is done only when both its API and its screens a
 - [US-082](US-082-finish-a-damage-repair.md) Finish a damage repair and refresh the reference photos (Must, M)
 - [US-083](US-083-maintenance-history.md) Maintenance history (Should, S)
 
-### P6 · Go-live: backups, retention, runbook, pilot
+### P6 · Web go-live: backups, retention, runbook, pilot
 
 - [US-008](US-008-nightly-encrypted-backups.md) Run nightly encrypted backups and test a restore (Must, M)
 - [US-090](US-090-import-existing-data.md) Import existing vehicles and clients (Could, S)
@@ -140,33 +141,42 @@ Within a phase, a feature story is done only when both its API and its screens a
 - [US-093](US-093-operations-runbook.md) Write the operations runbook (Must, S)
 - [US-094](US-094-retention-and-erasure.md) Apply retention and erasure rules (Must, M)
 
+### P7 · iPhone app
+
+- [US-001](US-001-apple-developer-account-and-devices.md) Open the Apple developer account and register the iPhones (Must, S)
+- [US-005](US-005-eas-builds-and-internal-distribution.md) Set up EAS builds, internal distribution and over-the-air updates (Must, M)
+- [US-011](US-011-app-lock-with-face-id.md) Lock the app with Face ID (Must, S)
+- [US-013](US-013-minimum-local-data-on-phones.md) Keep client data on staff phones to a minimum (Must, S)
+- [US-095](US-095-iphone-release.md) Release the iPhone app from the shared code (Must, L)
+
 ## All stories
 
 | ID | Story | Epic | Priority | Phase | Size | Depends on | Status |
 |---|---|---|---|---|---|---|---|
-| [US-001](US-001-apple-developer-account-and-devices.md) | Open the Apple developer account and register the iPhones | E0 | Must | P0 | S | — | To do |
-| [US-002](US-002-repository-and-agent-guidance.md) | Set up the repository, checks and agent guidance | E0 | Must | P0 | S | — | To do |
-| [US-003](US-003-expo-app-skeleton.md) | Create the Expo app skeleton, for iOS and the web | E0 | Must | P0 | M | US-002 | To do |
-| [US-004](US-004-api-server-and-environments.md) | Create the API server and its environments: local, homelab staging, Scaleway production | E0 | Must | P0 | L | US-002 | To do |
-| [US-005](US-005-eas-builds-and-internal-distribution.md) | Set up EAS builds, internal distribution and over-the-air updates | E0 | Must | P0 | M | US-001, US-003 | To do |
-| [US-006](US-006-core-database-schema-and-storage.md) | Create the core database schema, access rules and storage | E0 | Must | P0 | L | US-004 | To do |
+| [US-001](US-001-apple-developer-account-and-devices.md) | Open the Apple developer account and register the iPhones | E0 | Must | P7 | S | — | To do |
+| [US-002](US-002-repository-and-agent-guidance.md) | Set up the repository, checks and agent guidance | E0 | Must | P0 | S | — | Done |
+| [US-003](US-003-expo-app-skeleton.md) | Create the Expo app skeleton, for the web first | E0 | Must | P0 | M | US-002 | To do |
+| [US-004](US-004-api-server-and-environments.md) | Create the API server and its environments: local, homelab staging, Scaleway production | E0 | Must | P0 | L | US-002 | In progress |
+| [US-005](US-005-eas-builds-and-internal-distribution.md) | Set up EAS builds, internal distribution and over-the-air updates | E0 | Must | P7 | M | US-001, US-003 | To do |
+| [US-006](US-006-core-database-schema-and-storage.md) | Create the core database schema, access rules and storage | E0 | Must | P0 | L | US-004 | In progress |
 | [US-007](US-007-audit-trail-and-immutability.md) | Record an audit trail and protect signed data | E0 | Must | P0 | M | US-006 | To do |
 | [US-008](US-008-nightly-encrypted-backups.md) | Run nightly encrypted backups and test a restore | E0 | Must | P6 | M | US-006, US-043 | To do |
 | [US-009](US-009-spike-signature-and-pdf-on-iphone.md) | Spike: prove in-app signing, stamping and sealing, and server-rendered PDFs, in a browser and on a real iPhone | E0 | Must | P0 | M | — | In progress |
-| [US-010](US-010-sign-in-and-sign-out.md) | Sign in and sign out | E1 | Must | P1 | M | US-004, US-005, US-006 | To do |
-| [US-011](US-011-app-lock-with-face-id.md) | Lock the app with Face ID | E1 | Must | P1 | S | US-010 | To do |
-| [US-012](US-012-revoke-a-staff-members-access.md) | Revoke a staff member's access (lost phone or departure) | E1 | Must | P1 | S | US-010 | To do |
-| [US-013](US-013-minimum-local-data-on-phones.md) | Keep client data on staff phones to a minimum | E1 | Must | P2 | S | US-026, US-033, US-042 | To do |
-| [US-014](US-014-crash-reporting.md) | Report crashes without personal data | E1 | Should | P0 | S | US-005 | To do |
-| [US-015](US-015-web-sign-in-second-factor.md) | Sign in to the web app with a second factor, and sign out when idle | E1 | Must | P1 | M | US-010 | To do |
-| [US-016](US-016-client-data-in-the-browser.md) | Keep client data out of the browser on laptops and the agency computer | E1 | Must | P2 | S | US-015, US-033, US-042 | To do |
+| [US-010](US-010-sign-in-and-sign-out.md) | Sign in and sign out | E1 | Must | P1 | M | US-003, US-004, US-006 | In progress |
+| [US-011](US-011-app-lock-with-face-id.md) | Lock the app with Face ID | E1 | Must | P7 | S | US-010 | To do |
+| [US-012](US-012-revoke-a-staff-members-access.md) | Revoke a staff member's access (lost phone or departure) | E1 | Must | P1 | S | US-010 | In progress |
+| [US-013](US-013-minimum-local-data-on-phones.md) | Keep client data on staff phones to a minimum | E1 | Must | P7 | S | US-026, US-033, US-042 | To do |
+| [US-014](US-014-crash-reporting.md) | Report crashes without personal data | E1 | Should | P0 | S | US-003, US-004 | To do |
+| [US-015](US-015-web-sign-in-second-factor.md) | Sign in to the web app with a second factor, and sign out when idle | E1 | Must | P1 | M | US-010 | In progress |
+| [US-016](US-016-client-data-in-the-browser.md) | Keep client data out of the browser on laptops, phones and the agency computer | E1 | Must | P2 | S | US-015, US-033, US-042 | To do |
 | [US-020](US-020-home-screen.md) | Home screen: Départ, Retour and the fleet | E2 | Must | P1 | M | US-010, US-006 | To do |
 | [US-021](US-021-search-filter-sort-vehicles.md) | Search, filter and sort vehicles | E2 | Must | P1 | S | US-020 | To do |
 | [US-022](US-022-add-a-vehicle.md) | Add a vehicle with its reference photos | E2 | Must | P1 | M | US-020, US-026 | To do |
 | [US-023](US-023-vehicle-detail.md) | Vehicle detail | E2 | Must | P1 | M | US-022 | To do |
 | [US-024](US-024-edit-a-vehicle.md) | Edit vehicle information | E2 | Must | P1 | S | US-023 | To do |
 | [US-025](US-025-archive-a-vehicle.md) | Archive and restore a vehicle | E2 | Should | P1 | S | US-023 | To do |
-| [US-026](US-026-guided-reference-photo-capture.md) | Guided reference photo capture | E2 | Must | P1 | M | US-005, US-006 | To do |
+| [US-026](US-026-guided-reference-photo-capture.md) | Guided reference photo capture | E2 | Must | P1 | M | US-003, US-006 | To do |
+| [US-027](US-027-vehicle-documents.md) | Attach and view vehicle documents | E2 | Must | P1 | S | US-022, US-006 | To do |
 | [US-030](US-030-find-and-select-a-client.md) | Find and select a client | E3 | Must | P1 | S | US-006, US-010 | To do |
 | [US-031](US-031-create-a-client.md) | Create a client | E3 | Must | P1 | M | US-030 | To do |
 | [US-032](US-032-edit-a-client.md) | Edit a client | E3 | Must | P1 | S | US-031 | To do |
@@ -190,6 +200,7 @@ Within a phase, a feature story is done only when both its API and its screens a
 | [US-061](US-061-extend-or-amend-a-rental.md) | Extend a rental or amend allowed fields | E6 | Must | P4 | M | US-060, US-007 | To do |
 | [US-062](US-062-void-a-contract.md) | Void a signed contract | E6 | Could | P4 | S | US-054 | To do |
 | [US-063](US-063-reopen-or-regenerate-a-pdf.md) | Re-open, re-share or regenerate a contract PDF | E6 | Should | P4 | S | US-042, US-055 | To do |
+| [US-065](US-065-contrats-list-and-contract-detail.md) | Contrats: find a contract and open it | E6 | Must | P3 | M | US-050, US-044 | To do |
 | [US-070](US-070-start-a-retour.md) | Start a Retour | E7 | Must | P4 | S | US-060 | To do |
 | [US-071](US-071-return-km-and-fuel.md) | Record the return km and fuel | E7 | Must | P4 | S | US-070 | To do |
 | [US-072](US-072-return-inspection.md) | Inspect the vehicle: new damage with estimates, or RAS | E7 | Must | P4 | M | US-070, US-026 | To do |
@@ -204,8 +215,9 @@ Within a phase, a feature story is done only when both its API and its screens a
 | [US-090](US-090-import-existing-data.md) | Import existing vehicles and clients | E9 | Could | P6 | S | US-006, US-008, US-092 | To do |
 | [US-091](US-091-pilot-with-the-staff.md) | Pilot with the two staff members | E9 | Must | P6 | M | US-008, US-092, US-093, US-094 | To do |
 | [US-092](US-092-legal-and-privacy-checklist.md) | Send the legal and privacy questions, and close them before go-live | E9 | Must | P0 | S | — | To do |
-| [US-093](US-093-operations-runbook.md) | Write the operations runbook | E9 | Must | P6 | S | US-005, US-008, US-012 | To do |
+| [US-093](US-093-operations-runbook.md) | Write the operations runbook | E9 | Must | P6 | S | US-008, US-012 | To do |
 | [US-094](US-094-retention-and-erasure.md) | Apply retention and erasure rules | E9 | Must | P6 | M | US-092, US-007, US-008 | To do |
+| [US-095](US-095-iphone-release.md) | Release the iPhone app from the shared code | E9 | Must | P7 | L | US-091, US-001, US-005 | To do |
 
 ## Post-MVP
 
@@ -220,10 +232,11 @@ These came up in the brief, the reference documents or the questions, and are de
 | Future bookings and a « Réservé » status | R-13 |
 | Reminders for upcoming or overdue returns | N-05 |
 | Reports and exports (rentals, utilisation) | N-04 |
-| Remote signing (a link sent to the client), or an advanced/qualified e-signature | R-11, F-28, L-01 |
+| Signing through a link sent to the client (e-mail, SMS or QR code, as drawn in the web design), or an advanced/qualified e-signature | R-11, F-28, F-30, L-01 |
 | Recording accidents and thefts (CGV Art. 5-3) | Source analysis |
 | Damage repair quotes and invoices (estimates per damage are in the MVP since F-24) | R-10 |
 | Vehicle swap during a rental | R-12 |
+| A planned end date for a maintenance, shown as the vehicle's availability | R-14 (web design) |
 | Battery level for electric or hybrid cars | R-06 |
 | Intermediary list and commissions | R-08 |
 | Several roles and permissions, multi-factor authentication | R-16, ADR-0012 |

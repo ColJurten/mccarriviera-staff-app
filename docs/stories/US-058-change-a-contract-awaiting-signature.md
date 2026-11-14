@@ -6,7 +6,7 @@
 
 - **Depends on:** [US-044](US-044-client-signs-in-the-app.md) · [US-053](US-053-confirm-departure-condition.md) · [US-072](US-072-return-inspection.md)
 - **Decisions:** [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md) · [ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md) · [ADR-0007](../adr/0007-contract-lifecycle-and-audit.md)
-- **Open points:** R-10 Q5 (see [open questions](../discovery/open-questions.md))
+- **Open points:** — (see [open questions](../discovery/open-questions.md))
 
 ## Story
 
@@ -25,7 +25,7 @@ As a staff member, I want to reopen a Départ or a Retour that waits for the cli
 - [ ] Every change goes through the API, which renders a new preview with the **same contract number** and makes it the current one. The replaced preview is kept, never signed, and recorded in the audit trail.
 - [ ] The preview screen shows that the document changed (« Document mis à jour ») and the client signs only the new one ([US-044](US-044-client-signs-in-the-app.md)).
 - [ ] If a stored Retour signature is waiting ([US-076](US-076-stored-return-signature.md)), it stays usable on the changed Retour: it covers the finished Retour, whatever was added.
-- [ ] Photos and damage added this way are insert-only like any other. Taking one back before the signature follows R-10 Q5 (still open).
+- [ ] Staff can withdraw a photo or a damage they added to this Départ or Retour, until the client signs (R-10 Q5, answered 2026-11-14). It stays stored and in the audit trail, marked « retiré », and the new preview leaves it out. A withdrawn damage isn't an open damage of the vehicle. After the signature nothing can be withdrawn.
 - [ ] Database and API tests cover: a damage added at the Départ after the preview; a new damage and a changed estimate at the Retour; a preview replaced twice, then signed; an attempt to sign a replaced preview (refused).
 
 ## Notes

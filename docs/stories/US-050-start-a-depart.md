@@ -14,7 +14,7 @@ As a staff member, I want to start a Départ from an available vehicle and have 
 
 ## Acceptance criteria
 
-- [ ] « Départ » lists only vehicles that are available and have a reference photo set. Search works as in US-021.
+- [ ] « Départ » lists only vehicles that are available, have a reference photo set and aren't held by a contract waiting for its signature (F-18). Search works as in US-021.
 - [ ] Choosing a vehicle creates a draft contract on the server and pre-fills (brief, step 1):
   - plate, colour, model, fuel type;
   - km out (= current km) and fuel out (= current fuel level);

@@ -1,6 +1,6 @@
 # MC Car Riviera staff app: documentation
 
-> **Phase: decisions recorded, backlog ready (2026-10-07; updated 2026-10-09, 2026-11-02, 2026-11-03 and 2026-11-10).** On 2026-11-03 the back end moved from Supabase to the developer's own API, Postgres and S3 at Scaleway. On 2026-11-10, after the spike and a client meeting, signatures moved from Documenso into the app (the API stamps and seals the PDF), and the contract PDF, the photos and the damage records changed (F-22 to F-28). The blocking questions are answered and recorded as
+> **Phase: decisions recorded, backlog ready (2026-10-07; updated 2026-10-09, 2026-11-02, 2026-11-03, 2026-11-10 and 2026-11-14).** On 2026-11-03 the back end moved from Supabase to the developer's own API, Postgres and S3 at Scaleway. On 2026-11-10, after the spike and a client meeting, signatures moved from Documenso into the app (the API stamps and seals the PDF), and the contract PDF, the photos and the damage records changed (F-22 to F-28). On 2026-11-14 the web app became the first release, with the iPhone app to follow from the same code (F-29). The blocking questions are answered and recorded as
 > ADRs, and the MVP backlog is written as user stories. Both were reviewed independently and corrected. Some business
 > rules and follow-ups are still open. For those, the backlog uses explicit defaults, listed in
 > [`discovery/open-questions.md`](discovery/open-questions.md) § Defaults.
@@ -8,12 +8,12 @@
 
 ## The project in one paragraph
 
-MC Car Riviera, a car-rental company in Juan-les-Pins (France), gets an internal iPhone app for its two employees,
-running on their personal phones, and the same app on the web for their laptops and the agency computer. It replaces the paper « Contrat / Facture location » they fill in today:
+MC Car Riviera, a car-rental company in Juan-les-Pins (France), gets an internal app for its two employees: first a web app, for their laptops, their phones' browsers and the agency computer,
+then the same app installed on their personal iPhones. It replaces the paper « Contrat / Facture location » they fill in today:
 
 - Staff run a **Départ** (check-out) and a **Retour** (check-in).
 - The client signs once on the phone or in the web app; the API stamps the signature on every page and seals the PDF.
-- The app produces the contract PDF in **French or English**, and staff share it through the iOS share sheet.
+- The app produces the contract PDF in **French or English**, and staff download or share it.
 - The app also holds the **vehicle inventory** (statuses, maintenance, reference photos, damage), the **client records** with their documents, and every **contract** with its revisions.
 - Billing and payment stay outside the app.
 
@@ -23,7 +23,8 @@ running on their personal phones, and the same app on the web for their laptops 
 |---|---|---|
 | App technology | React Native + Expo (TypeScript), built in the cloud, so no Mac is needed | [0002](adr/0002-mobile-stack-expo.md) |
 | Distribution | Ad Hoc builds on the staff's registered personal iPhones (Developer Mode on), under the company's Apple account (F-02) | [0003](adr/0003-ios-distribution-ad-hoc.md) |
-| Web app | The same Expo code built for the web, with every feature of the iPhone app, at go-live (F-19). Password + second factor, idle sign-out, nothing kept in the browser. Analytics and an admin panel after the MVP | [0021](adr/0021-web-app.md) |
+| Web app | The same Expo code built for the web, with every feature of the iPhone app (F-19). Password + second factor, idle sign-out, nothing kept in the browser. Analytics and an admin panel after the MVP | [0021](adr/0021-web-app.md) |
+| Order of delivery | The web app is built and goes live first, on laptops and in phone browsers; the iPhone app is the second release, from the same code (F-29). Tickets go feature by feature: the API, then the web screens | [0025](adr/0025-web-app-first.md) |
 | Backend | The developer's own API (TypeScript, Fastify), a managed Postgres and S3 storage at Scaleway in Paris (F-11 option C, F-12, F-14); staging on his homelab; names on `developerworkshop.online`; e-mail through turboSMTP (F-15); hosting paid by the developer, about €25–30 a month (F-07). Replaces Supabase (ADR-0004) | [0019](adr/0019-backend-own-api-postgres-s3.md) |
 | Connectivity | Online only; no offline mode | [0005](adr/0005-online-only.md) |
 | Scope | Contract only. Prices, totals, costs and number of days typed by staff (F-06). No billing or payment. Card fields kept, but only the last four digits and the expiry date; never a full number or a CVV (F-09) | [0006](adr/0006-contract-only-scope.md) |
@@ -33,11 +34,11 @@ running on their personal phones, and the same app on the web for their laptops 
 | PDF | Rendered on the API server with Chromium (F-13), from versioned HTML templates, in the language chosen in the preview before signing (F-17): model layout, every field of both forms (R-02), explicit A4 pages, full-size photo annex. Template v2 in [`contract-template/`](contract-template/README.md): page 1 with the pricing, no amendment pages, new damage first (F-22, F-24) | [0010](adr/0010-contract-pdf-generation.md) |
 | Languages | Language-neutral data, FR/EN catalogues, versioned general terms | [0011](adr/0011-localisation.md) |
 | Access and phones | Personal accounts (better-auth in the API), Face ID lock on the iPhone, a second factor at every native and web sign-in, every request checked by the API, revocation from the server, minimum data on phones | [0012](adr/0012-authentication-and-authorisation.md), [0013](adr/0013-personal-device-data-protection.md) |
-| Files | Private Scaleway Object Storage buckets (F-11); evidence can be uploaded and read but never overwritten or deleted; presigned links issued by the API, valid for 5 minutes at most | [0014](adr/0014-file-storage.md) |
+| Files | Private Scaleway Object Storage buckets (F-11); evidence can be uploaded and read but never overwritten or deleted; the app uploads to a temporary area and the API files the file (F-31); presigned links issued by the API, valid for 5 minutes at most | [0014](adr/0014-file-storage.md) |
 | Backups | Nightly encrypted dumps of the database plus incremental file copies, with a different provider, which the server's keys can't delete | [0015](adr/0015-backups.md) |
-| Repository and delivery | One repository (app, API, shared package, migrations, deployment); local, homelab staging and Scaleway production; CI with PDF tests; EAS builds and over-the-air updates | [0016](adr/0016-repository-environments-ci.md) |
+| Repository and delivery | One public repository (app, API, shared package, migrations, deployment); local, homelab staging and Scaleway production; CI with PDF tests and browser tests; EAS builds and over-the-air updates for the iPhone app | [0016](adr/0016-repository-environments-ci.md) |
 | Crash reporting | Sentry in the EU, with personal data removed | [0017](adr/0017-crash-reporting.md) |
-| Development and testing | Android emulator on Windows for day-to-day work; iOS checks on a registered test iPhone (the developer's partner's) | [0018](adr/0018-development-and-test-devices.md) |
+| Development and testing | A browser for day-to-day work and acceptance; from the iPhone phase, an Android emulator on Windows and checks on a registered test iPhone (the developer's partner's) | [0018](adr/0018-development-and-test-devices.md) |
 
 ## Read order (people and coding agents)
 
@@ -45,8 +46,9 @@ running on their personal phones, and the same app on the web for their laptops 
 2. [`adr/README.md`](adr/README.md): the decisions, and why they were taken. The UML diagrams are in [`architecture/`](architecture/README.md), also as one PDF: [`architecture/architecture.pdf`](architecture/architecture.pdf).
 3. [`contract-template/README.md`](contract-template/README.md): the new contract PDF (template v2), its field map and specimen PDFs.
 4. [`stories/README.md`](stories/README.md): the backlog, with phases, Definition of Ready and Done, every story, and the post-MVP list.
-5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-20, and the defaults in use.
+5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-35, and the defaults in use.
 6. [`discovery/source-analysis.md`](discovery/source-analysis.md): what the reference documents contain (field inventory, signature zones, general-terms rules).
+7. [`design/README.md`](design/README.md): the theme, the app shell and the list of screens, from the design file.
 
 ## Folder layout
 
@@ -57,6 +59,7 @@ docs/
 ├── adr/                    architecture decision records, one per file, plus an index
 ├── architecture/           UML diagrams (PlantUML sources) and the architecture PDF
 ├── contract-template/      the contract PDF template v2: field map, HTML/CSS, FR/EN labels, terms, specimens
+├── design/                 theme, app shell and screen list from the design file; the first wireframe
 ├── stories/                user stories, one per file, plus the backlog index
 └── discovery/
     ├── source-analysis.md  analysis of the reference documents
@@ -92,9 +95,11 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 
 | Risk | Mitigation |
 |---|---|
+| A phone's browser is weaker than an installed app at the car: camera permission, no app lock, no share sheet everywhere | Every screen is checked on a phone from the start, on staging; the iPhone app follows ([ADR-0025](adr/0025-web-app-first.md)) |
+| The iPhone app, built second, needs more rework than planned | Screens use React Native components only, device code sits behind platform modules, and CI bundles the iOS target ([ADR-0025](adr/0025-web-app-first.md)) |
 | A missed yearly Apple renewal stops the app on both phones | Runbook with a reminder 30 days ahead ([ADR-0003](adr/0003-ios-distribution-ad-hoc.md), US-093) |
 | Staff refuse Developer Mode or the yearly reinstall on their personal phones | Fallback to an Unlisted App Store app (F-03) |
-| Company enrolment with Apple is slow, or the company has no website on its own domain | Start on day one; individual membership only as a temporary fallback (F-02, US-001) |
+| Company enrolment with Apple is slow, or the company has no website on its own domain | Start at least a month before the iPhone phase; individual membership only as a temporary fallback (F-02, US-001) |
 | No Mac to investigate native crashes | Development builds, EAS logs and crash reporting ([ADR-0017](adr/0017-crash-reporting.md)) |
 | The test iPhone is borrowed and not always at hand | Android emulator for day-to-day work; iOS checks on the iPhone within each story ([ADR-0018](adr/0018-development-and-test-devices.md)) |
 | A staff phone turns out too old for the app | Models and iOS versions checked at registration (F-01, US-001) |
@@ -118,15 +123,15 @@ Diagrams are Mermaid code blocks. They render on GitHub and GitLab and stay read
 | 3 Roles and permissions | [ADR-0012](adr/0012-authentication-and-authorisation.md) (single role, default for R-16) | — |
 | 4 Départ · 5 Retour | Stories US-050–058 and US-070–076; sequence diagrams in [`architecture/`](architecture/README.md) | Kept up to date with US-050 and US-070 |
 | 6 Inventory · 7 Clients · 8 Maintenance and damage | Stories US-020–026, US-030–034, US-080–083; [ADR-0024](adr/0024-vehicle-condition-four-angles-estimates.md) | — |
-| 9 Screens and navigation · 10 UX recommendations | US-003, US-020 and the flow stories | `screens.md` with US-003 |
+| 9 Screens and navigation · 10 UX recommendations | US-003, US-020, the flow stories and [`design/`](design/README.md) | `screens.md` with US-003 |
 | 11 Domain model · 14 Contract lifecycle | [ADR-0007](adr/0007-contract-lifecycle-and-audit.md) (contract and vehicle state diagrams), [ADR-0024](adr/0024-vehicle-condition-four-angles-estimates.md) | — |
 | 12 Database schema | Table list in US-006; class diagrams in [`architecture/`](architecture/README.md) | Kept in step with the migrations in US-006 |
 | 13 File storage | [ADR-0014](adr/0014-file-storage.md) | — |
 | 15 PDF · 16 Signatures · 17 FR/EN | [ADR-0010](adr/0010-contract-pdf-generation.md), [ADR-0023](adr/0023-signatures-in-the-app-sealed-by-the-api.md), [ADR-0011](adr/0011-localisation.md); template v2 and its field map in [`contract-template/`](contract-template/README.md) | Ported to the API by US-040; signing in US-043 and US-044 |
 | 18 iOS architecture · 19 Backend · 24 API boundaries | [ADR-0002](adr/0002-mobile-stack-expo.md), [ADR-0019](adr/0019-backend-own-api-postgres-s3.md); deployment, component and sequence diagrams in [`architecture/`](architecture/README.md) | Kept up to date with US-004 |
 | 20 Auth · 21 Security and privacy | [ADR-0012](adr/0012-authentication-and-authorisation.md) to [ADR-0015](adr/0015-backups.md), [ADR-0017](adr/0017-crash-reporting.md) | — |
-| 22 Distribution · 23 Offline | [ADR-0003](adr/0003-ios-distribution-ad-hoc.md) (iPhone), [ADR-0021](adr/0021-web-app.md) (web app), [ADR-0005](adr/0005-online-only.md) | — |
-| 25 Implementation phases | [`stories/README.md`](stories/README.md) (P0–P6) | — |
+| 22 Distribution · 23 Offline | [ADR-0003](adr/0003-ios-distribution-ad-hoc.md) (iPhone), [ADR-0021](adr/0021-web-app.md) and [ADR-0025](adr/0025-web-app-first.md) (web app, first), [ADR-0005](adr/0005-online-only.md) | — |
+| 25 Implementation phases | [`stories/README.md`](stories/README.md) (P0–P7) | — |
 | 26 Testing strategy | Definition of Done; database tests (US-006, US-007, US-057); API tests (US-004, US-044); PDF tests with Chromium (US-040) | `testing.md` with US-002 |
 | 27 Technical risks | § Main risks above; Consequences sections of the ADRs | — |
 | 28 Legal/accounting questions | open-questions L-01–L-07; US-092 | — |

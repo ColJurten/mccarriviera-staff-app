@@ -14,6 +14,7 @@ As a staff member, I want to search clients by name, phone, licence or ID number
 
 ## Acceptance criteria
 
+- [ ] « Clients » is one of the four main destinations ([design](../design/README.md)): a searchable list, and the client's record with « Modifier » ([US-032](US-032-edit-a-client.md)), the documents ([US-033](US-033-client-documents.md)) and the rental history ([US-034](US-034-client-rental-history.md)). On wide screens, the list sits next to the selected client's record.
 - [ ] Search works on name (ignoring accents), phone, licence number and ID document number.
 - [ ] Each result shows name, date of birth and city, enough to tell two clients with the same name apart.
 - [ ] Inside a Départ, selecting a client returns to the flow with the client filled in. When nothing matches, « Nouveau client » is offered.

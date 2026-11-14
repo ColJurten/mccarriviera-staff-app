@@ -1,4 +1,4 @@
-# US-016 · Keep client data out of the browser on laptops and the agency computer
+# US-016 · Keep client data out of the browser on laptops, phones and the agency computer
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
@@ -10,7 +10,7 @@
 
 ## Story
 
-As the company, I want the web app to leave nothing behind in the browser, so that a personal laptop or the shared agency computer exposes as little as possible.
+As the company, I want the web app to leave nothing behind in the browser, so that a personal laptop, a personal phone or the shared agency computer exposes as little as possible.
 
 ## Acceptance criteria
 
@@ -18,4 +18,5 @@ As the company, I want the web app to leave nothing behind in the browser, so th
 - [ ] Images and documents come through presigned links, with headers that stop the browser from caching them.
 - [ ] PDFs open in the browser's viewer. Downloading one is a deliberate action, labelled as leaving the app.
 - [ ] Signing out, or the idle sign-out, clears everything in memory.
-- [ ] The device rule (L-03) covers the web app: own account on the shared computer, sign out at the end, never let the browser save the password, delete downloaded PDFs.
+- [ ] Photos taken in the browser's camera view are held in memory until uploaded, and are never saved to the phone's photo library.
+- [ ] The device rule (L-03) covers the web app, on computers and in phone browsers ([ADR-0025](../adr/0025-web-app-first.md)): own account on the shared computer, sign out at the end, never let the browser save the password, delete downloaded PDFs, keep a passcode on the phone.

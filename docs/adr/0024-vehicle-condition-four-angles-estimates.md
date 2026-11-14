@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-11-10 | Developer, with the client's answers | B-09 · brief (Retour, maintenance) · F-10, F-23, F-24, F-25, F-26, R-02 (answered) · defaults for R-10, R-14 |
+| **Accepted** | 2026-11-10 (updated 2026-11-14) | Developer, with the client's answers | B-09 · brief (Retour, maintenance) · F-10, F-23, F-24, F-25, F-26, R-02, R-10 Q5 (answered) · defaults for R-10, R-14 |
 
 ## Context
 
@@ -26,7 +26,7 @@
   - **required:** front, rear, left side, right side;
   - **optional:** front-left, rear-left, rear-right, front-right, interior (F-10).
   - There is no dashboard photo in the reference set: reused at every later Départ, it would show an old odometer reading.
-  - Reference photos come from the in-app camera only, so each set is consistent and dated (`RECOMMENDED`).
+  - Reference photos come from the in-app camera only, so each set is consistent and dated (`RECOMMENDED`). On the web, the in-app camera is the in-page camera view ([ADR-0025](0025-web-app-first.md)).
 - **Dashboard photo at a handover** (km and fuel): optional at each Départ and Retour (F-10). The app offers it.
 - **Handover checklist** (R-02): car papers on board, clean inside, clean outside and GPS, each yes or no, at the Départ and at the Retour. All four are optional.
 - **Extra photos belong to a damage** (F-23, `INTERPRETATION` of "only extra photos will be added for damage details"). There is no loose « photo supplémentaire »: a photo taken at a handover is either the dashboard photo or a photo of a damage record.
@@ -48,6 +48,10 @@
   - When the billed damage is higher than the contract's deductible for an at-fault accident, the app warns staff and lets them continue (F-24).
   - Before the client signs, staff can still add photos and damage, or change an estimate (F-26).
 - **In the final PDF** (F-24, [ADR-0010](0010-contract-pdf-generation.md)): the vehicle-condition page puts the new damage first, with photos and estimates, or « RAS ». The damage already present at the Départ moves to its own annex page, with its photos. The Départ PDF still shows that damage on the condition page, since that is what the client accepts at the Départ.
+- **Withdrawing before the signature** (R-10 Q5, answered 2026-11-14): until the client signs a Départ or a Retour, staff can withdraw a photo or a damage they added during it.
+  - It stays stored and in the audit trail, marked « retiré », and is left off the PDF.
+  - A withdrawn damage isn't an open damage of the vehicle.
+  - After the signature nothing can change.
 - **Photo sources** for damage photos:
   - the in-app camera by default;
   - the photo library or a file, since the brief says "take/upload". These are flagged « importée » ([ADR-0014](0014-file-storage.md)).
@@ -93,6 +97,7 @@ A damage dispute shows four reference angles aren't enough evidence, or the acco
 ## Changes
 
 - 2026-11-10: written. Supersedes ADR-0008, with the client meeting's answers (F-23, F-24, F-25, F-26).
+- 2026-11-14: R-10 Q5 answered: a photo or a damage can be withdrawn until the signature. On the web, the in-app camera is the in-page camera view ([ADR-0025](0025-web-app-first.md)).
 
 ## Implemented by
 

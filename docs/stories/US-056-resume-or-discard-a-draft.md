@@ -14,7 +14,7 @@ As a staff member, I want to resume an interrupted Départ or discard it, so tha
 
 ## Acceptance criteria
 
-- [ ] Drafts are shown on the vehicle (« Départ en cours de saisie ») and on Home.
+- [ ] Drafts are shown on the vehicle (« Départ en cours de saisie ») on Home, and under « À signer » in Contrats ([US-065](US-065-contrats-list-and-contract-detail.md)).
 - [ ] Resuming a draft restores every value entered.
 - [ ] Discarding a draft deletes it (unsigned data only) and is recorded in the audit trail (default for R-12). Only a draft without a contract number can be discarded. Once the preview has reserved a number, the contract can only be cancelled and kept as « Annulé avant signature » (F-18, [US-044](US-044-client-signs-in-the-app.md)). Changing it before the signature is [US-058](US-058-change-a-contract-awaiting-signature.md).
 - [ ] A draft never changes the vehicle's status. Drafts older than 7 days are flagged.

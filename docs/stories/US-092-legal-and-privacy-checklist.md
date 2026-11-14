@@ -16,7 +16,7 @@ As the company, I want the legal points checked before the app replaces paper, s
 
 - [ ] The questions go to the lawyer and the accountant in P0. Their answers can change ADR-0006, ADR-0023, ADR-0024 and ADR-0010, and stories US-040, US-041, US-054 and US-076. Everything below must be closed before the pilot (US-091).
 - [ ] The lawyer's feedback is recorded on:
-  - the signature level, including showing a signature only next to the values it covers (L-01, F-08); a drawing captured in the app and stamped on every page, in a PDF the API seals with a self-signed company certificate and a timestamp; the departure signature image repeated on the final PDF and on copies (L-01, F-17);
+  - the signature level, including showing a signature only next to the values it covers (L-01, F-08); a drawing captured in the app and stamped on every page, in a PDF the API seals with a self-signed company certificate and a timestamp; a drawing made in a browser, with a finger on a touchscreen or with a mouse or a trackpad (L-01, F-29); the departure signature image repeated on the final PDF and on copies (L-01, F-17);
   - the **stored Retour signature** (F-28): whether it holds up, the authorisation text, and whether an unused one may be kept (L-01, L-03);
   - amendments recorded without the client's signature and without a page in the PDF (F-22, L-01);
   - the updated French terms, an approved English version, and the card-charge wording, now that the card is designated by its brand and last four digits only (L-02, F-09); the acceptance text's « ci-contre et au verso », the terms' own references to the « recto » (Art. 1, Art. 7) and to the « carte verte » (Art. 5), and the new texts of template v2: the two declarations and the introduction of the damage annex (L-02);
@@ -25,7 +25,7 @@ As the company, I want the legal points checked before the app replaces paper, s
   - retention periods (L-07).
 - [ ] The accountant's feedback on the contract title, invoicing, and whether billed damage carries VAT, is recorded (L-04).
 - [ ] A data processing agreement between the company (controller) and the developer (processor) is signed, since client data is hosted in his accounts (F-02). It lists his sub-processors: Scaleway (server, database, files), turboSMTP (e-mail; the contracting company is to be confirmed), the backup storage provider, Expo and Sentry. The company's record of processing is updated (L-03).
-- [ ] The staff device-use rule (L-03) is written and given to both staff members. It covers their phones, their laptops and the agency computer (web app).
+- [ ] The staff device-use rule (L-03) is written and given to both staff members. It covers their phones (the web app in the browser, then the iPhone app), their laptops and the agency computer.
 - [ ] Every resulting change becomes a story before go-live. The retention answers feed US-094.
 
 ## Notes

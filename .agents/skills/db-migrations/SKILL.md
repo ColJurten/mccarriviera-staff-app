@@ -38,11 +38,13 @@ when it disagrees with them, they win: say so in the PR.
 - **Insert-only** (UPDATE and DELETE rejected by grants and triggers): signed
   revisions, completed inspections, `signatures`, `condition_baselines`,
   `photos`, `contract_documents` (previews included), `audit_events`. Unsigned
-  draft revisions can be updated. Damage descriptions and photos never change;
-  only the repair fields change, through the maintenance function, and an
-  estimate only while its Retour waits for the signature (F-26).
-- **One active contract per vehicle:** a partial unique index, plus the checks in
-  the transition functions.
+  draft revisions can be updated. Before the signature of
+  their Départ or Retour, a damage's comment and estimate can be corrected, and
+  a damage or a photo can be withdrawn (kept, marked as withdrawn), through SQL
+  functions (F-26, R-10 Q5). After it, damage descriptions and photos never
+  change; only the repair fields change, through the maintenance function.
+- **One contract per vehicle that is `awaiting_signature` or `active`:** a
+  partial unique index, plus the checks in the transition functions (F-18).
 - **Contract numbers** (`MCR-YYYY-NNNN`, no gaps): internal, transaction-composable
   reservation and confirmation helpers, **not executable by the API role**. The
   preview transition (number reserved, contract to `awaiting_signature`, vehicle

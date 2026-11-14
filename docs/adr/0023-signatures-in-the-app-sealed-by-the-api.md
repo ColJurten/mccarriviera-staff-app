@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-11-10 | Developer, with the client's answers | B-06, B-07, B-08 · F-04, F-17, F-18, F-19, F-26, F-27, F-28 (answered) · F-08 (answered by F-22) · L-01 |
+| **Accepted** | 2026-11-10 (updated 2026-11-14) | Developer, with the client's answers | B-06, B-07, B-08 · F-04, F-17, F-18, F-19, F-26, F-27, F-28, F-30 (answered) · F-08 (answered by F-22) · L-01 |
 
 ## Context
 
@@ -85,7 +85,7 @@
   - the signing mode (in person or stored), and for a stored signature, its record;
   - the server time;
   - the staff user;
-  - the device model, the operating-system and app versions;
+  - the device model, the operating-system and app versions. On the web: the browser's name and version, the operating system it reports, and the web build's identifier ([ADR-0025](0025-web-app-first.md));
   - the IP address seen by the API;
   - the contract and revision;
   - the SHA-256 of the preview, of the data snapshot and of the sealed PDF;
@@ -94,6 +94,7 @@
   - It is kept in the server's secrets and in the developer's password manager, with a sealed copy for the company, like the backup keys ([ADR-0015](0015-backups.md)).
   - Adobe Reader shows the seal as intact, but the signer's identity as unverified, until a trusted certificate is used.
   - Upgrade paths, decided with the lawyer (L-01): a certificate from a certification authority on Adobe's trust list, a qualified timestamp, or a qualified electronic seal from a trust service provider, through its remote signing API.
+- **No signing link** (F-30): the client signs on the staff member's screen. A link sent by e-mail, SMS or QR code, as drawn in the web design, is post-MVP ([ADR-0025](0025-web-app-first.md)).
 - **No e-mail for signing:** nothing sends e-mail to signers, and the client's e-mail stays optional. The placeholder address of F-16 is no longer needed.
 - **No Documenso:** no `documenso` database, no Documenso bucket, no `sign.` subdomains ([ADR-0019](0019-backend-own-api-postgres-s3.md)).
 
@@ -130,6 +131,7 @@ The spike US-009, part 2, fails on stamping or sealing; the lawyer's answer to L
 ## Changes
 
 - 2026-11-10: written. Supersedes ADR-0020, after the spike US-009, part 1, and the client meeting (F-26, F-27, F-28).
+- 2026-11-14: F-30 answered: no signing link in the MVP. On the web, the evidence record holds the browser and the web build ([ADR-0025](0025-web-app-first.md)).
 
 ## Implemented by
 

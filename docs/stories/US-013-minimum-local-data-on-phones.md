@@ -2,7 +2,7 @@
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
-| E1 · Access, security and monitoring | Must | P2 | S | To do |
+| E1 · Access, security and monitoring | Must | P7 | S | To do |
 
 - **Depends on:** [US-026](US-026-guided-reference-photo-capture.md) · [US-033](US-033-client-documents.md) · [US-042](US-042-archive-and-share-pdfs.md)
 - **Decisions:** [ADR-0013](../adr/0013-personal-device-data-protection.md) · [ADR-0014](../adr/0014-file-storage.md)
@@ -27,3 +27,5 @@ As the company, I want the app to leave as little client data as possible on sta
 ## Notes
 
 - The web app's counterpart is [US-016](US-016-client-data-in-the-browser.md).
+
+- Since 2026-11-14 this story belongs to the iPhone phase (P7, [ADR-0025](../adr/0025-web-app-first.md)): it covers the installed app. In the web phase, phones use the browser under the rules of [US-016](US-016-client-data-in-the-browser.md).

@@ -27,5 +27,6 @@ As a staff member, I want to add a vehicle with the information the contract nee
 - [ ] The plate is stored in capitals, as typed. No format is enforced, because French plates in current and older formats, Monaco plates and foreign plates all exist. Uniqueness ignores spaces and dashes.
 - [ ] A vehicle without a reference photo set can't be chosen for a Départ, and shows « Photos de référence manquantes ».
 - [ ] The reference set is captured with the guided capture ([US-026](US-026-guided-reference-photo-capture.md)), right after creation or later: front, rear, left and right are required (F-23).
+- [ ] « Pièces jointes » lets staff attach the vehicle's papers, right after creation or later ([US-027](US-027-vehicle-documents.md)). None is required.
 - [ ] A duplicate plate is rejected with a clear message.
 - [ ] The creation is recorded in the audit trail.

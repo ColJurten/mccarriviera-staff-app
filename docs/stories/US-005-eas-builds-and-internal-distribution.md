@@ -2,7 +2,7 @@
 
 | Epic | Priority | Phase | Size | Status |
 |---|---|---|---|---|
-| E0 · Foundations | Must | P0 | M | To do |
+| E0 · Foundations | Must | P7 | M | To do |
 
 - **Depends on:** [US-001](US-001-apple-developer-account-and-devices.md) · [US-003](US-003-expo-app-skeleton.md)
 - **Decisions:** [ADR-0002](../adr/0002-mobile-stack-expo.md) · [ADR-0003](../adr/0003-ios-distribution-ad-hoc.md) · [ADR-0016](../adr/0016-repository-environments-ci.md) · [ADR-0018](../adr/0018-development-and-test-devices.md)
@@ -28,3 +28,4 @@ As the developer, I want reproducible cloud builds that staff install from a lin
 
 - Adding a phone later means registering it, rebuilding and reinstalling (runbook, US-093).
 - The test iPhone belongs to the developer's partner. Development and preview builds use staging, which holds synthetic data only, so no client data reaches it ([ADR-0018](../adr/0018-development-and-test-devices.md)).
+- Since 2026-11-14 this story belongs to the iPhone phase (P7, [ADR-0025](../adr/0025-web-app-first.md)). The web app needs no EAS build.

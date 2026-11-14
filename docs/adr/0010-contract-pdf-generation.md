@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-10) | Developer, with the client's answers | B-04, B-06, B-07 · F-08, F-13, F-17, F-22, F-24, F-28, R-01, R-02, R-19 Q1 (answered) · defaults for R-18, R-19 · R-17, L-02 |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | B-04, B-06, B-07 · F-08, F-13, F-17, F-22, F-24, F-28, R-01, R-02, R-19 Q1 (answered) · defaults for R-18, R-19 · R-17, L-02 |
 
 ## Context
 
@@ -46,12 +46,12 @@
 - **Company details:** name, address, SIRET, APE code, phone numbers and logo come from one configuration file, filled with details the client has confirmed. The same file holds the stored-signature switch (F-28, [ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). Fonts and logo are bundled in the API's image. The brand palette uses placeholders until the assets arrive (default for R-18).
 - **Output:**
   - a PDF to be signed is stored and shown as a preview; once the client signs, the API stamps and seals that file, and archives the **sealed PDF** in `contract-pdfs` with its SHA-256 ([ADR-0014](0014-file-storage.md), [ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md));
-  - the app downloads the archived PDF into its cache and opens the iOS share sheet.
+  - the web app opens the archived PDF in the browser's viewer, downloads it or shares it; the iPhone app downloads it into its cache and opens the iOS share sheet ([US-042](../stories/US-042-archive-and-share-pdfs.md)).
 - **Thumbnails:** made by the API from the stored photos at render time.
 - **Copies:** a PDF can be rendered again from the same data, template version and terms version, for example in the other language. A copy isn't signed by the client: it carries the signature images and a line « Copie du … — original signé : … », with the original's file name and the start of its SHA-256. The sealed original stays the reference (`RECOMMENDED`; L-01).
 - **Tests:**
   - PDF tests in CI render synthetic cases with Chromium: empty optional fields, maximum-length fields on page 1, an additional driver, 30 photos, 10 damage records with estimates, « RAS », a stored signature, French and English. A test fails when a page's content is larger than the page.
-  - Every template change is also opened on a real iPhone, in the preview and through the share sheet.
+  - Every template change is also opened in a desktop browser and in a phone's browser, and on a real iPhone from the iPhone phase ([ADR-0025](0025-web-app-first.md)).
 
 ## Consequences
 
@@ -89,6 +89,7 @@ Rendering on the server proves too slow or too heavy for the server (spike US-00
 - 2026-11-02: R-02, R-19 Q1 and R-01 Q2 answered. Template v1 keeps every field of both templates, prints the staff name and adds a full-size photo annex. The page layout above is template v1 (`docs/contract-template/`), with specimens.
 - 2026-11-03: F-13 answered: rendering moves from the phone (expo-print) to the API server (Chromium). The language is chosen in the preview before signing (F-17), signed PDFs are sealed by Documenso, and copies carry the signature images (ADR-0020).
 - 2026-11-10: F-22 and F-24 answered (client meeting), which also answers the rest of R-01 and the default part of F-08: template v2, with page 1 holding the pricing, no « Services inclus », no key-terms box, the deposit in the pricing block, no amendment pages, new damage first and the damage already present in an annex. Signing moves from Documenso to the app and the API ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)), with an authorisation page when the stored signature is used (F-28).
+- 2026-11-14: the web app comes first (F-29, [ADR-0025](0025-web-app-first.md)): PDFs are opened and checked in browsers, then on the iPhone.
 
 ## Implemented by
 

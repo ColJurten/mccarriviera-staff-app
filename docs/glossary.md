@@ -27,6 +27,8 @@ labels below.
 | Retour en attente de signature | Check-in awaiting signature | Return data entered, but the client hasn't signed yet. The car stays « En cours » (F-04) |
 | En attente de signature (contrat) | Awaiting signature | The Départ's preview exists and the contract number is reserved; the client hasn't signed yet (F-18) |
 | Annulé avant signature | Cancelled before signature | A contract that was never signed, kept with its number, never deleted (F-18) |
+| Retiré | Withdrawn | A photo or a damage added by mistake during a Départ or a Retour and taken back before the client signs. It is kept and audited, and left off the PDF (R-10 Q5) |
+| Contrats (onglet) | Contracts (destination) | The list of every contract, with what waits for a signature under « À signer » ([US-065](stories/US-065-contrats-list-and-contract-detail.md)) |
 | Signature enregistrée | Stored signature | A client's drawing recorded at the drop-off, after they sign an authorisation, and applied by staff to the finished Retour. One Retour only, used once; a feature switched on per company (ADR-0023, F-28) |
 | Autorisation de signature | Signature authorisation | The text the client signs before their signature is stored; printed as a page of the final PDF (F-28, L-01) |
 | Reset (du statut / de l'état) | Status / baseline reset | Brief: new reference condition photos after a damage repair, only when appropriate. Meeting notes: « Reset status ou pas » next to Maintenance |
@@ -113,6 +115,7 @@ labels below.
 | Recto · Verso | Front · Back (of the paper contract) |
 | Annexe photos | Photo annex | The last pages of the contract PDF: every photo at full size (R-01 Q2) |
 | Spécimen | Specimen | A sample PDF filled with invented data, never a real contract |
+| Pièces jointes (véhicule) | Vehicle documents | The registration, the insurance and other files attached to a vehicle (F-32) |
 
 ## Technical terms
 

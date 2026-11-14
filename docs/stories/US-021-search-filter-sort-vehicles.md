@@ -14,6 +14,7 @@ As a staff member, I want to find a vehicle by plate or model and filter it by s
 
 ## Acceptance criteria
 
+- [ ] The list with its search, filters and sort is the « Véhicules » destination ([design](../design/README.md)); Home shows the same fleet under its two buttons ([US-020](US-020-home-screen.md)). On wide screens, the list sits next to the selected vehicle's detail.
 - [ ] Search matches the plate (ignoring spaces and dashes) and the make/model, regardless of case and accents.
 - [ ] Status filters: Tous, Disponible, En cours, Maintenance, Archivé.
 - [ ] Sort by plate, model, status or planned return. By default, rented cars come first, soonest return first (default for N-03).

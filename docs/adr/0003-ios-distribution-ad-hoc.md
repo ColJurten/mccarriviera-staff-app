@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-03) | Developer, with the client's answers | B-02, B-11 · F-02, F-03 (answered) · F-01 |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | B-02, B-11 · F-02, F-03 (answered) · F-01 |
 
 ## Context
 
@@ -28,7 +28,7 @@
   - a work e-mail on the company's domain;
   - a public website on that domain.
 
-  Getting a D-U-N-S number and passing Apple's verification can take a week or more, so this starts on day one ([US-001](../stories/US-001-apple-developer-account-and-devices.md)).
+  Getting a D-U-N-S number and passing Apple's verification can take a week or more, so this starts at least a month before the iPhone phase ([ADR-0025](0025-web-app-first.md), [US-001](../stories/US-001-apple-developer-account-and-devices.md)).
 - **If Apple refuses the company's enrolment**, the developer's individual membership is a temporary fallback. It is a weaker fit: the licence covers devices of people affiliated with the account holder, and the client's staff are not affiliated with the developer. Moving to the company's account later costs a re-registration and a rebuild, with no data migration.
 - **Distribution:** every build (development, staging, production) goes out with **EAS internal distribution (Ad Hoc)**.
   - Register the two staff iPhones and the developer's test iPhone (his partner's, F-05) with `eas device:create`. The owner opens a link or QR code and installs a small profile.
@@ -74,6 +74,7 @@ The options are in the table above. Custom app and Unlisted both avoid Developer
 - 2026-10-09: F-03 answered (Developer Mode likely acceptable, confirmed at registration); phone models are checked at registration (F-01); the test iPhone is the developer's partner's (F-05).
 - 2026-10-09 (later): F-02 answered: the company holds the Apple account; EAS runs under the developer's Expo account.
 - 2026-11-03: a web app is added next to the iPhone app (F-19, [ADR-0021](0021-web-app.md)). This ADR still covers the iPhone app.
+- 2026-11-14: the iPhone app is the second release (F-29, [ADR-0025](0025-web-app-first.md)). The enrolment no longer starts on day one, but at least a month before the iPhone phase.
 
 ## Implemented by
 
