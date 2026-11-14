@@ -2,7 +2,7 @@
 
 | Status | Date | Decided by | Based on |
 |---|---|---|---|
-| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | F-02, F-12, F-14, F-29, F-34, T-04 (answered) · default for N-06 |
+| **Accepted** | 2026-10-07 (updated 2026-11-14) | Developer, with the client's answers | F-02, F-12, F-14, F-29, F-34, F-35, T-04 (answered) · default for N-06 |
 
 ## Context
 
@@ -40,7 +40,7 @@
   - a check that the generated database types are up to date.
 - **Releases of the API and the database:**
   - images, including the web app's static files, are built by CI and tagged with the commit;
-  - on a merge to `main`, staging is deployed and its migrations applied, by a GitHub Actions runner on the staging VM;
+  - on a merge to `main`, CI pushes the images to the private registry. The staging VM pulls them: a timer on the VM checks for a new image every few minutes, applies the migrations and restarts the stack (F-35). There is no self-hosted runner: the repository is public, and a runner would let a pull request from a fork run code on the VM;
   - on a release tag, production is deployed after manual approval: migrations with dbmate, then `docker compose pull` and `up` on the server, over SSH from a protected environment.
 - **iPhone app releases**, from the iPhone phase ([ADR-0025](0025-web-app-first.md)):
   - EAS builds are triggered on purpose (the free plan includes 15 iOS builds a month);
@@ -87,6 +87,7 @@ A second developer joins, the free build quota becomes a bottleneck, or the home
 - 2026-11-03 (later): Garage and Mailpit in the local stack (F-20), staging names on the developer's domain (F-14), and the web app built, tested and deployed with the API (F-19).
 - 2026-11-10: Documenso is removed from every environment ([ADR-0023](0023-signatures-in-the-app-sealed-by-the-api.md)). The local stack still runs it until the follow-up ticket removes it.
 - 2026-11-14: T-04 answered: the repository is public. F-34 answered: staging is reached through a tunnel. The web app is built first (F-29): a local Caddy, an iOS bundle check in CI, and app releases from the iPhone phase ([ADR-0025](0025-web-app-first.md)).
+- 2026-11-14 (later): F-35 answered: the staging VM pulls its images instead of being deployed by a self-hosted runner, because the repository is public.
 
 ## Implemented by
 

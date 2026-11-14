@@ -2,7 +2,7 @@
 
 > **Status (2026-11-10):** all blocking questions B-01 to B-11 are answered and turned into decisions ([`../adr/`](../adr/README.md)). On 2026-11-03, F-11 was answered (option C: your own API, your own Postgres, files in S3), and you chose Documenso for signatures. That opened F-12 to F-20, all answered the same day, including a web app with the iPhone app's features (F-19): see [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md) and [ADR-0020](../adr/0020-signatures-with-documenso.md) and [ADR-0021](../adr/0021-web-app.md). On 2026-11-05, F-21 was answered: PostgreSQL 17 in every environment ([ADR-0022](../adr/0022-postgresql-17.md)). On 2026-11-10, after the spike showed that Documenso needs one tap per page and after a meeting with the client about the PDF, F-22 to F-28 were answered: signatures in the app, sealed by the API ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md)), four required reference angles, damage found at the Départ and estimates on new damage ([ADR-0024](../adr/0024-vehicle-condition-four-angles-estimates.md)), and template v2 of the PDF. Of the earlier follow-ups, F-02 to F-07, F-09 and F-10 are answered, F-08 partly, and F-01 is checked when the phones are registered. On 2026-11-02, R-02 was answered, with parts of R-01 and R-19, for the new contract template ([`../contract-template/`](../contract-template/README.md)). The other R, T and N questions are still open. Where the backlog needed an answer to move on, it uses a **default**, listed in § Defaults so you can confirm or change it.
 >
-> **Update (2026-11-14):** after a review of the repository, the developer answered F-29 to F-34: the web app is built and goes live before the iPhone app ([ADR-0025](../adr/0025-web-app-first.md)), signing stays on the pad, uploads go through a temporary area, vehicles get documents, sign-in has no account lockout, and staging is reached through a tunnel. R-10 Q5, the format of R-09 and the repository question of T-04 are answered too. T-08 is new and open.
+> **Update (2026-11-14):** after a review of the repository, the developer answered F-29 to F-35: the web app is built and goes live before the iPhone app ([ADR-0025](../adr/0025-web-app-first.md)), signing stays on the pad, uploads go through a temporary area, vehicles get documents, sign-in has no account lockout, staging is reached through a tunnel, and the staging VM pulls its images instead of using a self-hosted runner. R-10 Q5, the format of R-09 and the repository question of T-04 are answered too. T-08 is new and open.
 > **How to answer:** write under each **Answer** line, or reply with the IDs (for example "B-03: b").
 > Some questions show a **Suggested default**. This is a recommendation, not an assumption, and it is used only if you confirm it.
 > **Owners:** **You** (developer) · **Client** (MC Car Riviera) · **Lawyer** · **Accountant** · **Bank/PSP**.
@@ -57,6 +57,7 @@
 | **F-32** | Documents on a vehicle | You | Answered: yes, in the MVP → [US-027](../stories/US-027-vehicle-documents.md) |
 | **F-33** | Sign-in: account lockout and the deactivated-account message | You | Answered: no account lockout at the password step; a generic message → [ADR-0012](../adr/0012-authentication-and-authorisation.md) |
 | **F-34** | How staging is reached | You | Answered: through a tunnel → [ADR-0016](../adr/0016-repository-environments-ci.md) |
+| **F-35** | How staging is deployed, with a public repository | You | Answered: the staging VM pulls the images; no self-hosted runner → [ADR-0016](../adr/0016-repository-environments-ci.md) |
 | **R-01** | Layout of the new contract | Client | Answered: Q2 on 2026-11-02, the rest by F-22 → [template v2](../contract-template/README.md) |
 | **R-02** | Fields only the model template has | Client | Answered: all of them are kept → [template v1](../contract-template/field-map.md) |
 | R-03 | Client fields and additional drivers | Client | Open, default applied |
@@ -838,6 +839,15 @@ ADR-0016 left it open: « a tunnel or the homelab's reverse proxy ».
 > **Answer (2026-11-14):** a tunnel.
 >
 > **Decision:** the staging VM opens a tunnel to a public endpoint for `stg.developerworkshop.online`, so no port is opened on the home network. The tool is chosen when staging is set up (Cloudflare Tunnel, `RECOMMENDED`). → [ADR-0016](../adr/0016-repository-environments-ci.md)
+
+### F-35 · How staging is deployed, with a public repository
+**Owner:** you · **Needed by:** US-004
+
+ADR-0016 deployed staging through a GitHub Actions runner installed on the homelab VM. The repository is public (T-04), and GitHub advises against self-hosted runners on public repositories: a pull request from a fork could run code on that VM.
+
+> **Answer (2026-11-14):** the VM pulls the images.
+>
+> **Decision:** CI builds the images and pushes them to the private registry. A timer on the staging VM checks for a new image every few minutes, applies the migrations and restarts the stack. There is no runner, and nothing reaches into the home network. → [ADR-0016](../adr/0016-repository-environments-ci.md)
 
 ---
 

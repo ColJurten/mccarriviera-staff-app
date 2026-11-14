@@ -46,7 +46,7 @@ then the same app installed on their personal iPhones. It replaces the paper « 
 2. [`adr/README.md`](adr/README.md): the decisions, and why they were taken. The UML diagrams are in [`architecture/`](architecture/README.md), also as one PDF: [`architecture/architecture.pdf`](architecture/architecture.pdf).
 3. [`contract-template/README.md`](contract-template/README.md): the new contract PDF (template v2), its field map and specimen PDFs.
 4. [`stories/README.md`](stories/README.md): the backlog, with phases, Definition of Ready and Done, every story, and the post-MVP list.
-5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-34, and the defaults in use.
+5. [`discovery/open-questions.md`](discovery/open-questions.md): what is still open, follow-ups F-01 to F-35, and the defaults in use.
 6. [`discovery/source-analysis.md`](discovery/source-analysis.md): what the reference documents contain (field inventory, signature zones, general-terms rules).
 7. [`design/README.md`](design/README.md): the theme, the app shell and the list of screens, from the design file.
 

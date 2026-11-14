@@ -28,7 +28,7 @@ Labels used inside the ADRs:
 | [ADR-0013](0013-personal-device-data-protection.md) | Protect client data on staff phones, laptops and the agency computer | Accepted | B-02, B-03 · default for T-05 · F-03 · L-03 |
 | [ADR-0014](0014-file-storage.md) | File storage: private S3 buckets, upload-only evidence, short-lived presigned links | Accepted | Brief · B-04, B-09 · F-11, F-31, F-32 (answered) · defaults for R-15, L-03, L-07 |
 | [ADR-0015](0015-backups.md) | Nightly encrypted off-site backups: database dumps plus incremental file copies | Accepted | B-11 · F-02, F-11, F-14 (answered) · defaults for L-03, L-07 |
-| [ADR-0016](0016-repository-environments-ci.md) | One repository, three environments and an automated delivery pipeline | Accepted | F-02, F-12, F-14, F-29, F-34, T-04 (answered) · default for N-06 |
+| [ADR-0016](0016-repository-environments-ci.md) | One repository, three environments and an automated delivery pipeline | Accepted | F-02, F-12, F-14, F-29, F-34, F-35, T-04 (answered) · default for N-06 |
 | [ADR-0017](0017-crash-reporting.md) | Report crashes to an EU-hosted service with personal data removed | Accepted | RECOMMENDED (no question) · F-02 (answered) · L-03 |
 | [ADR-0018](0018-development-and-test-devices.md) | Develop with an Android emulator on Windows and check iOS on a registered test iPhone | Accepted | F-05 (answered) · B-01 |
 | [ADR-0019](0019-backend-own-api-postgres-s3.md) | Run our own TypeScript API (Fastify) with managed Postgres and S3 storage at Scaleway, Paris | Accepted | F-11 (answered: option C) · F-12, F-13, F-14, F-15, F-19, F-20 (answered) · B-03, B-11 · F-02, F-07 |
