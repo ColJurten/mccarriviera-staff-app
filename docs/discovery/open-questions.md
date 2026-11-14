@@ -1211,6 +1211,7 @@ The brief asked for three things to be kept apart (detailed in [ADR-0023](../adr
 
 Also ask:
 
+- **Signing in a browser (F-29):** until the iPhone app exists, the client draws on the staff member's screen in a browser: with a finger on a phone or a touchscreen, or with a mouse or a trackpad on a computer. Is a signature drawn with a mouse or a trackpad acceptable, or should the device rule require a touchscreen for handovers ([ADR-0025](../adr/0025-web-app-first.md))?
 - Is it acceptable to show the departure signature on every page, with later values printed in their own signed sections (F-08)?
 - Is it acceptable to record an amendment (an extension, for example) without the client's signature and without a page in the PDF, with its effect shown in the final statement signed at the Retour (F-22, R-11)?
 - **The stored Retour signature (F-28):** the client signs an authorisation at the drop-off, then staff apply the same drawing to the Retour finished in the client's absence, once, with no time limit. Does it hold up, especially for billed damage the client didn't see? Is the authorisation text right ([`i18n/fr.json`](../contract-template/i18n/fr.json), `authorisation.intro`)? Should the client be sent the final PDF, and within what time? May an unused stored signature be kept?
@@ -1237,7 +1238,7 @@ Update the terms before they are digitised and translated:
 - Erasure requests versus the obligation to keep contracts: which wins, and when (applied by US-094).
 - A data processing agreement between MC Car Riviera (controller) and the developer (processor), since client data is hosted in his accounts (F-02). His sub-processors: Scaleway (server, database, files), turboSMTP (e-mail; which of its companies signs the agreement is to be checked), the backup storage provider, Expo and Sentry. The homelab staging holds synthetic data only.
 - The record of processing activities.
-- Staff using their personal phones (B-02), their personal laptops and the agency computer (F-19): a short written rule for client data on them. It should cover what may be shared and where, deleting PDFs (including downloads), signing out of the shared computer, and reporting a lost device.
+- Staff using their personal phones (B-02; the web app in the phone's browser until the iPhone app exists, F-29), their personal laptops and the agency computer (F-19): a short written rule for client data on them. It should cover what may be shared and where, deleting PDFs (including downloads), not letting the browser save the password, signing out of the shared computer, keeping a passcode on the phone, and reporting a lost device.
 
 ### L-04 · Invoicing (accountant)
 - The outcome of B-04.
