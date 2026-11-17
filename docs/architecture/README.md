@@ -49,9 +49,12 @@ This renders every `NN-*.puml` to `svg/` and prints `architecture.pdf`. The page
 
 Diagrams 01 and 04 describe the planned production deployment and its business
 flows. The local foundation is now in `deploy/compose.local.yml`: PostgreSQL 17,
-Garage, Mailpit, unmodified Documenso CE with database file storage, and Fastify.
-Documenso is no longer part of the design ([ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md));
-a follow-up ticket removes it from the local stack.
+Garage, Mailpit and Fastify, following [ADR-0019](../adr/0019-backend-own-api-postgres-s3.md)
+and [ADR-0023](../adr/0023-signatures-in-the-app-sealed-by-the-api.md). PostgreSQL
+provisions one app database with separate owner and restricted runtime roles;
+Garage provisions four private app buckets and one API key. The external local
+signing certificate is retained for the API sealing work in US-043. Local Caddy,
+staging and production remain pending US-004 work.
 `GET /api/health` (also HEAD) probes the app database and private storage; these
 are public API routes. US-010/012/015 now add the six exact sign-in/continuation
 POST exceptions; all other routes require a current active staff session.

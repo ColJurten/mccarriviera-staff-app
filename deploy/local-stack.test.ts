@@ -15,12 +15,25 @@ function service(name: string) {
   return match[1]!;
 }
 
-describe('compose.local.yml (US-004, ADR-0019, ADR-0020, ADR-0022)', () => {
+describe('compose.local.yml (US-004, ADR-0019, ADR-0022, ADR-0023)', () => {
+  test('contains only the local API dependencies and their data volumes', () => {
+    const [services, volumes] = compose.split('\nvolumes:\n');
+    expect(
+      [...services!.matchAll(/^ {2}([\w-]+):$/gm)].map((m) => m[1]),
+    ).toEqual(['postgres', 'garage', 'garage-init', 'mailpit', 'api']);
+    expect(
+      [...volumes!.matchAll(/^ {2}([\w-]+):$/gm)].map((m) => m[1]),
+    ).toEqual(['postgres', 'garage']);
+    expect(compose).not.toMatch(/cert\.p12|signing-passphrase/);
+    expect(readdirSync(new URL('./postgres', import.meta.url))).toEqual([
+      'init.sh',
+    ]);
+  });
+
   test.each([
     ['postgres', /^ {4}image: postgres:17\.\d+-bookworm$/m],
     ['garage', /^ {4}image: dxflrs\/garage:v\d+\.\d+\.\d+$/m],
     ['mailpit', /^ {4}image: axllent\/mailpit:v\d+\.\d+\.\d+$/m],
-    ['documenso', /^ {4}image: documenso\/documenso:v\d+\.\d+\.\d+$/m],
   ])('pins %s to an exact version', (name, image) => {
     expect(service(name)).toMatch(image);
   });
@@ -43,26 +56,41 @@ describe('compose.local.yml (US-004, ADR-0019, ADR-0020, ADR-0022)', () => {
     const ports = [...compose.matchAll(/ports: \[(.+)\]/g)].flatMap((match) =>
       match[1]!.split(','),
     );
-    expect(ports.length).toBeGreaterThanOrEqual(6);
+    expect(ports.map((port) => port.trim()).sort()).toEqual([
+      "'127.0.0.1:1025:1025'",
+      "'127.0.0.1:3001:3001'",
+      "'127.0.0.1:3900:3900'",
+      "'127.0.0.1:5432:5432'",
+      "'127.0.0.1:8025:8025'",
+    ]);
     for (const port of ports) expect(port.trim()).toMatch(/^'127\.0\.0\.1:/);
   });
 
-  test('creates two databases, each owned by its own user', () => {
+  test('creates only the app database with separate owner and restricted runtime roles', () => {
     const init = read('deploy/postgres/init.sh');
     expect(service('postgres')).toContain('./postgres/init.sh:');
-    for (const name of ['mcr', 'documenso']) {
-      expect(init).toContain(`CREATE ROLE ${name} LOGIN PASSWORD`);
-      expect(init).toContain(`CREATE DATABASE ${name} OWNER ${name};`);
-      expect(init).toContain(`REVOKE ALL ON DATABASE ${name} FROM PUBLIC;`);
-    }
+    expect(
+      [...init.matchAll(/^CREATE DATABASE (.+);$/gm)].map((m) => m[1]),
+    ).toEqual(['mcr OWNER mcr']);
+    expect(
+      [...init.matchAll(/^CREATE ROLE (\w+) /gm)].map((m) => m[1]),
+    ).toEqual(['mcr', 'mcr_api', 'mcr_runtime']);
+    expect(init).toContain("CREATE ROLE mcr LOGIN PASSWORD :'mcr_password';");
+    expect(init).toContain('REVOKE ALL ON DATABASE mcr FROM PUBLIC;');
+    expect(init).toContain('GRANT CONNECT ON DATABASE mcr TO mcr_api;');
+    expect(init).toContain(
+      'mcr_api NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT',
+    );
+    expect(init).toContain(
+      'mcr_runtime LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT',
+    );
     expect(service('api')).toContain('postgresql://mcr_runtime:');
     expect(init).toContain('GRANT mcr_api TO mcr_runtime');
     expect(init).not.toContain('GRANT mcr TO mcr_runtime');
     expect(service('api')).toContain('@postgres:5432/mcr');
     expect(read('.env.example')).toMatch(
-      /^DOCUMENSO_DATABASE_URL=postgresql:\/\/documenso:.*\/documenso$/m,
+      /^DATABASE_URL=postgresql:\/\/mcr_runtime:.*\/mcr\?sslmode=disable$/m,
     );
-    expect(service('documenso')).not.toContain('mcr:');
   });
 
   test('waits for PostgreSQL TCP readiness after the temporary init server exits', () => {
@@ -71,37 +99,26 @@ describe('compose.local.yml (US-004, ADR-0019, ADR-0020, ADR-0022)', () => {
     );
   });
 
-  test('creates the ADR-0014 buckets and grants the API key none of Documenso', () => {
+  test('creates only the four local app buckets and grants the API key access to each', () => {
     const init = read('deploy/garage/init.sh');
     const adr = read('docs/adr/0014-file-storage.md');
     const buckets = init.match(/for bucket in (.+); do/)![1]!.split(' ');
-    for (const bucket of [
+    const expected = [
       'condition-photos',
       'client-documents',
       'signatures',
       'contract-pdfs',
-    ]) {
+    ];
+    expect(buckets).toEqual(expected);
+    for (const bucket of expected) {
       expect(adr).toContain(`\`${bucket}\``);
-      expect(buckets).toContain(bucket);
     }
-    expect(buckets).toContain('documenso');
-    expect(init).toContain('if [ "$bucket" != documenso ]; then');
+    expect(init).toContain(
+      '  /garage bucket allow --read --write "$bucket" --key "$S3_ACCESS_KEY_ID"',
+    );
     expect(init).toMatch(/key import "\$S3_ACCESS_KEY_ID"/);
+    expect([...init.matchAll(/\/garage key import /g)]).toHaveLength(1);
     expect(service('garage-init')).toContain('./garage/init.sh:');
-  });
-
-  test('configures Documenso as specified, with sign-up disabled', () => {
-    const documenso = service('documenso');
-    expect(documenso).toContain("NEXT_PUBLIC_DISABLE_SIGNUP: 'true'");
-    expect(documenso).toContain('NEXT_PUBLIC_UPLOAD_TRANSPORT: database');
-    expect(documenso).toContain('NEXT_PRIVATE_SMTP_HOST: mailpit');
-    expect(documenso).toContain("NEXT_PRIVATE_SMTP_PORT: '1025'");
-    expect(documenso).toContain('NEXT_PRIVATE_SIGNING_TRANSPORT: local');
-    expect(documenso).toContain('/cert.p12');
-    expect(documenso).toContain('read_only: true');
-    expect(documenso).not.toMatch(/^ {4}build:/m);
-    // ADR-0020: a local stack has no Documenso API token or webhook (US-043).
-    expect(documenso).not.toMatch(/WEBHOOK|API_TOKEN/);
   });
 
   test('starts the API only once PostgreSQL is healthy and Garage initialized', () => {
@@ -194,8 +211,7 @@ describe('deploy/README.md', () => {
     ['reset', 'down -v'],
     ['API URL', 'http://localhost:3001/api/health'],
     ['Mailpit URL', 'http://localhost:8025'],
-    ['Documenso URL', 'http://localhost:3000'],
-    ['certificate status', '/api/certificate-status'],
+    ['certificate check', 'bash scripts/local-signing-certificate.sh --check'],
   ])('explains %s', (_label, text) => {
     expect(readme).toContain(text);
   });
@@ -211,6 +227,30 @@ describe('.env.example', () => {
   const documented = new Set(
     lines.flatMap((line) => line.match(/^([A-Z][A-Z0-9_]*)=/)?.[1] ?? []),
   );
+
+  test('lists only the remaining local configuration', () => {
+    expect([...documented].sort()).toEqual([
+      'API_PORT',
+      'AUTH_BASE_URL',
+      'AUTH_SECRET',
+      'AUTH_TRUSTED_ORIGINS',
+      'DATABASE_URL',
+      'GARAGE_RPC_SECRET',
+      'HEALTH_TIMEOUT_MS',
+      'LOCAL_SECRETS_DIR',
+      'MCR_API_DB_PASSWORD',
+      'MCR_DB_PASSWORD',
+      'MIGRATION_DATABASE_URL',
+      'POSTGRES_PASSWORD',
+      'POSTGRES_USER',
+      'S3_ACCESS_KEY_ID',
+      'S3_ENDPOINT',
+      'S3_HEALTH_BUCKET',
+      'S3_REGION',
+      'S3_SECRET_ACCESS_KEY',
+      'TRUSTED_PROXY_IP',
+    ]);
+  });
 
   test.each([
     ['the API configuration', 'api/src/config.ts', /^ {2}([A-Z][A-Z0-9_]*):/gm],

@@ -2,7 +2,7 @@
 
 WSL2 with Docker Engine/Compose v2, OpenSSL, Node 22.21.1 and pnpm 12.16.1.
 Use synthetic data only. This implements the local slice of US-004 under
-ADR-0012, ADR-0014, ADR-0016, ADR-0019, ADR-0020 and ADR-0022. Staging,
+ADR-0012, ADR-0014, ADR-0016, ADR-0019, ADR-0022 and ADR-0023. Staging,
 production and signing integration come later. Business tables and server-side
 staff sessions are now implemented by US-006 and US-010/012/015.
 
@@ -20,43 +20,42 @@ export LOCAL_ENV_FILE="$LOCAL_SECRETS_DIR/local.env"
 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml config --quiet
 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml up -d --build --wait
 curl --fail http://localhost:3001/api/health
-curl --fail http://localhost:3000/api/certificate-status
 ```
 
 The first command creates mode-600 local configuration and a one-year,
 passphrase-protected, synthetic self-signed `.p12`. The parent directory is 700.
-The certificate alone is 644 so Documenso's unmodified UID 1001 can read the
-individual read-only bind mount; its private parent prevents other host users
-from reaching it. Its passphrase stays 600. Generation refuses to overwrite
-existing material. To check it independently:
+The certificate alone retains mode 644 for local container use; its private
+parent prevents other host users from reaching it. Its passphrase stays in the
+mode-600 external `signing-passphrase` file, not in `local.env`. The certificate
+is not mounted into any service yet; the API will use it to seal PDFs in US-043.
+Generation refuses to overwrite existing material. To check it independently:
 
 ```sh
 bash scripts/local-signing-certificate.sh --check
 ```
 
-Documenso's `/api/certificate-status` must return `isAvailable: true`; this
-checks that the mounted certificate opens with its configured passphrase and
-is in date. A local self-signed certificate is for development, never an
-assertion of trusted identity. To renew, stop Documenso, move the old external
-certificate and passphrase to protected backup, generate new ones, update the
-passphrase in external `local.env`, and recreate Documenso.
+The check opens the `.p12` with its external passphrase. A local self-signed
+certificate is for development, never an assertion of trusted identity. To
+renew, move the old external certificate and passphrase to protected backup,
+then run `bash scripts/local-signing-certificate.sh` and repeat `--check`.
 
 | Service        | Local URL / port                 |
 | -------------- | -------------------------------- |
 | API health     | http://localhost:3001/api/health |
-| Documenso      | http://localhost:3000            |
 | Mailpit web UI | http://localhost:8025            |
 | Mailpit SMTP   | localhost:1025                   |
 | PostgreSQL     | localhost:5432                   |
 | Garage S3      | http://localhost:3900            |
 
 Published ports bind only to loopback. Keep these ports free. PostgreSQL
-17.11 has separate `mcr` and `documenso` owners; PUBLIC connection privileges
-are revoked on both databases. Documenso applies its own upstream migrations.
-Garage 2.1.0 initializes a single-node layout, imports the externally generated
-key and creates five private buckets repeatably. The API key gets read/write
-access to four app buckets, **no access** to `documenso`. Documenso stores
-files in its database locally; that fifth bucket is reserved and unused.
+17.11 provisions one application database, `mcr`, owned by `mcr`, with PUBLIC
+connection privileges revoked. The API connects as restricted `mcr_runtime`,
+which inherits only `mcr_api`; migrations use the owner connection. Garage 2.1.0
+initializes a single-node layout, imports one externally generated API key and
+creates four private app buckets repeatably: `condition-photos`,
+`client-documents`, `signatures` and `contract-pdfs`. The API key gets read/write
+access to each. The later `vehicle-documents` and `incoming` buckets and upload
+flow of ADR-0014 remain US-006 work.
 Garage does not implement Scaleway bucket policies/versioning equivalently;
 evidence immutability and upload endpoints are US-006 work, tested against
 Scaleway on staging. Do not use this local stack for production evidence.
@@ -107,33 +106,7 @@ See [the API contract](../api/README.md) for enrollment and factor limits.
 Create/revoke/reset staff with [the account runbook](../docs/runbook.md). Only
 the developer process loads the owner URL; do not add it to the API container.
 
-## Local Documenso administrator and mail check
-
-Public sign-up stays disabled throughout. After Documenso is healthy, create
-only the synthetic local administrator in its own database:
-
-```sh
-docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml exec -T postgres \
-  psql -U postgres -d documenso -v ON_ERROR_STOP=1 < deploy/postgres/bootstrap-documenso.sql
-```
-
-This password-null, verified account follows the pinned release's
-[`createAdminUser`](https://github.com/documenso/documenso/blob/v2.20.0/packages/lib/server-only/user/create-admin-user.ts)
-model. The database `ADMIN` role assignment is the upstream
-[administration mechanism](https://docs.documenso.com/docs/self-hosting/getting-started/quick-start).
-The local SQL bootstrap is maintained here; upstream's normal initial signup
-instructions require temporarily opening registration, so they are not used.
-Open http://localhost:3000/forgot-password, enter `admin@example.test`, then
-open Mailpit and follow the reset link to choose a local password. This tests
-Documenso → Mailpit SMTP delivery without creating API tokens or webhooks.
-Sign in and use the admin UI to create local organisations/accounts as needed.
-Confirm `/signup` offers no working public registration. No upstream image
-patch or application seed is installed.
-
-Configuration and certificate guidance were checked against the unmodified
-[Documenso v2.20.0 deployment](https://github.com/documenso/documenso/blob/v2.20.0/docker/production/compose.yml)
-and [certificate status implementation](https://github.com/documenso/documenso/blob/v2.20.0/packages/lib/server-only/cert/cert-status.ts).
-Other image pins: PostgreSQL 17.11-bookworm, Garage v2.1.0, Mailpit v1.33.0;
+Image pins: PostgreSQL 17.11-bookworm, Garage v2.1.0, Mailpit v1.33.0;
 Garage's one-shot initializer adds a shell from Alpine 3.22.2, leaving the
 service image unchanged. Update pins deliberately and repeat runtime checks.
 
@@ -156,6 +129,44 @@ before starting features that need them. To run the API on the host, stop its
 Compose service first, then `pnpm --filter @mccarriviera/api start`; external
 configuration contains loopback endpoints for this use.
 
+## Reproduce CI on disposable local data
+
+Choose a new project name and a fresh external secrets directory. Keep the
+loopback ports above free. Run `pnpm install --frozen-lockfile` and `pnpm check`
+first, then reproduce the service checks:
+
+```sh
+set -eu
+export COMPOSE_PROJECT_NAME=mcr-ci-check
+export LOCAL_SECRETS_DIR="$(mktemp -d /tmp/mcr-ci-check.XXXXXX)"
+bash scripts/local-secrets.sh
+export LOCAL_ENV_FILE="$LOCAL_SECRETS_DIR/local.env"
+docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml config --quiet
+# Always clean up this project's volumes, including if a later command fails.
+trap 'docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml down -v' EXIT
+timeout 300 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml up -d --build --wait postgres garage
+timeout 120 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml run --build --rm --no-deps garage-init
+set -a
+source "$LOCAL_ENV_FILE"
+set +a
+pnpm db:migrate
+pnpm db:migrate
+export DB_DISPOSABLE=1
+pnpm db:seed
+pnpm db:seed
+pnpm test --filter db
+pnpm db:check
+pnpm --filter @mccarriviera/api test:integration
+timeout 300 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml build api
+```
+
+The initializer must finish successfully before tests start. Do not select it
+alone in `up --wait`: it is a one-shot job. To smoke-test the complete stack,
+run `up -d --build --wait`, check API health, repeat startup to confirm
+idempotence, and perform the dependency-failure checks below before leaving
+this disposable shell. The trap removes only this project's data volumes;
+external secrets and the certificate remain in their protected directory.
+
 ## Stop, restart, reset
 
 ```sh
@@ -165,12 +176,15 @@ docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml stop
 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml up -d --build --wait
 # Remove containers/network, retain volumes.
 docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml down
-# DESTRUCTIVE local reset: deletes BOTH databases and ALL Garage objects.
-docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml down -v
+# DESTRUCTIVE local reset: deletes the application database and ALL Garage objects.
+docker compose --env-file "$LOCAL_ENV_FILE" -f deploy/compose.local.yml down -v --remove-orphans
 ```
 
-Reset keeps external secrets/certificate. Start again and reapply migrations and
-synthetic administrator bootstrap. Existing PostgreSQL passwords are not changed
+Reset keeps external secrets/certificate. Start again and reapply migrations.
+Initialization runs on empty volumes only; existing volumes retain their old
+resources until explicitly reset. Use the destructive reset only for disposable
+local data; `--remove-orphans` also removes containers left by older versions of
+this project's Compose file. Existing PostgreSQL passwords are not changed
 by editing the env file: retain the generated file for existing volumes. Never
 rotate Garage keys by simply replacing the file; its old grants persist. Reset
 disposable volumes before generating a new local identity.
@@ -190,8 +204,7 @@ require the owner URL. Never give the owner connection to the API.
 
 On a new volume, `postgres/init.sh` provisions `mcr_api` (NOLOGIN privileges) and
 `mcr_runtime` (LOGIN, inherits only `mcr_api`) and grants database CONNECT. The
-owner applies schema grants through migrations. Keep Documenso's separate
-owner/database unchanged until its removal ticket.
+owner applies schema grants through migrations.
 
 Existing PostgreSQL volumes do not rerun initialization. Preserve the volume,
 regenerate external configuration in a new directory (carry over existing owner,

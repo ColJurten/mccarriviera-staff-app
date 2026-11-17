@@ -6,15 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const packages = [
-  'app',
-  'api',
-  'packages/shared',
-  'db',
-  'deploy',
-  'scripts',
-  'spikes/documenso',
-];
+const packages = ['app', 'api', 'packages/shared', 'db', 'deploy', 'scripts'];
 
 const read = (path: string) => readFileSync(join(root, path), 'utf8');
 const readJson = (path: string) => JSON.parse(read(path));
