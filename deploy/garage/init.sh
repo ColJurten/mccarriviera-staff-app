@@ -9,12 +9,10 @@ fi
 if ! /garage key info "$S3_ACCESS_KEY_ID" >/dev/null 2>&1; then
   /garage key import "$S3_ACCESS_KEY_ID" "$S3_SECRET_ACCESS_KEY" -n mcr-local-api --yes >/dev/null
 fi
-for bucket in condition-photos client-documents signatures contract-pdfs documenso; do
+for bucket in condition-photos client-documents signatures contract-pdfs; do
   if ! /garage bucket info "$bucket" >/dev/null 2>&1; then
     /garage bucket create "$bucket" >/dev/null
   fi
-  if [ "$bucket" != documenso ]; then
-    /garage bucket allow --read --write "$bucket" --key "$S3_ACCESS_KEY_ID" >/dev/null
-  fi
+  /garage bucket allow --read --write "$bucket" --key "$S3_ACCESS_KEY_ID" >/dev/null
 done
 printf 'Garage local buckets and API grants configured.\n'

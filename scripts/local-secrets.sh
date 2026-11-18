@@ -18,16 +18,13 @@ bash scripts/local-signing-certificate.sh --check
 random() { openssl rand -hex 32; }
 mcr_password=$(random)
 api_password=$(random)
-doc_password=$(random)
 cat > "$dir/local.env" <<ENV
 LOCAL_SECRETS_DIR=$dir
 POSTGRES_PASSWORD=$(random)
 MCR_DB_PASSWORD=$mcr_password
 MCR_API_DB_PASSWORD=$api_password
-DOCUMENSO_DB_PASSWORD=$doc_password
 MIGRATION_DATABASE_URL=postgresql://mcr:$mcr_password@localhost:5432/mcr?sslmode=disable
 DATABASE_URL=postgresql://mcr_runtime:$api_password@localhost:5432/mcr?sslmode=disable
-DOCUMENSO_DATABASE_URL=postgresql://documenso:$doc_password@postgres:5432/documenso
 GARAGE_RPC_SECRET=$(random)
 S3_ACCESS_KEY_ID=GK$(openssl rand -hex 12)
 S3_SECRET_ACCESS_KEY=$(random)
@@ -39,9 +36,5 @@ HEALTH_TIMEOUT_MS=1500
 AUTH_SECRET=$(random)
 AUTH_BASE_URL=https://localhost:3001
 AUTH_TRUSTED_ORIGINS=https://localhost:3001
-NEXTAUTH_SECRET=$(random)
-NEXT_PRIVATE_ENCRYPTION_KEY=$(random)
-NEXT_PRIVATE_ENCRYPTION_SECONDARY_KEY=$(random)
-NEXT_PRIVATE_SIGNING_PASSPHRASE=$(cat "$dir/signing-passphrase")
 ENV
 printf 'Local configuration created outside the checkout (no values printed).\n'

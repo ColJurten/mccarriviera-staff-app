@@ -1,20 +1,12 @@
 // Acceptance criteria of US-002 (ticket #3): checks the repository's own setup.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const packages = [
-  'app',
-  'api',
-  'packages/shared',
-  'db',
-  'deploy',
-  'scripts',
-  'spikes/documenso',
-];
+const packages = ['app', 'api', 'packages/shared', 'db', 'deploy', 'scripts'];
 
 const read = (path: string) => readFileSync(join(root, path), 'utf8');
 const readJson = (path: string) => JSON.parse(read(path));
@@ -40,6 +32,34 @@ describe('workspace layout', () => {
       .split('\n')
       .flatMap((line) => line.match(/^\s*-\s*(\S+)/)?.[1] ?? []);
     expect(entries.sort()).toEqual([...packages].sort());
+  });
+
+  // Ticket #29 (ADR-0023): the retired signing-service spike left no workspace.
+  test('locks and tracks no package outside the registered workspaces', () => {
+    const lock = read('pnpm-lock.yaml').split(/^---$/m).at(-1)!;
+    const importers = lock.split(/^importers:$/m)[1]!.split(/^\S/m)[0]!;
+    expect(
+      [...importers.matchAll(/^ {2}(\S+?):/gm)].map((m) => m[1]).sort(),
+    ).toEqual(['.', ...packages].sort());
+    const manifests = execFileSync('git', ['ls-files', '*package.json'], {
+      cwd: root,
+      encoding: 'utf8',
+    })
+      .trim()
+      .split('\n')
+      .map((path) => path.replace(/\/?package\.json$/, '') || '.');
+    expect(manifests.sort()).toEqual(['.', ...packages].sort());
+  });
+
+  test('leaves no reference to the retired signing service outside docs/', () => {
+    // Bracket keeps this file itself from matching the scan.
+    const result = spawnSync(
+      'git',
+      ['grep', '-l', '-i', '-e', 'documen[s]o', '--', '.', ':!docs', ':!.ai'],
+      { cwd: root, encoding: 'utf8' },
+    );
+    expect(result.stdout).toBe('');
+    expect(result.status).toBe(1);
   });
 
   test('keeps docs/ as a plain folder, outside the workspace', () => {

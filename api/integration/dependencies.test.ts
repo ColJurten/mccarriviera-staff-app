@@ -4,7 +4,11 @@ import { buildApp } from '../src/app.js';
 import { createDatabase } from '../src/db.js';
 import { createStorage } from '../src/storage.js';
 import { readConfig } from '../src/config.js';
-import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  HeadBucketCommand,
+  ListBucketsCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 it('probes migrated PostgreSQL 17 and private Garage buckets with real drivers', async () => {
   // Required configuration: this suite fails rather than silently skipping services.
@@ -42,17 +46,6 @@ it('probes migrated PostgreSQL 17 and private Garage buckets with real drivers',
       .select('id')
       .execute();
     expect(vehicles).toBeInstanceOf(Array);
-    await expect(
-      wrongKey.send(
-        new HeadBucketCommand({ Bucket: config.S3_HEALTH_BUCKET }),
-        { abortSignal: AbortSignal.timeout(3000) },
-      ),
-    ).rejects.toThrow();
-    const anonymous = await fetch(
-      `${config.S3_ENDPOINT}/${config.S3_HEALTH_BUCKET}`,
-      { signal: AbortSignal.timeout(3000) },
-    );
-    expect(anonymous.status).toBe(403);
     const apiKey = new S3Client({
       endpoint: config.S3_ENDPOINT,
       region: config.S3_REGION,
@@ -64,21 +57,32 @@ it('probes migrated PostgreSQL 17 and private Garage buckets with real drivers',
       maxAttempts: 1,
     });
     try {
-      for (const bucket of [
+      const buckets = [
         'condition-photos',
         'client-documents',
         'signatures',
         'contract-pdfs',
-      ]) {
+      ];
+      const inventory = await apiKey.send(new ListBucketsCommand({}), {
+        abortSignal: AbortSignal.timeout(3000),
+      });
+      expect(inventory.Buckets?.map((bucket) => bucket.Name).sort()).toEqual(
+        [...buckets].sort(),
+      );
+      for (const bucket of buckets) {
         await apiKey.send(new HeadBucketCommand({ Bucket: bucket }), {
           abortSignal: AbortSignal.timeout(3000),
         });
+        await expect(
+          wrongKey.send(new HeadBucketCommand({ Bucket: bucket }), {
+            abortSignal: AbortSignal.timeout(3000),
+          }),
+        ).rejects.toThrow();
+        const anonymous = await fetch(`${config.S3_ENDPOINT}/${bucket}`, {
+          signal: AbortSignal.timeout(3000),
+        });
+        expect(anonymous.status).toBe(403);
       }
-      await expect(
-        apiKey.send(new HeadBucketCommand({ Bucket: 'documenso' }), {
-          abortSignal: AbortSignal.timeout(3000),
-        }),
-      ).rejects.toThrow();
     } finally {
       apiKey.destroy();
     }

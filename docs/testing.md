@@ -73,8 +73,8 @@ address normalization. Health and OpenAPI generation remain service-free.
 `pnpm --filter @mccarriviera/api test:integration` requires the external local
 environment and migrated services from [deploy/README.md](../deploy/README.md).
 It queries the real PostgreSQL version and business schema with the restricted role, checks authenticated
-access to all four app buckets, denies access to Documenso's bucket and rejects
-anonymous/invalid storage credentials. Missing prerequisites fail the suite.
+access to exactly the four local app buckets and rejects anonymous/invalid
+storage credentials for each. Missing prerequisites fail the suite.
 `pnpm db:check` regenerates types into a temporary directory and detects drift.
 
 The same integration suite creates unique synthetic staff accounts using the
@@ -96,13 +96,16 @@ limiter window; individual fixtures use unique accounts and synthetic connection
 addresses. Cookie tests use injection so Secure remains enabled. Browser/Keychain
 and real-iPhone sign-in checks belong to the frontend stories.
 
-For the local-stack smoke check, start the whole stack, check health and
-Documenso certificate status, bootstrap the synthetic admin and request its
-password-reset mail in Mailpit. Keep signup disabled. Repeat startup on existing
-volumes, check database isolation, stop each API dependency and confirm HTTP 503,
-then restart and confirm recovery. Container/browser checks require Docker access;
-record unavailable checks explicitly. No iPhone check applies to this
-infrastructure-only US-004 slice.
+For the local-stack smoke check, follow the disposable CI commands in
+[deploy/README.md](../deploy/README.md), start the whole stack and check API
+health. Verify the external certificate independently with
+`bash scripts/local-signing-certificate.sh --check`. On fresh volumes, inspect
+PostgreSQL's database/role inventory and Garage's administrative bucket/key
+inventory: one app database, its owner and restricted runtime roles, four private
+app buckets and one API key. Repeat initialization and startup on existing
+volumes, stop each API dependency and confirm HTTP 503, then restart and confirm
+recovery. Container checks require Docker access; record unavailable checks
+explicitly. No iPhone check applies to this infrastructure-only US-004 slice.
 
 The auth integration inventory exercises every nonpublic registered route
 without a session, including generated HEAD and prefixed plugin routes. Future
@@ -192,29 +195,7 @@ not selected in `up --wait`: it is a one-shot job, not a long-running service.
 The API image normalizes copied file permissions before switching to `USER node`,
 so pnpm-written mode-600 manifests do not prevent startup.
 
-## Disposable Documenso API/browser spike (US-009 part 1)
-
-The `spikes/documenso` workspace participates in `pnpm check` but is excluded
-from the production Docker context. Its Vitest suite checks manifest bounds,
-API failure handling, replacement refusal/partial failure, webhook authentication,
-ownership, completion and duplicate delivery, image fallback and Mailpit filtering.
-These service-free checks do not establish Documenso behaviour.
-
-Follow [the spike runbook](../spikes/documenso/README.md) for the pinned Python
-renderer, local stack/API token setup, Mailpit baseline, creation, replacement
-and completion receiver. The tested callback helper shares Documenso’s network
-namespace and forwards loopback DB access without host firewall changes. It
-requires Node 22.21.1 and the pinned Node runtime image in the runbook.
-Render both languages explicitly; the renderer rejects
-overflow, signed boxes and FR/EN coordinate differences. Generated artifacts
-and run state are ignored. Keep all credentials in mode-600 files outside every
-checkout. Retain only sanitized findings in
-[US-009 findings](spikes/US-009-findings.md).
-
-Drawing once, counting field taps and Adobe Reader's seal/modified-copy checks
-remain « to confirm by hand » until a person records evidence. The iPhone web
-view, data cleanup and sharing checks belong to part 2. US-009's story checkboxes
-remain unchanged; a person reviews them after the complete story is verified.
+Historical signing-service spike results: [US-009 part 1 findings](spikes/US-009-findings.md).
 
 ## Staff authentication revision (ticket #7 / PR #25)
 

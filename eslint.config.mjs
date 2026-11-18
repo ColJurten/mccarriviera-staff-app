@@ -12,8 +12,6 @@ export default defineConfig(
       '**/coverage/**',
       '**/.expo/**',
       '.ai/**',
-      'spikes/documenso/output/**',
-      'spikes/documenso/.venv/**',
     ],
   },
   js.configs.recommended,

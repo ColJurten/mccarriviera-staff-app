@@ -25,7 +25,7 @@ openssl req -x509 -newkey rsa:3072 -sha256 -days 365 -nodes \
   -keyout "$work/key.pem" -out "$work/cert.pem" >/dev/null 2>&1
 openssl pkcs12 -export -out "$dir/cert.p12" -inkey "$work/key.pem" -in "$work/cert.pem" \
   -passout "file:$dir/signing-passphrase"
-# Documenso's unmodified image runs as UID 1001. The private parent directory
-# stays 700; the certificate alone must be readable after a direct bind mount.
+# Keep the certificate readable for local container use; its private parent
+# directory stays 700 and the passphrase stays 600.
 chmod 644 "$dir/cert.p12"
 printf 'Synthetic local certificate created outside the checkout.\n'

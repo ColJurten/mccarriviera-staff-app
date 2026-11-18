@@ -34,9 +34,32 @@ it('creates protected local secrets outside the checkout without printing them, 
       expect(statSync(join(directory, name)).mode & 0o777).toBe(0o600);
     expect(statSync(join(directory, 'cert.p12')).mode & 0o777).toBe(0o644);
     expect(output.includes(passphrase)).toBe(false);
+    expect(configuration).not.toContain(passphrase);
     expect(
-      configuration.includes(`NEXT_PRIVATE_SIGNING_PASSPHRASE=${passphrase}`),
-    ).toBe(true);
+      configuration
+        .trim()
+        .split('\n')
+        .map((line) => line.split('=')[0])
+        .sort(),
+    ).toEqual([
+      'API_PORT',
+      'AUTH_BASE_URL',
+      'AUTH_SECRET',
+      'AUTH_TRUSTED_ORIGINS',
+      'DATABASE_URL',
+      'GARAGE_RPC_SECRET',
+      'HEALTH_TIMEOUT_MS',
+      'LOCAL_SECRETS_DIR',
+      'MCR_API_DB_PASSWORD',
+      'MCR_DB_PASSWORD',
+      'MIGRATION_DATABASE_URL',
+      'POSTGRES_PASSWORD',
+      'S3_ACCESS_KEY_ID',
+      'S3_ENDPOINT',
+      'S3_HEALTH_BUCKET',
+      'S3_REGION',
+      'S3_SECRET_ACCESS_KEY',
+    ]);
     for (const entry of configuration.split('\n')) {
       const [name, value] = entry.split('=');
       if (
@@ -50,6 +73,20 @@ it('creates protected local secrets outside the checkout without printing them, 
     expect(run('scripts/local-signing-certificate.sh', ['--check'])).toContain(
       'passphrase verified',
     );
+    const wrongPassphrase = spawnSync(
+      'openssl',
+      [
+        'pkcs12',
+        '-in',
+        join(directory, 'cert.p12'),
+        '-passin',
+        'pass:synthetic-invalid-passphrase',
+        '-noout',
+      ],
+      { timeout: 20000 },
+    );
+    expect(wrongPassphrase.status).not.toBe(0);
+    const certificate = readFileSync(join(directory, 'cert.p12'));
     const repeated = spawnSync('bash', ['scripts/local-secrets.sh'], {
       cwd: root,
       env,
@@ -59,6 +96,20 @@ it('creates protected local secrets outside the checkout without printing them, 
     expect(
       readFileSync(join(directory, 'local.env'), 'utf8') === configuration,
     ).toBe(true);
+    const repeatedCertificate = spawnSync(
+      'bash',
+      ['scripts/local-signing-certificate.sh'],
+      {
+        cwd: root,
+        env,
+        timeout: 20000,
+      },
+    );
+    expect(repeatedCertificate.status).not.toBe(0);
+    expect(readFileSync(join(directory, 'cert.p12'))).toEqual(certificate);
+    expect(
+      readFileSync(join(directory, 'signing-passphrase'), 'utf8').trim(),
+    ).toBe(passphrase);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
