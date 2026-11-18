@@ -1,7 +1,8 @@
+import { sql } from 'kysely';
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { expect } from 'vitest';
 import type { InjectOptions } from 'fastify';
-import { createDatabase } from '../src/db.js';
+import { createDatabase, withActor } from '../src/db.js';
 import { readConfig } from '../src/config.js';
 import { createAuthentication, WEB_COOKIE, FLOW_COOKIE } from '../src/auth.js';
 import { createStaffAdmin } from '../src/staff-admin.js';
@@ -18,14 +19,16 @@ export async function authFixture(trustedProxyIp?: string) {
   const auth = createAuthentication(runtime.db, config);
   const admin = createStaffAdmin(owner.db, config);
   const actorId = randomUUID();
-  await owner.db
-    .insertInto('staff_profiles')
-    .values({
-      id: actorId,
-      created_by: actorId,
-      display_name: 'Synthetic developer',
-    })
-    .execute();
+  await withActor(owner.db, actorId, (trx) =>
+    trx
+      .insertInto('staff_profiles')
+      .values({
+        id: actorId,
+        created_by: actorId,
+        display_name: 'Synthetic developer',
+      })
+      .execute(),
+  );
   const email = `${randomUUID()}@example.com`;
   const password = randomBytes(18).toString('base64url');
   const staff = await admin.create({
@@ -189,6 +192,16 @@ export async function authFixture(trustedProxyIp?: string) {
         headers: { origin, cookie },
         payload: { kind, code },
       });
+    },
+    async businessSnapshot() {
+      return (
+        await sql<{
+          events: number;
+          profiles: number;
+        }>`select (select count(*)::int from audit_events) as events, (select count(*)::int from staff_profiles) as profiles`.execute(
+          runtime.db,
+        )
+      ).rows[0];
     },
     async resetLimits() {
       await owner.db.deleteFrom('auth_rate_limits').execute();

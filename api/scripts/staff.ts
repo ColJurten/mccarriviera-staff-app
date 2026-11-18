@@ -80,9 +80,7 @@ try {
         : undefined,
     );
   } else throw new CommandFailure('unknown_action');
-  process.stdout.write(
-    'Staff command completed. Audit persistence pending US-007.\n',
-  );
+  process.stdout.write('Staff command completed.\n');
 } catch (error) {
   // Only our fixed reason codes; no validation details, values or driver errors.
   const code =

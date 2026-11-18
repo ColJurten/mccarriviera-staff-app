@@ -47,7 +47,7 @@ legacy password-only native sessions and pre-change pending state, adds flow-mod
 binding and revokes runtime UPDATE(active). Flows store hashed opaque tokens and encrypted internal cookies; the
 two-factor plugin encrypts TOTP secrets and backup codes using `AUTH_SECRET`.
 All time columns are `timestamptz`. See [the runbook](../docs/runbook.md) for
-revocation, factor/password reset and the pending US-007 audit hook.
+revocation, factor/password reset and the US-007 audit trail.
 
 `db:migrate` runs dbmate up without a schema dump. `db:generate` introspects the
 owner connection with kysely-codegen, formats the result and writes
@@ -85,8 +85,7 @@ ownership, photo owner/kind, signature documents/hashes, authorisation reference
 and version language/kind. Departure damage IDs are checked against the vehicle.
 Four-angle baseline completeness, required photos on damage, signature-time
 required fields and damage sums will be validated by the feature completion
-functions: inserts must permit staged capture. Audit-event generation is US-007;
-these migrations protect the audit table but generate no audit events.
+functions: inserts must permit staged capture. The US-007 migration appends attributed business mutation events; see below.
 
 ## Contract numbers
 
@@ -101,8 +100,50 @@ preview function to apply the agency's timezone consistently.
 `confirm_contract_number(contract_id uuid, number varchar)` checks the reservation
 and records its first confirmation time; retries return the same number. It does
 not allocate again or activate the contract. Both functions use fixed search
-paths, qualified table names and explicit runtime execute grants; PUBLIC cannot
-execute them. Preview/sign/close/amend/cancel functions, audit triggers, upload
+paths and qualified table names. US-007 revokes their original runtime execute
+grants: both are private owner-only helpers. Preview/sign/close/amend/cancel functions, upload
 routes and storage policies are separate stories. US-057 will compose confirmation
 with signing; preview creation must compose reservation with vehicle holding and
 preview registration in one transaction (F-18).
+
+## Audit and server time (US-007; ADR-0007/0012)
+
+`20261117000000_audit_trail.sql` installs `business_mutation_audit`, an AFTER
+INSERT/UPDATE/DELETE row trigger on every existing business table. It records
+`INSERT`, `UPDATE` or `DELETE`, the table and UUID, exact OLD/NEW JSON, and the
+current actor, using database `clock_timestamp()`. The API's `withActor` helper
+sets `app.actor_id` with transaction-local `set_config(..., true)` on the same
+connection. Missing, empty, malformed or unknown profile actors reject writes;
+`created_by` is never a fallback. Commit/rollback clears the setting before pool
+reuse. Bootstrap inserts its preallocated, self-attributed profile in that
+transaction. Owner scripts/seeds must also set a transaction-local actor.
+
+Excluded relations are `schema_migrations`, `audit_events` (no recursion), and
+exactly the seven auth tables listed above. Auth-only sign-in/factor/limiter
+transactions have no staff actor: failed attempts must never be attributed to
+the targeted account, and no system profile is created. Staff-account commands
+always set an actor, including resets whose mutations touch only auth tables.
+The owner-only `write_staff_audit` function allowlists the five command actions
+and constructs an ID/action-only payload; its failure rolls back the command.
+The runtime role can read audit events but cannot insert arbitrary events or
+execute that function. Audit timestamps and actor columns are database-stamped.
+
+Signature `signed_at`, stored-signature capture/application/cancellation times,
+and creation times on both signature tables are database-owned. Newly recorded
+values are stamped; existing evidence times cannot be overwritten. Frozen
+revisions/inspections and evidence guards remain in force. Lifecycle functions
+belong to their feature stories, including withdrawal and signing.
+
+Every new business-table migration must attach the reusable trigger:
+
+```sql
+CREATE TRIGGER business_mutation_audit AFTER INSERT OR UPDATE OR DELETE ON new_table
+FOR EACH ROW EXECUTE FUNCTION audit_business_mutation();
+```
+
+Catalog tests independently discover tables and fail for missing or disabled
+triggers, including future `uploads`, `vehicle_documents` and `auth_*` business
+tables. No database-wide privileged event trigger is needed. Keep file bytes
+in storage: audit JSON contains paths/IDs, hashes and metadata only. Audit
+personal-value anonymisation stays with US-094. Parameterized history queries
+for contracts, vehicles, clients and staff accounts are in the runbook.

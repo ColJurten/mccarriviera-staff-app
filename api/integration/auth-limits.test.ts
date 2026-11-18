@@ -1,3 +1,4 @@
+import { withActor } from '../src/db.js';
 import { randomUUID } from 'node:crypto';
 import { sql } from 'kysely';
 import { describe, expect, it } from 'vitest';
@@ -68,6 +69,7 @@ describe('trusted Caddy and account password budgets (PR #25)', () => {
       });
     try {
       await f.resetLimits();
+      const businessBefore = await f.businessSnapshot();
       for (let n = 1; n <= 4; n++)
         expect(
           (await login(n, f.email, f.password, n % 2 === 0)).statusCode,
@@ -110,6 +112,7 @@ describe('trusted Caddy and account password budgets (PR #25)', () => {
         .execute();
       expect(JSON.stringify(counters)).not.toContain(f.email);
       for (const row of counters) expect(row.key).toMatch(/^[a-f0-9]{64}$/);
+      expect(await f.businessSnapshot()).toEqual(businessBefore);
     } finally {
       await second.app.close();
       await f.close();
@@ -120,11 +123,13 @@ describe('trusted Caddy and account password budgets (PR #25)', () => {
     const f = await authFixture(caddy);
     try {
       await f.resetLimits();
-      await f.owner
-        .updateTable('staff_profiles')
-        .set({ active: false })
-        .where('id', '=', f.staffId)
-        .execute();
+      await withActor(f.owner, f.actorId, (trx) =>
+        trx
+          .updateTable('staff_profiles')
+          .set({ active: false })
+          .where('id', '=', f.staffId)
+          .execute(),
+      );
       for (const email of [f.email, `${randomUUID()}@example.com`]) {
         await f.resetLimits();
         const login = (n: number) =>

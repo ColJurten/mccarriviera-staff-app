@@ -8,6 +8,7 @@ describe('native MFA and absolute expiry (PR #25)', () => {
   it('issues only a constrained flow without headers, then requires enrollment and a factor on every new sign-in', async () => {
     const f = await authFixture();
     try {
+      const businessBefore = await f.businessSnapshot();
       const start = await f.nativeSignIn();
       expect(start.statusCode).toBe(200);
       expect(start.json()).toEqual({
@@ -97,6 +98,8 @@ describe('native MFA and absolute expiry (PR #25)', () => {
           )
         ).statusCode,
       ).toBe(401);
+
+      expect(await f.businessSnapshot()).toEqual(businessBefore);
       for (const value of [
         f.password,
         token as string,

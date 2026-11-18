@@ -2,6 +2,7 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import process from 'node:process';
 import pg from 'pg';
+import { asActor } from './actor.js';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 if (process.env.DB_DISPOSABLE !== '1')
@@ -21,7 +22,9 @@ const vehicle = randomUUID();
 
 async function newContract() {
   const id = randomUUID();
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     'INSERT INTO contracts(id, created_by, vehicle_id) VALUES ($1,$2,$3)',
     [id, actor, vehicle],
   );
@@ -31,11 +34,15 @@ async function newContract() {
 beforeAll(async () => {
   await owner.connect();
   await api.connect();
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO staff_profiles(id,created_by,display_name) VALUES ($1,$1,'Synthetic acceptance fixture')",
     [actor],
   );
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO vehicles(id,created_by,plate,make_model) VALUES ($1,$2,$3,'Example car')",
     [vehicle, actor, `A-${vehicle.slice(0, 8).toUpperCase()}`],
   );
@@ -48,11 +55,11 @@ describe('US-006 acceptance (goal-tester)', () => {
   test('parallel reservations for distinct contracts never share a number', async () => {
     const count = 12;
     const year = randomInt(3000, 9000);
-    const contracts = await Promise.all(
-      Array.from({ length: count }, () => newContract()),
-    );
+    const contracts: string[] = [];
+    for (let i = 0; i < count; i++) contracts.push(await newContract());
     const connections = contracts.map(
-      () => new pg.Client({ connectionString: process.env.DATABASE_URL }),
+      () =>
+        new pg.Client({ connectionString: process.env.MIGRATION_DATABASE_URL }),
     );
     try {
       await Promise.all(connections.map((db) => db.connect()));
@@ -61,6 +68,9 @@ describe('US-006 acceptance (goal-tester)', () => {
       const numbers = await Promise.all(
         connections.map(async (db, i) => {
           await db.query('BEGIN');
+          await db.query("SELECT set_config('app.actor_id', $1, true)", [
+            actor,
+          ]);
           const { rows } = await db.query(
             'SELECT reserve_contract_number($1,$2,$3) AS number',
             [contracts[i], year, actor],
@@ -92,33 +102,48 @@ describe('US-006 acceptance (goal-tester)', () => {
     const draftContract = await newContract();
     const signed = randomUUID();
     const draft = randomUUID();
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "INSERT INTO contract_revisions(id,created_by,contract_id,revision_no,kind,signed_at) VALUES ($1,$2,$3,1,'departure',now())",
       [signed, actor, signedContract],
     );
-    await api.query(
+    await asActor(
+      api,
+      actor,
       "INSERT INTO contract_revisions(id,created_by,contract_id,revision_no,kind) VALUES ($1,$2,$3,1,'departure')",
       [draft, actor, draftContract],
     );
     for (const db of [api, owner])
       await expect(
-        db.query(
+        asActor(
+          db,
+          actor,
           "UPDATE contract_revisions SET pickup_place='Synthetic' WHERE id=$1",
           [signed],
         ),
       ).rejects.toMatchObject({ code: '55000' });
     await expect(
-      owner.query('DELETE FROM contract_revisions WHERE id=$1', [signed]),
+      asActor(owner, actor, 'DELETE FROM contract_revisions WHERE id=$1', [
+        signed,
+      ]),
     ).rejects.toMatchObject({ code: '55000' });
     await expect(
-      api.query('DELETE FROM contract_revisions WHERE id=$1', [signed]),
-    ).rejects.toMatchObject({ code: '42501' });
-    await expect(
-      api.query('UPDATE contract_revisions SET signed_at=NULL WHERE id=$1', [
+      asActor(api, actor, 'DELETE FROM contract_revisions WHERE id=$1', [
         signed,
       ]),
     ).rejects.toMatchObject({ code: '42501' });
-    await api.query(
+    await expect(
+      asActor(
+        api,
+        actor,
+        'UPDATE contract_revisions SET signed_at=NULL WHERE id=$1',
+        [signed],
+      ),
+    ).rejects.toMatchObject({ code: '42501' });
+    await asActor(
+      api,
+      actor,
       "UPDATE contract_revisions SET pickup_place='Synthetic desk', card_last4='0042' WHERE id=$1",
       [draft],
     );
@@ -164,7 +189,7 @@ describe('US-006 acceptance (goal-tester)', () => {
     if (seeded.rowCount === 0) return; // seed not loaded on this database
     const tables = (
       await owner.query(
-        "SELECT table_name FROM information_schema.columns WHERE table_schema='public' AND column_name='created_by'",
+        "SELECT table_name FROM information_schema.columns WHERE table_schema='public' AND column_name='created_by' AND table_name <> 'audit_events'",
       )
     ).rows.map((r) => r.table_name as string);
     const owned: Record<string, number> = {};

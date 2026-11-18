@@ -1,4 +1,4 @@
-import { Kysely, PostgresDialect, sql } from 'kysely';
+import { Kysely, PostgresDialect, sql, type Transaction } from 'kysely';
 import pg from 'pg';
 import type { DB } from './db/generated.js';
 
@@ -22,4 +22,26 @@ export function createDatabase(connectionString: string, timeoutMs: number) {
     },
     close: () => db.destroy(),
   };
+}
+
+// Set identity on the transaction's own connection. PostgreSQL clears it on
+// commit/rollback, including when the pool lends that connection to sign-in.
+export async function setTransactionActor(
+  transaction: Transaction<DB>,
+  actorId: string,
+) {
+  await sql`select set_config('app.actor_id', ${actorId}::uuid::text, true)`.execute(
+    transaction,
+  );
+}
+
+export function withActor<T>(
+  db: Kysely<DB>,
+  actorId: string,
+  work: (transaction: Transaction<DB>) => Promise<T>,
+) {
+  return db.transaction().execute(async (transaction) => {
+    await setTransactionActor(transaction, actorId);
+    return work(transaction);
+  });
 }

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import process from 'node:process';
 import pg from 'pg';
+import { asActor } from './actor.js';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 
 if (process.env.DB_DISPOSABLE !== '1')
@@ -45,11 +46,13 @@ async function rejected(
   values: unknown[],
   code: string,
 ) {
-  await expect(db.query(sql, values)).rejects.toMatchObject({ code });
+  await expect(asActor(db, actor, sql, values)).rejects.toMatchObject({ code });
 }
 async function newContract(db = owner) {
   const id = randomUUID();
-  await db.query(
+  await asActor(
+    db,
+    actor,
     'INSERT INTO contracts(id, created_by, vehicle_id) VALUES ($1,$2,$3)',
     [id, actor, vehicle],
   );
@@ -72,15 +75,21 @@ beforeAll(async () => {
       )
     ).rows[0].owner,
   ).toBe(false);
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO staff_profiles(id,created_by,display_name) VALUES ($1,$1,'Synthetic test fixture')",
     [actor],
   );
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO vehicles(id,created_by,plate,make_model) VALUES ($1,$2,$3,'Example car')",
     [vehicle, actor, `T-${vehicle.slice(0, 8).toUpperCase()}`],
   );
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     'INSERT INTO contracts(id,created_by,vehicle_id) VALUES ($1,$2,$3)',
     [contract, actor, vehicle],
   );
@@ -88,7 +97,9 @@ beforeAll(async () => {
     [revision, false],
     [signedRevision, true],
   ] as const) {
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       'INSERT INTO contract_revisions(id,created_by,contract_id,revision_no,kind,signed_at,reason) VALUES ($1,$2,$3,$4,$5,$6,$7)',
       [
         id,
@@ -101,7 +112,9 @@ beforeAll(async () => {
       ],
     );
   }
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO condition_baselines(id,created_by,vehicle_id,reason,taken_at,taken_by) VALUES ($1,$2,$3,'initial',now(),$2)",
     [baseline, actor, vehicle],
   );
@@ -109,16 +122,22 @@ beforeAll(async () => {
     [inspection, 'return', 'in_progress'],
     [completedInspection, 'departure', 'completed'],
   ]) {
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "INSERT INTO inspections(id,created_by,contract_id,stage,status,at,km,fuel,agent_name) VALUES ($1,$2,$3,$4,$5,now(),0,8,'Synthetic agent')",
       [id, actor, contract, stage, status],
     );
   }
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO damages(id,created_by,vehicle_id,comment,found_stage) VALUES ($1,$2,$3,'Synthetic scratch','vehicle_file')",
     [damage, actor, vehicle],
   );
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO photos(id,created_by,baseline_id,kind,angle,storage_path,sha256,size_bytes,taken_at,taken_by) VALUES ($1,$2,$3,'reference','front','synthetic/front.jpg',$4,100,now(),$2)",
     [photo, actor, baseline, digest],
   );
@@ -126,7 +145,9 @@ beforeAll(async () => {
     [terms, 'general_terms'],
     [authorisationTerms, 'return_authorisation'],
   ]) {
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "INSERT INTO terms_versions(id,created_by,kind,language,version_label,effective_from,body_pages) VALUES ($1,$2,$3,'fr',$4,current_date,ARRAY['Synthetic terms only'])",
       [id, actor, kind, id],
     );
@@ -136,20 +157,28 @@ beforeAll(async () => {
     [sealed, 'departure', terms],
     [authorisation, 'authorisation', authorisationTerms],
   ]) {
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "INSERT INTO contract_documents(id,created_by,contract_id,revision_no,stage,language,template_version,terms_version_id,storage_path,sha256,size_bytes) VALUES ($1,$2,$3,1,$4,'fr','synthetic-v1',$5,'synthetic/document.pdf',$6,100)",
       [id, actor, contract, stage, version, digest],
     );
   }
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO stored_signatures(id,created_by,contract_id,image_path,image_sha256,strokes_path,strokes_sha256,image_size_bytes,strokes_size_bytes,authorisation_version_id,authorisation_pdf_id,captured_at,captured_by,capture_agent_name) VALUES ($1,$2,$3,'synthetic/drawing.png',$4,'synthetic/strokes.json',$4,100,100,$5,$6,now(),$2,'Synthetic agent')",
     [stored, actor, contract, digest, authorisationTerms, authorisation],
   );
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO signatures(id,created_by,contract_id,revision_no,stage,mode,image_path,image_sha256,strokes_path,strokes_sha256,image_size_bytes,strokes_size_bytes,preview_id,preview_sha256,sealed_pdf_sha256,sealed_pdf_id,signed_at,staff_id,device_model,os_version,app_version,ip_address,snapshot_sha256,terms_version_ids) VALUES ($1,$2,$3,1,'departure','in_person','synthetic/drawing.png',$4,'synthetic/strokes.json',$4,100,100,$5,$4,$4,$6,now(),$2,'Synthetic device','test','test','192.0.2.1',$4,ARRAY[$7]::uuid[])",
     [signature, actor, contract, digest, preview, sealed, terms],
   );
-  await owner.query(
+  await asActor(
+    owner,
+    actor,
     "INSERT INTO audit_events(id,created_by,actor_id,action,table_name,row_id) VALUES ($1,$2,$2,'synthetic_fixture','contracts',$3)",
     [audit, actor, contract],
   );
@@ -279,10 +308,12 @@ describe('US-006 database catalog and constraints', () => {
       ['vehicles', ['available', 'rented', 'maintenance', 'archived']],
     ] as const) {
       for (const status of statuses) {
-        await owner.query(`UPDATE ${table} SET status=$1 WHERE id=$2`, [
-          status,
-          table === 'contracts' ? contract : vehicle,
-        ]);
+        await asActor(
+          owner,
+          actor,
+          `UPDATE ${table} SET status=$1 WHERE id=$2`,
+          [status, table === 'contracts' ? contract : vehicle],
+        );
       }
       await rejected(
         owner,
@@ -291,22 +322,30 @@ describe('US-006 database catalog and constraints', () => {
         '23514',
       );
     }
-    await owner.query("UPDATE contracts SET status='active' WHERE id=$1", [
-      contract,
-    ]);
+    await asActor(
+      owner,
+      actor,
+      "UPDATE contracts SET status='active' WHERE id=$1",
+      [contract],
+    );
     await rejected(
       owner,
       "INSERT INTO contracts(created_by,vehicle_id,status) VALUES ($1,$2,'active')",
       [actor, vehicle],
       '23505',
     );
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "INSERT INTO contracts(created_by,vehicle_id,status) VALUES ($1,$2,'closed')",
       [actor, vehicle],
     );
-    await owner.query("UPDATE contracts SET status='draft' WHERE id=$1", [
-      contract,
-    ]);
+    await asActor(
+      owner,
+      actor,
+      "UPDATE contracts SET status='draft' WHERE id=$1",
+      [contract],
+    );
   });
   test('enforces live client limits and codes as well as snapshot monetary limits', async () => {
     for (const column of [
@@ -318,11 +357,13 @@ describe('US-006 database catalog and constraints', () => {
       'local_address',
     ]) {
       const id = randomUUID();
-      await api.query(
+      await asActor(
+        api,
+        actor,
         `INSERT INTO clients(id,created_by,last_name) VALUES ($1,$2,'Synthetic')`,
         [id, actor],
       );
-      await api.query(`UPDATE clients SET ${column}=$1 WHERE id=$2`, [
+      await asActor(api, actor, `UPDATE clients SET ${column}=$1 WHERE id=$2`, [
         'x'.repeat(80),
         id,
       ]);
@@ -393,7 +434,9 @@ describe('US-006 database catalog and constraints', () => {
           '23514',
         );
       for (const value of [0, 8])
-        await owner.query(
+        await asActor(
+          owner,
+          actor,
           `UPDATE ${table} SET ${fuel}=$1,${km}=0 WHERE id=$2`,
           [value, id],
         );
@@ -416,7 +459,9 @@ describe('US-006 database catalog and constraints', () => {
       'vehicle_make_model',
       'departure_agent',
     ]) {
-      await owner.query(
+      await asActor(
+        owner,
+        actor,
         `UPDATE contract_revisions SET ${column}=$1 WHERE id=$2`,
         ['a'.repeat(80), revision],
       );
@@ -427,10 +472,12 @@ describe('US-006 database catalog and constraints', () => {
         '22001',
       );
     }
-    await owner.query('UPDATE inspections SET comment=$1 WHERE id=$2', [
-      'a'.repeat(500),
-      inspection,
-    ]);
+    await asActor(
+      owner,
+      actor,
+      'UPDATE inspections SET comment=$1 WHERE id=$2',
+      ['a'.repeat(500), inspection],
+    );
     await rejected(
       owner,
       'UPDATE inspections SET comment=$1 WHERE id=$2',
@@ -439,19 +486,25 @@ describe('US-006 database catalog and constraints', () => {
     );
     for (const suffix of ['123', 'abcd', '12345'])
       await expect(
-        owner.query('UPDATE contract_revisions SET card_last4=$1 WHERE id=$2', [
-          suffix,
-          revision,
-        ]),
+        asActor(
+          owner,
+          actor,
+          'UPDATE contract_revisions SET card_last4=$1 WHERE id=$2',
+          [suffix, revision],
+        ),
       ).rejects.toThrow();
     for (const expiry of ['00/27', '13/27', '1/27', '01/2027'])
       await expect(
-        owner.query(
+        asActor(
+          owner,
+          actor,
           'UPDATE contract_revisions SET card_expiry=$1 WHERE id=$2',
           [expiry, revision],
         ),
       ).rejects.toThrow();
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "UPDATE contract_revisions SET card_last4='0012',card_expiry='12/27',pricing_rental=10.25,pricing_balance=-1.25 WHERE id=$1",
       [revision],
     );
@@ -526,11 +579,15 @@ describe('US-006 database catalog and constraints', () => {
       '55000',
     );
     const client = randomUUID();
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "INSERT INTO clients(id,created_by,last_name) VALUES ($1,$2,'Invented')",
       [client, actor],
     );
-    await api.query(
+    await asActor(
+      api,
+      actor,
       "INSERT INTO contract_drivers(created_by,contract_id,client_id,role) VALUES ($1,$2,$3,'renter')",
       [actor, contract, client],
     );
@@ -584,6 +641,18 @@ describe('restricted runtime privileges and immutability', () => {
       '42501',
     );
     await rejected(api, 'SET ROLE mcr', [], '42501');
+    await rejected(
+      api,
+      'SELECT reserve_contract_number($1,2026,$2)',
+      [contract, actor],
+      '42501',
+    );
+    await rejected(
+      api,
+      'SELECT confirm_contract_number($1,$2)',
+      [contract, 'MCR-2026-0001'],
+      '42501',
+    );
   });
   test('blocks UPDATE, DELETE and TRUNCATE for evidence as API, including owner guards', async () => {
     const evidence = [
@@ -638,7 +707,9 @@ describe('restricted runtime privileges and immutability', () => {
       }
     }
     const amendment = randomUUID();
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       "INSERT INTO contract_revisions(id,created_by,contract_id,revision_no,kind,reason) VALUES ($1,$2,$3,3,'amendment','Synthetic extension')",
       [amendment, actor, contract],
     );
@@ -648,11 +719,15 @@ describe('restricted runtime privileges and immutability', () => {
       [amendment],
       '55000',
     );
-    await api.query(
+    await asActor(
+      api,
+      actor,
       "UPDATE contract_revisions SET pickup_place='Synthetic desk' WHERE id=$1",
       [revision],
     );
-    await api.query(
+    await asActor(
+      api,
+      actor,
       "UPDATE inspections SET comment='Synthetic editable return' WHERE id=$1",
       [inspection],
     );
@@ -677,16 +752,19 @@ describe('contract numbers on independent connections', () => {
     const b = await newContract();
     const connections = Array.from(
       { length: 8 },
-      () => new pg.Client({ connectionString: process.env.DATABASE_URL }),
+      () =>
+        new pg.Client({ connectionString: process.env.MIGRATION_DATABASE_URL }),
     );
     try {
       await Promise.all(connections.map((db) => db.connect()));
       const results = await Promise.all(
         connections.map((db, index) =>
-          db.query('SELECT reserve_contract_number($1,2026,$2) AS number', [
-            index % 2 ? a : b,
+          asActor(
+            db,
             actor,
-          ]),
+            'SELECT reserve_contract_number($1,2026,$2) AS number',
+            [index % 2 ? a : b, actor],
+          ),
         ),
       );
       const numbers = results.map((r) => r.rows[0].number as string);
@@ -696,36 +774,38 @@ describe('contract numbers on independent connections', () => {
       for (let i = 0; i < 2; i++)
         expect(
           (
-            await api.query('SELECT confirm_contract_number($1,$2) AS number', [
-              a,
-              number,
-            ])
+            await asActor(
+              owner,
+              actor,
+              'SELECT confirm_contract_number($1,$2) AS number',
+              [a, number],
+            )
           ).rows[0].number,
         ).toBe(number);
       expect(
-        (await api.query('SELECT status FROM contracts WHERE id=$1', [a]))
+        (await owner.query('SELECT status FROM contracts WHERE id=$1', [a]))
           .rows[0].status,
       ).toBe('draft');
       await rejected(
-        api,
+        owner,
         'SELECT confirm_contract_number($1,$2)',
         [b, number],
         '22023',
       );
       await rejected(
-        api,
+        owner,
         'SELECT confirm_contract_number($1,$2)',
         [await newContract(), number],
         '22023',
       );
       await rejected(
-        api,
+        owner,
         'SELECT reserve_contract_number($1,2026,$2)',
         [randomUUID(), actor],
         '22023',
       );
       await rejected(
-        api,
+        owner,
         'SELECT reserve_contract_number($1,0,$2)',
         [a, actor],
         '22023',
@@ -737,49 +817,59 @@ describe('contract numbers on independent connections', () => {
   test('rollbacks consume no number, year counters are independent and assignment failures roll back', async () => {
     const a = await newContract();
     const b = await newContract();
-    await api.query('BEGIN');
+    await owner.query('BEGIN');
+    await owner.query("SELECT set_config('app.actor_id', $1, true)", [actor]);
     const rolledBack = (
-      await api.query('SELECT reserve_contract_number($1,2027,$2) AS number', [
-        a,
-        actor,
-      ])
+      await owner.query(
+        'SELECT reserve_contract_number($1,2027,$2) AS number',
+        [a, actor],
+      )
     ).rows[0].number;
-    await api.query('ROLLBACK');
+    await owner.query('ROLLBACK');
     expect(
       (
-        await api.query(
+        await asActor(
+          owner,
+          actor,
           'SELECT reserve_contract_number($1,2027,$2) AS number',
           [b, actor],
         )
       ).rows[0].number,
     ).toBe(rolledBack);
     const number = (
-      await api.query('SELECT reserve_contract_number($1,2028,$2) AS number', [
-        a,
+      await asActor(
+        owner,
         actor,
-      ])
+        'SELECT reserve_contract_number($1,2028,$2) AS number',
+        [a, actor],
+      )
     ).rows[0].number;
     expect(number).toMatch(/^MCR-2028-\d{4}$/);
     await rejected(
-      api,
+      owner,
       'SELECT reserve_contract_number($1,2029,$2)',
       [await newContract(), randomUUID()],
       '22023',
     );
     const exhausted = await newContract();
-    await owner.query(
+    await asActor(
+      owner,
+      actor,
       'INSERT INTO contract_number_counters(created_by,year,last_value) VALUES ($1,9999,9999) ON CONFLICT(year) DO UPDATE SET last_value=9999',
       [actor],
     );
     await rejected(
-      api,
+      owner,
       'SELECT reserve_contract_number($1,9999,$2)',
       [exhausted, actor],
       '23514',
     );
     expect(
-      (await api.query('SELECT number FROM contracts WHERE id=$1', [exhausted]))
-        .rows[0].number,
+      (
+        await owner.query('SELECT number FROM contracts WHERE id=$1', [
+          exhausted,
+        ])
+      ).rows[0].number,
     ).toBeNull();
     expect(
       (

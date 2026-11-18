@@ -1,4 +1,4 @@
-import type { Kysely } from 'kysely';
+import { sql, type Transaction } from 'kysely';
 import type { DB } from './db/generated.js';
 
 export interface AuthAuditEvent {
@@ -13,9 +13,12 @@ export interface AuthAuditEvent {
 }
 export type AuthAuditHook = (
   event: AuthAuditEvent,
-  transaction: Kysely<DB>,
+  transaction: Transaction<DB>,
 ) => Promise<void>;
-// US-007 integration seam: replace this with the agreed transactional audit
-// writer once its event/actor contract exists. No event is persisted yet.
-// Never add emails, passwords, tokens, factor secrets or codes to this payload.
-export const pendingAuthAudit: AuthAuditHook = async () => {};
+// The SQL writer allowlists actions and constructs an ID-only payload. Use the
+// command transaction so an audit failure rolls back credentials/revocations too.
+export const pendingAuthAudit: AuthAuditHook = async (event, transaction) => {
+  await sql`select write_staff_audit(${event.action}, ${event.actorId}::uuid, ${event.staffId}::uuid)`.execute(
+    transaction,
+  );
+};

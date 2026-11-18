@@ -15,6 +15,7 @@ await db.connect();
 try {
   await db.query('BEGIN');
   const actor = '00000000-0000-4000-8000-000000000001';
+  await db.query("SELECT set_config('app.actor_id', $1, true)", [actor]);
   await db.query(
     `INSERT INTO staff_profiles(id, created_by, display_name)
      VALUES ($1, $1, 'Synthetic seed fixture') ON CONFLICT (id) DO NOTHING`,

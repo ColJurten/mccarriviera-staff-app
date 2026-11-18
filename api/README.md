@@ -133,3 +133,29 @@ option across creation, lookup and MFA. A database reader could replay a complet
 session token until expiry/revocation. Keep database access restricted, tokens out
 of logs, session caches disabled and expiry/revocation enforced; see the explicit
 trade-off in [ADR-0012](../docs/adr/0012-authentication-and-authorisation.md).
+
+## Attributed business transactions (US-007, ticket #9)
+
+Use `withActor(db, request.staff.staffId, async (trx) => ...)` from `src/db.ts` for
+business writes, with the profile UUID resolved by the session guard (the
+session's profile field is `staffId`). Pass the transaction to every query and
+audit hook. `setTransactionActor` is available for transactions that need to
+allocate the first bootstrap profile UUID before inserting it. The setting is
+transaction-local and clears on commit/rollback; business triggers reject
+missing/invalid actors instead of falling back to a row's original creator.
+The runtime role cannot forge audit rows or call private number helpers.
+
+Authentication entry points in `auth.ts` intentionally remain actorless: they
+write only `auth_users`, `auth_accounts`, `auth_sessions`, `auth_verifications`,
+`auth_two_factors`, `auth_flows` and `auth_rate_limits`. Those credential/ephemeral
+tables are excluded from audit. Unknown accounts, wrong passwords, factors and
+rate limits must not invent a system actor or be attributed to the target.
+`staff_profiles` is business data and is not excluded.
+
+Developer staff commands always establish an active profile actor (bootstrap
+self-attributes). `pendingAuthAudit` now invokes the owner-only SQL audit writer
+in the command's transaction for all five `staff_*` actions. Payloads contain
+only action and target profile ID; credentials and factor material never enter
+audit JSON. Profile triggers also record INSERT/UPDATE snapshots. Writer failure
+rolls back credentials, activation and session/flow revocation together. See
+[the runbook](../docs/runbook.md) for commands and history queries.

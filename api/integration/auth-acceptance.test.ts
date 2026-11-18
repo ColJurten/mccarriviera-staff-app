@@ -1,3 +1,4 @@
+import { withActor } from '../src/db.js';
 // Ticket #7 acceptance gaps found by the test step: web-mode parity with the
 // native checks (generic errors, rate limit, inactive profile) and the web
 // cookie's 30-minute lifetime as seen by the browser.
@@ -28,11 +29,13 @@ describe('US-010/015 web-mode acceptance (test step)', () => {
       const wrong = await login(f.email, 'synthetic-wrong-password');
       const unknown = await login('unknown-web@example.com', f.password);
       await f.resetLimits();
-      await f.owner
-        .updateTable('staff_profiles')
-        .set({ active: false })
-        .where('id', '=', f.staffId)
-        .execute();
+      await withActor(f.owner, f.actorId, (trx) =>
+        trx
+          .updateTable('staff_profiles')
+          .set({ active: false })
+          .where('id', '=', f.staffId)
+          .execute(),
+      );
       const inactive = await login(f.email, f.password);
       for (const response of [wrong, unknown, inactive]) {
         expect([response.statusCode, response.json()]).toEqual([
@@ -106,11 +109,13 @@ describe('US-010/015 web-mode acceptance (test step)', () => {
         (await f.inject({ url: '/api/auth/session', headers: { cookie } }))
           .statusCode,
       ).toBe(200);
-      await f.owner
-        .updateTable('staff_profiles')
-        .set({ active: false })
-        .where('id', '=', f.staffId)
-        .execute();
+      await withActor(f.owner, f.actorId, (trx) =>
+        trx
+          .updateTable('staff_profiles')
+          .set({ active: false })
+          .where('id', '=', f.staffId)
+          .execute(),
+      );
       const refused = await f.inject({
         url: '/api/auth/session',
         headers: { cookie },
