@@ -1,3 +1,4 @@
+import { withActor } from '../src/db.js';
 import { describe, expect, it } from 'vitest';
 import { sql } from 'kysely';
 import { authFixture, sessionCookie, totp } from './auth-fixture.js';
@@ -137,6 +138,7 @@ describe('US-010/012/015 real Postgres sessions', () => {
   it('requires enrollment and a verified factor, with strict cookies, no disclosed web tokens and one-use backup codes', async () => {
     const f = await authFixture();
     try {
+      const businessBefore = await f.businessSnapshot();
       const pending = await f.web();
       expect(pending.response.json()).toEqual({ next: 'enrollment' });
       expect(pending.response.headers['cache-control']).toBe('no-store');
@@ -210,6 +212,8 @@ describe('US-010/012/015 real Postgres sessions', () => {
         (await f.verify(replay.cookie, 'invalid-code', 'totp')).json(),
       ).toEqual({ error: 'invalid_factor' });
       expect(await f.native()).toEqual(expect.any(String));
+
+      expect(await f.businessSnapshot()).toEqual(businessBefore);
       for (const secret of [
         f.password,
         enrolled.secret,
@@ -500,11 +504,13 @@ describe('US-010/012/015 real Postgres sessions', () => {
       await f.resetLimits();
       const pending = await f.web();
       const enrollment = f.factor();
-      await f.owner
-        .updateTable('staff_profiles')
-        .set({ active: false })
-        .where('id', '=', f.staffId)
-        .execute();
+      await withActor(f.owner, f.actorId, (trx) =>
+        trx
+          .updateTable('staff_profiles')
+          .set({ active: false })
+          .where('id', '=', f.staffId)
+          .execute(),
+      );
       expect(
         (
           await f.inject({
@@ -525,11 +531,13 @@ describe('US-010/012/015 real Postgres sessions', () => {
           })
         ).json(),
       ).toEqual({ error: 'invalid_credentials' });
-      await f.owner
-        .updateTable('staff_profiles')
-        .set({ active: true, auth_user_id: null })
-        .where('id', '=', f.staffId)
-        .execute();
+      await withActor(f.owner, f.actorId, (trx) =>
+        trx
+          .updateTable('staff_profiles')
+          .set({ active: true, auth_user_id: null })
+          .where('id', '=', f.staffId)
+          .execute(),
+      );
       expect(
         (
           await f.inject({

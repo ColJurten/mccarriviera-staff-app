@@ -14,6 +14,18 @@ it('upgrades legacy password-only native sessions safely and supports a reversib
     // Use a private transaction: existing synthetic fixtures and other suites
     // see no schema/data changes after the final rollback.
     await owner.query('BEGIN');
+    const businessBefore = (
+      await owner.query(
+        'SELECT (SELECT count(*) FROM audit_events) AS events, (SELECT count(*) FROM staff_profiles) AS profiles',
+      )
+    ).rows;
+    expect(
+      (
+        await owner.query(
+          "SELECT nullif(current_setting('app.actor_id',true),'') AS actor",
+        )
+      ).rows[0].actor,
+    ).toBeNull();
     const migration = await readFile(
       new URL(
         '../migrations/20261112000000_native_second_factor.sql',
@@ -73,6 +85,13 @@ it('upgrades legacy password-only native sessions safely and supports a reversib
         )
       ).rows,
     ).toEqual([]);
+    expect(
+      (
+        await owner.query(
+          'SELECT (SELECT count(*) FROM audit_events) AS events, (SELECT count(*) FROM staff_profiles) AS profiles',
+        )
+      ).rows,
+    ).toEqual(businessBefore);
   } finally {
     await owner.query('ROLLBACK');
     await owner.end();

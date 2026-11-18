@@ -234,6 +234,9 @@ async function incrementLimit(db: Kysely<DB>, key: string) {
     RETURNING count`.execute(db);
   return result.rows[0]!.count;
 }
+// These entry points write only the seven excluded authentication tables.
+// Sign-in has no authenticated business actor, including wrong/unknown accounts;
+// never attribute a failed attempt to the profile it targeted (ticket #9).
 export function createAuthentication(db: Kysely<DB>, config: AuthConfig) {
   const limitKey = (value: string) =>
     createHmac('sha256', config.AUTH_SECRET).update(value).digest('hex');

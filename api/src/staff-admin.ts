@@ -3,6 +3,7 @@ import { sql, type Kysely } from 'kysely';
 import { z } from 'zod';
 import { passwordSchema } from '@mccarriviera/shared';
 import type { DB } from './db/generated.js';
+import { setTransactionActor, withActor } from './db.js';
 import { createAuth, lockStaffAuth, type AuthConfig } from './auth.js';
 import {
   pendingAuthAudit,
@@ -76,14 +77,15 @@ export function createStaffAdmin(
               'Bootstrap requires an empty account store',
             );
         }
+        const id = randomUUID();
+        const actorId = data.actorId ?? id;
+        await setTransactionActor(trx, actorId);
         const context = await createAuth(trx, config, 'native_pending')
           .$context;
         const user = await context.internalAdapter.createUser(
           { name: data.displayName, email: data.email, emailVerified: true },
           { method: 'email-password' },
         );
-        const id = randomUUID();
-        const actorId = data.actorId ?? id;
         await trx
           .insertInto('staff_profiles')
           .values({
@@ -119,7 +121,7 @@ export function createStaffAdmin(
       z.uuid().parse(staffId);
       z.uuid().parse(actorId);
       if (action === 'reset-password') passwordSchema.parse(password);
-      return db.transaction().execute(async (trx) => {
+      return withActor(db, actorId, async (trx) => {
         const actor = await trx
           .selectFrom('staff_profiles')
           .select('id')

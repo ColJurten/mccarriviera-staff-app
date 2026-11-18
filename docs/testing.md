@@ -49,14 +49,20 @@ The integration suite requires separate owner (`MIGRATION_DATABASE_URL`) and
 restricted runtime (`DATABASE_URL`) connections and fails when configuration
 is absent. It verifies the 18-table catalog, types, limits, status sets, unique
 active contracts, evidence ownership, owner-level immutability guards and runtime
-column grants. Eight independent runtime connections exercise concurrent
-reservations and same-contract retries. Tests also cover confirmation, rollback,
+column grants. Eight independent owner connections exercise the private numbering helpers
+for concurrent reservations and same-contract retries; runtime calls are denied. Tests also cover confirmation, rollback,
 year separation, missing reservations and counter exhaustion. Fixtures use unique
 synthetic identifiers and remain in the throwaway database. CI runs this suite
 after fresh migrations and two seed runs. Never target staging or production.
 
-US-007 adds audit-generation checks; transition-function tests arrive with their
-feature stories. No iPhone or PDF feature check applies to this database-only
+US-007 adds exact INSERT/UPDATE/DELETE snapshots, current-actor attribution,
+missing/invalid actor rejection, transactional rollback, server audit/signature
+times, file-reference-only evidence, runtime audit-forgery denial and migration
+reversal checks. Catalog coverage discovers business tables and fails for missing
+or disabled triggers, including future tables; only seven enumerated auth tables,
+audit self-recursion and migration bookkeeping are excluded. The four actual
+runbook queries are exercised on synthetic related records. Transition-function
+tests arrive with their feature stories. No iPhone or PDF feature check applies to this database-only
 slice. Class-diagram SVGs and the architecture PDF are rebuilt from PlantUML
 when physical columns change.
 
@@ -87,8 +93,11 @@ Database timestamps exercise native idle renewal, web idle/hard expiry and
 pending-flow expiry without long sleeps. Missing/inactive profiles and revoked
 sessions fail immediately. Developer tests exercise deactivation, reactivation,
 factor/password reset, protected file input, transactional rollback and exactly
-one audit-hook invocation per completed command. US-007 will test event persistence;
-this slice's default hook explicitly persists nothing.
+one audit-hook invocation per completed command. US-007 additionally verifies
+all five persistent semantic events, self-attributed bootstrap, ID-only payloads
+without credentials/factors, and rollback on default-writer failure for every
+command. A pinned pooled connection proves identity clears after commit and
+rollback, and a later actorless auth-only transaction still succeeds.
 
 Run with `DB_DISPOSABLE=1`, both database URLs and the external auth settings.
 Files run serially because they deliberately expire/reset the shared persisted
@@ -230,5 +239,8 @@ failures; expired limiter windows recover without waiting in real time.
 
 `db` integration checks include owner-only profile activation and auth flow mode
 storage. Upgrade verification applies the additive MFA migration over synthetic
-legacy sessions; those password-only sessions must be removed. Audit-hook tests
-remain separate from persistent audit generation, which is deferred to US-007.
+legacy sessions; those password-only sessions must be removed. US-007 verifies persistent command audit generation alongside hook tests.
+Native/web MFA and failed-password/unknown-account limiter cases also assert
+that auth-only operations create no business audit rows or system profiles.
+They intentionally carry no staff actor, as confirmed on 2026-11-18; business
+writes and every staff command still require one.

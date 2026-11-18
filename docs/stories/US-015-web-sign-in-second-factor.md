@@ -19,7 +19,7 @@ As the company, I want the web app's sign-in to need more than a password, and i
 - [ ] The session ends after 30 minutes without activity and after 12 hours in any case (`RECOMMENDED`). The screen then returns to sign-in, and in-memory data is cleared.
 - [ ] The same sign-in works in a phone's browser, which staff use at the car until the iPhone app exists ([ADR-0025](../adr/0025-web-app-first.md)). The set-up screen shows the authenticator's QR code and its text key, so that the authenticator app on the same phone can be set up.
 - [ ] Password attempts are limited per IP address, with no per-account lockout: a correct password always goes on to the code (F-33). Code attempts keep a per-account limit, which only someone who knows the password can reach. A wrong code says nothing about which factor failed.
-- [ ] The developer can reset a staff member's second factor with a script; recording the event in the audit trail is deferred to [US-007](US-007-audit-trail-and-immutability.md) and remains open in ticket #7.
+- [ ] The developer can reset a staff member's second factor with a script; the event is recorded transactionally by [US-007](US-007-audit-trail-and-immutability.md) (ticket #9).
 - [ ] The iPhone app also requires password and TOTP (or a one-use backup code) at every new server sign-in (developer decision, PR #25); Face ID remains its local unlock ([US-011](US-011-app-lock-with-face-id.md)).
 
 ## API implementation (ticket #7)
@@ -29,6 +29,9 @@ codes, factor verification on every native/web login and developer factor reset.
 flows cannot access protected routes. Complete web cookies expire after 30 minutes
 idle or 12 hours from password authentication, with immediate server revocation.
 HTTP factor attempts are rate-limited. Screens, QR rendering and browser memory
-cleanup remain frontend work. Audit persistence waits for [US-007](US-007-audit-trail-and-immutability.md)'s event contract; this PR does not close that criterion.
+cleanup remain frontend work. [US-007](US-007-audit-trail-and-immutability.md) (ticket #9) now persists the
+`staff_factor_reset` command event with an explicit actor and no factor material;
+writer failure rolls back the reset and revocation. This supplies the deferred
+audit implementation; acceptance checkboxes remain for human review.
 
 Settled on 2026-11-14 (F-33): a follow-up ticket removes the per-account lockout of the password step.

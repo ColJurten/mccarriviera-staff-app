@@ -17,7 +17,7 @@ As the company, I want to cut access from a lost phone or a departing employee w
 - [ ] A runbook procedure and a script, run by the developer, set the staff profile to inactive and revoke all of that user's sessions (better-auth).
 - [ ] After revocation, every request from that phone is refused immediately, since the API checks the session and the profile on every request. The app returns to Sign-in with the generic « Session terminée. Reconnectez-vous. » and clears what it holds (F-33).
 - [ ] The developer can re-enable the account, or create a new one for a new phone.
-- [ ] The revocation is recorded in the audit trail (deferred to [US-007](US-007-audit-trail-and-immutability.md); ticket #7 supplies only the integration hook).
+- [ ] The revocation is recorded in the audit trail (implemented by [US-007](US-007-audit-trail-and-immutability.md), ticket #9).
 - [ ] The staff device-use rule (L-03) tells staff to report a lost phone immediately.
 
 ## API implementation (ticket #7)
@@ -25,7 +25,9 @@ As the company, I want to cut access from a lost phone or a departing employee w
 [Developer commands](../runbook.md) deactivate/reactivate profiles and revoke
 all sessions and pending native/web challenges transactionally. Every protected request
 reads the session and active profile again. Commands invoke one attributed audit
-hook; persistent event wiring awaits [US-007](US-007-audit-trail-and-immutability.md), so the audit criterion remains open. Device messaging/cache deletion and
+hook; [US-007](US-007-audit-trail-and-immutability.md) (ticket #9) now persists
+`staff_deactivated`/`staff_reactivated` events in the same transaction, alongside
+automatic profile snapshots. Audit failure rolls back revocation and activation. Device messaging/cache deletion and
 the L-03 policy remain separate work; acceptance checkboxes are unchanged.
 
 Settled on 2026-11-14 (F-33): the app shows the generic message, and the API gives no reason for an ended session.
